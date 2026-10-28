@@ -1,0 +1,24 @@
+{
+  "short_name": "Nivvo",
+  "name": "Nivvo · 10-Min Neighbourhood Fashion & Electronics",
+  "description": "Nivvo connects local fashion, electronics, and daily essentials with honest 10-minute arrival and doorstep try-on.",
+  "icons": [
+    {
+      "src": "/assets/nivvo_logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/nivvo_logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#24452D",
+  "theme_color": "#24452D",
+  "display": "standalone",
+  "orientation": "portrait"
+}

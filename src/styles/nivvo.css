@@ -1,0 +1,1812 @@
+/* ===================================================================
+   NIVVO DESIGN SYSTEM - 100% PIXEL MATCH FOR FIGMA SPECIFICATIONS
+   Design Tokens: Lime #B7F34A | Forest #24452D | Mist #F7F8F5 | Text #20251F
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --nv-lime: #B7F34A;
+  --nv-lime-hover: #A6E338;
+  --nv-forest: #24452D;
+  --nv-forest-light: #2F583A;
+  --nv-canvas: #FFFFFF;
+  --nv-mist: #F7F8F5;
+  --nv-surface-soft: #EEF2E8;
+  --nv-surface-photo: #EAECE6;
+  --nv-text: #24452D;
+  --nv-secondary: #73796F;
+  --nv-border: #E7EAE3;
+  --nv-border-active: #24452D;
+  --nv-success: #238636;
+  --nv-warning: #E6A23C;
+  --nv-error: #BD3838;
+  --nv-font: 'Manrope', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --nv-radius-sm: 8px;
+  --nv-radius-md: 12px;
+  --nv-radius-lg: 16px;
+  --nv-radius-xl: 24px;
+  --nv-radius-pill: 9999px;
+  --nv-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --nv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+body {
+  font-family: var(--nv-font);
+  background-color: #FAFAF7;
+  color: var(--nv-text);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100%;
+  width: 100%;
+}
+
+/* Master Responsive App Shell */
+.nivvo-app-viewport {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: var(--nv-canvas);
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
+}
+
+/* Full-Width Luxury Responsive Architecture for Website */
+.nivvo-app-viewport.mode-web-portal {
+  max-width: 100% !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: block !important;
+  overflow: visible !important;
+  background-color: #FAFAF7 !important;
+}
+
+.nivvo-app-viewport.mode-web-portal .nivvo-screen-scroll {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  padding-bottom: 0 !important;
+  background-color: transparent !important;
+}
+
+/* Mobile App Standalone Simulation (Only for Mobile App Simulator Mode) */
+@media (max-width: 767px) {
+  html:not(.web-platform-active),
+  body:not(.web-platform-active) {
+    background-color: #FFFFFF;
+    height: 100%;
+    width: 100%;
+  }
+
+  .nivvo-app-viewport:not(.mode-web-portal) {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Fixed Master Header on Home */
+  .nivvo-master-header {
+    flex-shrink: 0 !important;
+    z-index: 100 !important;
+  }
+
+  /* Smooth Independent Scroll Area for All Content */
+  .nivvo-screen-scroll {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 16px)) !important;
+  }
+
+  /* Fixed Bottom Navigation (Home, Shop, Orders, You) */
+  .nivvo-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    padding-top: 6px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid var(--nv-border) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    z-index: 1000 !important;
+  }
+
+  /* Sticky Footer Action Bar (for Product Detail, Bag, Checkout) */
+  .nivvo-sticky-footer-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: #FFFFFF !important;
+    border-top: 1px solid var(--nv-border) !important;
+    padding: 12px 20px calc(14px + env(safe-area-inset-bottom, 12px)) 20px !important;
+    z-index: 990 !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Floating Cart Bar */
+  .nivvo-floating-cart-bar {
+    position: fixed !important;
+    bottom: calc(72px + env(safe-area-inset-bottom, 8px)) !important;
+    left: 14px !important;
+    right: 14px !important;
+    width: auto !important;
+    max-width: calc(100% - 28px) !important;
+    transform: none !important;
+    z-index: 950 !important;
+  }
+
+  /* Floating Demo Switcher trigger */
+  .nivvo-mobile-switcher-trigger {
+    position: fixed !important;
+    bottom: calc(76px + env(safe-area-inset-bottom, 8px));
+    right: 14px !important;
+    z-index: 940 !important;
+  }
+
+  /* Hide desktop demo screen switcher bar on mobile */
+  .nivvo-screen-switcher-bar {
+    display: none !important;
+  }
+
+  /* Hide simulated status bar on mobile - the real phone status bar is used */
+  .nivvo-status-bar {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  html, body {
+    overflow: auto;
+  }
+
+  .nivvo-mobile-switcher-trigger {
+    display: none !important;
+  }
+
+  .nivvo-app-viewport.mode-mobile {
+    max-width: 420px;
+    margin: 24px auto;
+    border-radius: 36px;
+    overflow: hidden;
+    border: 8px solid #20251F;
+    height: 880px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .nivvo-app-viewport.mode-mobile .nivvo-master-header {
+    flex-shrink: 0;
+  }
+
+  .nivvo-app-viewport.mode-mobile .nivvo-screen-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding-bottom: 76px;
+  }
+
+  .nivvo-app-viewport.mode-mobile .nivvo-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 68px;
+    z-index: 100;
+  }
+
+  .nivvo-app-viewport.mode-mobile .nivvo-sticky-footer-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .nivvo-app-viewport.mode-mobile .nivvo-floating-cart-bar {
+    position: absolute;
+    bottom: 74px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    z-index: 99;
+  }
+
+  .nivvo-app-viewport.mode-tablet {
+    max-width: 768px;
+    margin: 24px auto;
+    border-radius: 32px;
+    overflow: hidden;
+    border: 8px solid #20251F;
+    height: 920px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .nivvo-app-viewport.mode-tablet .nivvo-screen-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding-bottom: 76px;
+  }
+
+  .nivvo-app-viewport.mode-tablet .nivvo-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 68px;
+    z-index: 100;
+  }
+
+  .nivvo-app-viewport.mode-desktop {
+    max-width: 1024px;
+    margin: 24px auto;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #E7EAE3;
+    height: 900px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .nivvo-app-viewport.mode-desktop .nivvo-screen-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding-bottom: 76px;
+  }
+
+  .nivvo-app-viewport.mode-desktop .nivvo-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 68px;
+    z-index: 100;
+  }
+}
+
+/* Top Demo Screen Switcher Bar */
+.nivvo-screen-switcher-bar {
+  background-color: #1A1F19;
+  color: #FFFFFF;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.nivvo-switcher-label {
+  color: var(--nv-lime);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nivvo-switcher-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #D1D5DB;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.nivvo-switcher-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.nivvo-switcher-btn.active {
+  background: var(--nv-lime);
+  color: #20251F;
+  font-weight: 700;
+}
+
+/* Screen Scroll Container */
+.nivvo-screen-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 16px));
+  background-color: var(--nv-canvas);
+  width: 100%;
+}
+
+/* Status Bar */
+.nivvo-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 4px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nv-text);
+  background-color: var(--nv-canvas);
+}
+
+.nivvo-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Header Component */
+.nivvo-master-header {
+  padding: 10px 20px 14px 20px;
+  background-color: var(--nv-canvas);
+  border-bottom: 1px solid rgba(231, 234, 227, 0.6);
+}
+
+.nivvo-header-row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.nivvo-brand-logo-lockup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.nivvo-logo-badge {
+  width: 32px;
+  height: 32px;
+  background-color: var(--nv-lime);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--nv-forest);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.nivvo-logo-badge svg {
+  stroke-width: 2.5;
+}
+
+.nivvo-brand-name {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--nv-forest);
+}
+
+.nivvo-bag-trigger {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--nv-text);
+}
+
+.nivvo-bag-count-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background-color: var(--nv-lime);
+  color: var(--nv-text);
+  font-size: 10px;
+  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #FFFFFF;
+}
+
+.nivvo-header-row-2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.nivvo-delivering-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nv-secondary);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.nivvo-location-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--nv-text);
+  cursor: pointer;
+}
+
+.nivvo-city-pill {
+  background-color: var(--nv-surface-soft);
+  color: var(--nv-forest);
+  border: 1px solid #D4DEC8;
+  border-radius: var(--nv-radius-pill);
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nivvo-search-bar-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--nv-mist);
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius-md);
+  padding: 0 14px;
+  height: 48px;
+  transition: border-color 0.15s ease;
+}
+
+.nivvo-search-bar-wrap:focus-within {
+  border-color: var(--nv-text);
+  background-color: #FFFFFF;
+}
+
+.nivvo-search-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding-left: 10px;
+  font-size: 14px;
+  color: var(--nv-text);
+}
+
+.nivvo-search-input::placeholder {
+  color: var(--nv-secondary);
+}
+
+/* Secondary Back Header (for Sub-Screens 2 to 8) */
+.nivvo-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background-color: var(--nv-canvas);
+  border-bottom: 1px solid var(--nv-border);
+}
+
+.nivvo-nav-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nivvo-back-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--nv-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nivvo-nav-header-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nv-text);
+  line-height: 1.2;
+}
+
+.nivvo-nav-header-subtitle {
+  font-size: 12px;
+  color: var(--nv-secondary);
+}
+
+/* Hero Banner Component (Screen 1) */
+.nivvo-hero-container {
+  padding: 16px 20px 12px 20px;
+}
+
+.nivvo-figma-hero-card {
+  background-color: var(--nv-forest);
+  border-radius: var(--nv-radius-xl);
+  padding: 24px 20px;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nivvo-hero-left {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.nivvo-hero-tag {
+  color: var(--nv-lime);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.nivvo-hero-headline {
+  color: #FFFFFF;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px 0;
+}
+
+.nivvo-hero-desc {
+  color: #C5D7C0;
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 0 0 16px 0;
+}
+
+.nivvo-hero-explore-link {
+  color: var(--nv-lime);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.nivvo-hero-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nivvo-hero-image-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--nv-radius-lg);
+  overflow: hidden;
+  background-color: #E6E8E2;
+}
+
+.nivvo-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nivvo-honest-delivery-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 4px 4px 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--nv-secondary);
+}
+
+.nivvo-clock-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Category Grid Section */
+.nivvo-figma-category-section {
+  padding: 20px 20px 12px 20px;
+}
+
+.nivvo-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.nivvo-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nv-text);
+  margin: 0;
+}
+
+.nivvo-section-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nv-text);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nivvo-figma-category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 10px;
+}
+
+.nivvo-category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.nivvo-category-item:hover {
+  transform: translateY(-2px);
+}
+
+.nivvo-category-photo-box {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-surface-photo);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.nivvo-category-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nivvo-category-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--nv-text);
+  text-align: center;
+}
+
+/* Good Finds Near You Grid */
+.nivvo-product-grid-section {
+  padding: 16px 20px;
+}
+
+.nivvo-category-screen {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.nivvo-product-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nivvo-product-card-master {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.nivvo-product-thumb-container {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-surface-photo);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.nivvo-product-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.nivvo-product-card-master:hover .nivvo-product-thumb-img {
+  transform: scale(1.04);
+}
+
+.nivvo-floating-plus-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-lime);
+  color: var(--nv-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+}
+
+.nivvo-floating-plus-btn:hover {
+  background-color: var(--nv-lime-hover);
+  transform: scale(1.08);
+}
+
+.nivvo-card-shop-line {
+  font-size: 11px;
+  color: var(--nv-secondary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nivvo-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--nv-text);
+  margin-bottom: 4px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.nivvo-card-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  min-width: 0;
+  gap: 4px;
+}
+
+.nivvo-card-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nv-text);
+  white-space: nowrap;
+}
+
+.nivvo-card-stock {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--nv-success);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Local Retail Impact Banner */
+.nivvo-community-box {
+  margin: 12px 20px 24px 20px;
+  padding: 16px;
+  border-radius: var(--nv-radius-lg);
+  border: 1px solid var(--nv-border);
+  background-color: var(--nv-mist);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.nivvo-community-icon {
+  color: var(--nv-forest);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.nivvo-community-text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--nv-text);
+}
+
+/* Bottom Navigation Bar (Figma Screen 1: Home, Shop, Orders, You) */
+.nivvo-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  background-color: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--nv-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.nivvo-nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #73796F;
+  font-size: 11px;
+  font-weight: 500;
+  gap: 3px;
+  padding: 6px 4px 8px 4px;
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  position: relative;
+}
+
+.nivvo-nav-tab:hover {
+  color: #24452D;
+}
+
+.nivvo-nav-tab:active {
+  transform: scale(0.92);
+}
+
+.nivvo-nav-tab.active {
+  color: #24452D;
+  font-weight: 700;
+}
+
+.nivvo-nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 14px;
+  height: 2.5px;
+  border-radius: 999px;
+  background-color: #24452D;
+}
+
+/* Primary Lime Action Button (Used across Product, Cart, Checkout) */
+.nivvo-primary-action-btn {
+  width: 100%;
+  background-color: var(--nv-lime);
+  color: var(--nv-text);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px 20px;
+  border-radius: var(--nv-radius-lg);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease;
+  box-shadow: 0 4px 12px rgba(183, 243, 74, 0.3);
+}
+
+.nivvo-primary-action-btn:hover {
+  background-color: var(--nv-lime-hover);
+}
+
+.nivvo-sticky-footer-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-top: 1px solid var(--nv-border);
+  padding: 12px 20px 24px 20px;
+  z-index: 100;
+}
+
+/* ===================================================================
+   NIVVO MODAL & SHEET STYLES
+   =================================================================== */
+.nivvo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(32, 37, 31, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (min-width: 600px) {
+  .nivvo-modal-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.nivvo-modal-sheet {
+  width: 100%;
+  max-width: 440px;
+  background-color: #FFFFFF;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 24px 30px 24px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .nivvo-modal-sheet {
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.nivvo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.nivvo-modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #E7EAE3;
+  background-color: #F7F8F5;
+  color: #24452D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nivvo-modal-close-btn:hover {
+  background-color: #EAECE6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0.7; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* ===================================================================
+   BLINKIT-STYLE ENHANCED LANDING STYLES
+   =================================================================== */
+
+/* Category Rail - Original Nivvo Squircle Packshot Rail */
+.nivvo-blinkit-cat-rail {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 14px 18px 12px 18px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E7EAE3;
+}
+
+.nivvo-blinkit-cat-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.nivvo-cat-rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 76px;
+  text-align: center;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nivvo-cat-rail-item:hover {
+  transform: translateY(-2px);
+}
+
+.nivvo-cat-rail-icon-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background-color: var(--nv-mist);
+  border: 1px solid var(--nv-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.nivvo-cat-rail-item.active .nivvo-cat-rail-icon-box {
+  border: 2px solid var(--nv-forest);
+  background-color: var(--nv-surface-soft);
+}
+
+.nivvo-cat-rail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nivvo-cat-rail-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--nv-lime);
+  color: var(--nv-text);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.1;
+  z-index: 2;
+}
+
+.nivvo-cat-rail-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--nv-forest);
+  line-height: 1.25;
+  text-align: center;
+  max-width: 76px;
+  word-break: break-word;
+}
+
+/* Horizontal Shelf Scroll */
+.nivvo-horizontal-shelf-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 20px 16px 20px;
+  scrollbar-width: none;
+}
+
+.nivvo-horizontal-shelf-row::-webkit-scrollbar {
+  display: none;
+}
+
+.nivvo-shelf-card {
+  width: 156px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--nv-border);
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.nivvo-shelf-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.nivvo-shelf-card-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: var(--nv-surface-photo);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.nivvo-shelf-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nivvo-shelf-eta-pill {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(36, 69, 45, 0.9);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.nivvo-shelf-discount-pill {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background-color: var(--nv-lime);
+  color: var(--nv-text);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* Blinkit-Style ADD Button & Stepper */
+.nivvo-blinkit-add-btn {
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--nv-forest);
+  color: var(--nv-forest);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nivvo-blinkit-add-btn:hover {
+  background-color: var(--nv-lime);
+  border-color: var(--nv-lime);
+  color: var(--nv-text);
+}
+
+.nivvo-blinkit-stepper {
+  background-color: var(--nv-forest);
+  color: #FFFFFF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nivvo-stepper-btn {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Floating Cart Bar (Blinkit Style) */
+.nivvo-floating-cart-bar {
+  position: fixed;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 408px;
+  background-color: #24452D;
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+  box-shadow: 0 8px 24px rgba(36, 69, 45, 0.35);
+  animation: slideUp 0.25s ease;
+  border: 1.5px solid var(--nv-lime);
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .nivvo-app-viewport.mode-tablet .nivvo-floating-cart-bar {
+    max-width: 720px;
+  }
+  .nivvo-app-viewport.mode-desktop .nivvo-floating-cart-bar {
+    max-width: 960px;
+  }
+}
+
+/* Web Portal Mode: Seller & Admin are pure Desktop Websites, NOT mobile apps */
+.nivvo-app-viewport.mode-web-portal {
+  max-width: 100% !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: #FAFAF7 !important;
+  display: block !important;
+}
+
+.nivvo-app-viewport.mode-web-portal .nivvo-screen-scroll {
+  padding-bottom: 0 !important;
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+}
+
+/* ===================================================================
+   Enhanced Professional Landing Page Components & Refinements
+   =================================================================== */
+
+/* Live Delivery Pulsing Indicator */
+.nivvo-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--nv-lime);
+  box-shadow: 0 0 0 0 rgba(183, 243, 74, 0.7);
+  animation: nivvoPulse 2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes nivvoPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(183, 243, 74, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 7px rgba(183, 243, 74, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(183, 243, 74, 0);
+  }
+}
+
+/* Modern Clean Shop Card */
+.nivvo-clean-shop-card {
+  border: 1px solid var(--nv-border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nivvo-clean-shop-card:hover {
+  transform: translateY(-2px);
+  border-color: #D4DEC8;
+  box-shadow: 0 8px 24px rgba(32, 37, 31, 0.06);
+}
+
+/* Modern Promise / Standard Cards Grid */
+.nivvo-promise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.nivvo-promise-item {
+  background: #FFFFFF;
+  border: 1px solid var(--nv-border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.nivvo-promise-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  border-color: #D4DEC8;
+}
+
+.nivvo-promise-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background-color: var(--nv-surface-soft);
+  color: var(--nv-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Modern Category Shelf Tabs */
+.nivvo-tab-pill-modern {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+  border: 1px solid var(--nv-border);
+  background-color: #FFFFFF;
+  color: var(--nv-text);
+}
+
+.nivvo-tab-pill-modern.active {
+  background-color: #24452D;
+  color: #FFFFFF;
+  border-color: #24452D;
+  font-weight: 700;
+}
+
+.nivvo-tab-pill-modern:hover:not(.active) {
+  background-color: var(--nv-mist);
+  border-color: #D4DEC8;
+}
+
+/* ============================================================================
+   CUSTOMER ORDERS & LIVE TRACKING DESIGN SYSTEM
+   ============================================================================ */
+.nivvo-orders-segmented-bar {
+  display: flex;
+  background-color: #F1F4EE;
+  padding: 4px;
+  border-radius: 14px;
+  gap: 4px;
+  border: 1px solid #E3E8DE;
+  margin-bottom: 20px;
+}
+
+.nivvo-orders-segmented-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background-color: transparent;
+  color: #73796F;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.nivvo-orders-segmented-btn.active {
+  background-color: #FFFFFF;
+  color: #24452D;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.nivvo-pulse-dot-green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #238636;
+  display: inline-block;
+  animation: nvPulseGreen 1.6s infinite ease-in-out;
+}
+
+@keyframes nvPulseGreen {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.6);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px rgba(35, 134, 54, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(35, 134, 54, 0);
+  }
+}
+
+.nivvo-pro-order-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E7EAE3;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.nivvo-pro-order-card:hover {
+  border-color: #D4DEC8;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.nivvo-pro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nivvo-pro-chip.active {
+  background-color: #EEF4EC;
+  color: #24452D;
+}
+
+.nivvo-pro-chip.delivered {
+  background-color: #E8F5E9;
+  color: #238636;
+}
+
+.nivvo-pro-chip.cancelled {
+  background-color: #FEE2E2;
+  color: #BD3838;
+}
+
+.nivvo-orders-filter-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.nivvo-orders-filter-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #E7EAE3;
+  background-color: #FFFFFF;
+  color: #73796F;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.nivvo-orders-filter-chip.active {
+  background-color: #24452D;
+  color: #FFFFFF;
+  border-color: #24452D;
+}
+
+@media (max-width: 860px) {
+  .nivvo-landing-nav-links {
+    display: none !important;
+  }
+}
+
+/* Seller Section Responsive Layouts */
+.nivvo-seller-desktop-sidebar {
+  width: 260px !important;
+  transition: all 0.2s ease;
+}
+
+.nivvo-seller-main-wrapper {
+  margin-left: 260px !important;
+  transition: margin-left 0.2s ease;
+}
+
+.nivvo-seller-main-content {
+  padding: 32px 36px 64px 36px !important;
+  box-sizing: border-box !important;
+}
+
+.nivvo-seller-mobile-toggle {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .nivvo-seller-desktop-sidebar {
+    display: none !important;
+  }
+  .nivvo-seller-main-wrapper {
+    margin-left: 0 !important;
+  }
+  .nivvo-seller-mobile-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .nivvo-seller-main-content {
+    padding: 20px 16px 60px 16px !important;
+  }
+}
+
+.nivvo-seller-dash-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 20px;
+}
+@media (max-width: 960px) {
+  .nivvo-seller-dash-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.nivvo-seller-products-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .nivvo-seller-products-split {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+/* ===================================================================
+   Cross-Platform Architecture: Website (Seller/Admin) <---> Mobile App (Customer/Rider)
+   =================================================================== */
+.nivvo-platform-dock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(20, 40, 28, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 5px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 9999;
+  border: 1px solid rgba(184, 241, 53, 0.28);
+  transition: all 0.2s ease;
+}
+
+.nivvo-platform-dock:hover {
+  border-color: rgba(184, 241, 53, 0.6);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+}
+
+.nivvo-platform-dock-btn {
+  background: transparent;
+  color: #D1D5DB;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.nivvo-platform-dock-btn:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nivvo-platform-dock-btn.active {
+  background: #B8F135;
+  color: #14281C;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(184, 241, 53, 0.35);
+}
+
+@media (max-width: 767px) {
+  .nivvo-platform-dock {
+    bottom: calc(72px + env(safe-area-inset-bottom, 8px));
+    right: 12px;
+    padding: 4px;
+    transform: scale(0.92);
+    transform-origin: bottom right;
+  }
+}
+
+/* Editorial skeleton shimmer & micro-animations */
+@keyframes nivvo-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.nivvo-skeleton {
+  background: linear-gradient(90deg, #F3F4F0 25%, #EBECE6 50%, #F3F4F0 75%);
+  background-size: 200% 100%;
+  animation: nivvo-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ===================================================================
+   WEBSITE PORTAL RESPONSIVE DESKTOP LAYOUTS (Category, Shops, Cart, Admin, Seller)
+   =================================================================== */
+.mode-web-portal .nivvo-category-screen,
+.mode-web-portal .nivvo-shops-screen,
+.mode-web-portal .nivvo-shop-detail-screen,
+.mode-web-portal .nivvo-bag-screen,
+.mode-web-portal .nivvo-checkout-screen,
+.mode-web-portal .nivvo-profile-screen,
+.mode-web-portal .nivvo-grocery-screen,
+.mode-web-portal .nivvo-food-screen {
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 24px 24px 80px 24px !important;
+  box-sizing: border-box !important;
+  background-color: transparent !important;
+}
+
+.mode-web-portal .nivvo-product-detail-screen {
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: 24px 24px 80px 24px !important;
+  box-sizing: border-box !important;
+  background-color: transparent !important;
+}
+
+.mode-web-portal .nivvo-nav-header {
+  border-radius: 12px !important;
+  margin-bottom: 20px !important;
+  border: 1px solid rgba(19, 24, 21, 0.08) !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+  padding: 14px 24px !important;
+  background-color: #FFFFFF !important;
+}
+
+.mode-web-portal .nivvo-product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 20px !important;
+}
+
+/* Seller and Admin Desktop Optimization: Information-Dense, Structured */
+.mode-web-portal .nivvo-seller-dash,
+.mode-web-portal .nivvo-admin-dash,
+.mode-web-portal .nivvo-admin-screen,
+.mode-web-portal .nivvo-seller-screen {
+  max-width: 1360px !important;
+  margin: 0 auto !important;
+  padding: 24px 32px 80px 32px !important;
+}
+
+/* ===================================================================
+   SMOOTH RADAR & VISUALIZATION ANIMATIONS (60FPS HARDWARE ACCELERATED)
+   =================================================================== */
+@keyframes nivvo-radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes nivvo-pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  50% { opacity: 0.4; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes nivvo-ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes nivvo-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.nivvo-floating {
+  animation: nivvo-float 4s ease-in-out infinite;
+}
+
+
