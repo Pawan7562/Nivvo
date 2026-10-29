@@ -46,6 +46,8 @@ export default function NivvoAdminFinanceView({ onBack }) {
 
   useEffect(() => {
     loadRealFinance();
+    const interval = setInterval(loadRealFinance, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const scheduledCount = settlements.filter(s => s.status === 'scheduled').length;
@@ -165,7 +167,7 @@ export default function NivvoAdminFinanceView({ onBack }) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ArrowUpRight size={15} />
-              <span>100% Real PostgreSQL Order GMV</span>
+              <span>Settled marketplace volume</span>
             </div>
           </div>
 

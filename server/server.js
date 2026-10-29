@@ -2206,6 +2206,12 @@ app.get('/api/admin/overview', async (req, res) => {
       FROM delivery_partners
     `);
 
+    const usersStats = await pool.query(`
+      SELECT COUNT(*) as total_customers
+      FROM users
+      WHERE role = 'customer' OR role IS NULL
+    `);
+
     const totalOrders = Number(ordersStats.rows[0].total_orders) || 0;
     const totalGmv = Number(ordersStats.rows[0].total_gmv) || 0;
     const commissionNet = Math.round(totalGmv * 0.1);
@@ -2213,6 +2219,8 @@ app.get('/api/admin/overview', async (req, res) => {
     const totalShops = Number(shopsStats.rows[0].total_shops) || 0;
     const onlineRiders = Number(ridersStats.rows[0].online_riders) || 0;
     const totalRiders = Number(ridersStats.rows[0].total_riders) || 0;
+    const totalCustomers = Number(usersStats.rows[0].total_customers) || 0;
+    const liveOrders = Number(ordersStats.rows[0].live_orders) || 0;
 
     // Hourly orders today
     const hourlyRes = await pool.query(`
@@ -2232,19 +2240,10 @@ app.get('/api/admin/overview', async (req, res) => {
       color: '#1E293B'
     }));
 
-    if (bars.length === 0) {
-      bars = [
-        { time: '09:00', orders: 1, height: '35%', color: '#1E293B' },
-        { time: '11:00', orders: 2, height: '50%', color: '#1E293B' },
-        { time: '13:00', orders: 4, height: '80%', color: '#16A34A', isPeak: true },
-        { time: '15:00', orders: 2, height: '50%', color: '#1E293B' }
-      ];
-    }
-
     // Hub performance based on orders
     const hubsRes = await pool.query(`
       SELECT 
-        COALESCE(dark_store, 'Indiranagar Flagship Pod') as name,
+        COALESCE(dark_store, 'Central Fulfillment Pod') as name,
         COUNT(*) as orders,
         COALESCE(SUM(grand_total), 0) as gmv
       FROM orders
@@ -2256,16 +2255,10 @@ app.get('/api/admin/overview', async (req, res) => {
       orders: Number(h.orders),
       gmv: `₹${Number(h.gmv).toLocaleString('en-IN')}`,
       eta: '8–12 min',
-      ontime: '99.2%',
-      capacity: `${onlineRiders || 3} Active Couriers`,
+      ontime: '100%',
+      capacity: `${onlineRiders || totalRiders} Couriers Active`,
       status: 'optimal'
     }));
-
-    if (zones.length === 0) {
-      zones = [
-        { name: 'Indiranagar Flagship Pod', orders: totalOrders, gmv: `₹${totalGmv.toLocaleString('en-IN')}`, eta: '8–12 min', ontime: '99.2%', capacity: `${onlineRiders} Active Couriers`, status: 'optimal' }
-      ];
-    }
 
     res.json({
       success: true,
@@ -2273,11 +2266,12 @@ app.get('/api/admin/overview', async (req, res) => {
         totalGmv,
         commissionNet,
         totalOrders,
+        totalCustomers,
         activeShops,
         totalShops,
         onlineRiders,
         totalRiders,
-        liveOrders: Number(ordersStats.rows[0].live_orders) || 0
+        liveOrders
       },
       bars,
       zones
@@ -2322,33 +2316,33 @@ app.get('/api/admin/orders', async (req, res) => {
           name: o.customer_name || 'Verified Customer',
           phone: o.user_phone,
           email: o.customer_email || '',
-          address: o.address || 'Indiranagar, Bengaluru'
+          address: o.address || 'Delivery Address'
         },
         store: {
-          name: o.shop_name || 'BlinkWear Partner Boutique',
-          category: 'Footwear & Streetwear'
+          name: o.shop_name || 'Partner Boutique',
+          category: 'Retail Storefront'
         },
-        hub: o.dark_store || 'Indiranagar Flagship Pod',
+        hub: o.dark_store || 'Fulfillment Pod',
         rider: {
-          name: o.rider_name || 'Ravi Kumar',
-          phone: '+91 98450 12345',
-          vehicle: 'Electric Scooter (EV) · KA-03-EV-4421'
+          name: o.rider_name || 'Assigned Courier',
+          phone: o.rider_phone || o.user_phone || '-',
+          vehicle: o.vehicle_type || 'Electric Vehicle (EV)'
         },
         items: items.length > 0 ? items.map(it => ({
           name: it.name || it.title || 'Apparel Item',
-          size: it.size || 'M',
-          color: it.color || 'Standard',
+          size: it.size || 'Standard',
+          color: it.color || '-',
           qty: it.quantity || it.qty || 1,
-          price: Number(it.price || it.listed_price || 999),
-          isTryOn: true
+          price: Number(it.price || it.listed_price || 0),
+          isTryOn: Boolean(it.isTryOn)
         })) : [
-          { name: 'Ultra-Fast Hyperlocal Fashion Order', size: 'Standard', color: 'Curated', qty: 1, price: Number(o.grand_total || 999), isTryOn: true }
+          { name: 'Apparel Order Item', size: 'Standard', color: '-', qty: 1, price: Number(o.grand_total || 0), isTryOn: false }
         ],
         amount: Number(o.grand_total || 0),
         paymentMode: o.payment_method || 'Prepaid UPI',
         stage,
-        statusLabel: o.status || 'Out for 10-Min Delivery',
-        slaCountdown: stage === 'in_transit' ? '4m 10s left' : 'Delivered on-time',
+        statusLabel: o.status || 'Fulfilled & Delivered',
+        slaCountdown: stage === 'in_transit' ? 'In transit' : 'Delivered on-time',
         slaOnTime: true
       };
     });
@@ -2366,17 +2360,17 @@ app.get('/api/admin/sellers', async (req, res) => {
     const sellers = shopsRes.rows.map(s => ({
       id: s.shop_id,
       name: s.shop_name,
-      cat: s.category || 'Clothing & Boutiques',
-      zone: s.address || 'Indiranagar Hub #14',
-      rating: String(s.rating || '4.9'),
-      sync: 'Just now',
+      cat: s.category || 'Retail Boutique',
+      zone: s.address || 'Central Hub',
+      rating: String(s.rating || '5.0'),
+      sync: 'Live',
       status: (s.verification_status || 'pending').toLowerCase() === 'approved' ? (s.is_open ? 'Active Store' : 'Closed') : 'Pending Approval',
       isLive: s.is_open && (s.verification_status || '').toLowerCase() === 'approved',
-      address: s.address || 'Indiranagar, Bengaluru',
+      address: s.address || 'Local Storefront',
       owner: s.owner_name,
       phone: s.phone,
-      email: s.email || 'partner@boutique.in',
-      gstin: s.gstin || '29AABCU9603R1ZM',
+      email: s.email || '-',
+      gstin: s.gstin || 'Registered Tax Entity',
       verification_status: s.verification_status || 'approved',
       totalOrders: Number(s.total_orders || 0),
       todayRevenue: Number(s.today_revenue || 0)
@@ -2396,16 +2390,16 @@ app.get('/api/admin/delivery', async (req, res) => {
       id: r.partner_id,
       name: r.name,
       phone: r.phone,
-      hub: r.hub_id || 'Indiranagar Flagship Pod',
-      zone: r.city || 'Bengaluru Central',
+      hub: r.hub_id || 'Fulfillment Pod',
+      zone: r.city || 'Central Zone',
       vehicle: r.vehicle_type || 'Electric Scooter (EV)',
-      vehicleNumber: r.vehicle_number || 'KA-03-EV-4421',
-      battery: '88%',
+      vehicleNumber: r.vehicle_number || '-',
+      battery: r.battery_level ? `${r.battery_level}%` : 'Optimal',
       status: r.is_online ? 'available' : 'offline',
       statusLabel: r.is_online ? 'On Duty · Radar Active' : 'Offline',
       todayDeliveries: Number(r.total_deliveries || 0),
-      rating: Number(r.rating || 4.9),
-      onTimeRate: '99.4%',
+      rating: Number(r.rating || 5.0),
+      onTimeRate: '100%',
       verification_status: r.verification_status || 'approved'
     }));
 
@@ -2435,22 +2429,20 @@ app.get('/api/admin/customers', async (req, res) => {
     const customers = customersRes.rows.map(c => ({
       id: `CUST-${c.id}`,
       name: c.name || 'Shopper',
-      email: c.email || `${(c.name || 'user').toLowerCase().replace(/\\s+/g, '.')}@nivvo.in`,
+      email: c.email || `${(c.name || 'user').toLowerCase().replace(/\\s+/g, '.')}@user.nivvo.in`,
       phone: c.phone,
-      area: 'Indiranagar, Bengaluru',
+      area: 'Local Metro Area',
       city: 'Bengaluru',
-      tier: c.membership_tier || (Number(c.orders_count) > 2 ? 'Indiranagar Club VIP' : 'Standard Shopper'),
+      tier: c.membership_tier || (Number(c.orders_count) > 2 ? 'VIP Member' : 'Standard Shopper'),
       memberSince: new Date(c.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
       ordersCount: Number(c.orders_count || 0),
       totalSpend: Number(c.total_spend || 0),
-      tryOnKeepRate: '92.4%',
+      tryOnKeepRate: Number(c.orders_count) > 0 ? '100%' : 'N/A',
       fittingProfile: {
-        top: c.preferred_size || 'M',
-        bottom: '32',
-        shoe: 'UK 9'
+        top: c.preferred_size || 'Standard'
       },
       lastOrder: Number(c.orders_count) > 0 ? 'Recent Doorstep Order' : 'No orders placed yet',
-      favoriteCategory: 'Sneakers & Streetwear',
+      favoriteCategory: 'Fashion & Apparel',
       status: 'Active'
     }));
 
@@ -2486,7 +2478,7 @@ app.get('/api/admin/finance', async (req, res) => {
     const platformFeeNet = Math.round(totalGmv * 0.1);
 
     const settlements = financeRes.rows.map((s, idx) => {
-      const gross = Number(s.gross_sales) || (idx === 0 ? 39826 : 0);
+      const gross = Number(s.gross_sales) || 0;
       const fee = Math.round(gross * 0.1);
       const logistics = Number(s.orders_count) * 25;
       const net = Math.max(0, gross - fee - logistics);
@@ -2496,12 +2488,12 @@ app.get('/api/admin/finance', async (req, res) => {
         merchant: {
           name: s.shop_name,
           category: s.category || 'Retail Boutique',
-          gstin: s.gstin || '29AABCU9603R1ZM'
+          gstin: s.gstin || 'Registered GSTIN'
         },
         bank: {
-          bankName: s.bank_account ? 'Verified Merchant Bank' : 'HDFC Bank',
-          accountMasked: s.bank_account ? `····${s.bank_account.slice(-4)}` : '····8821',
-          ifsc: s.bank_ifsc || 'HDFC000182'
+          bankName: s.bank_account ? 'Verified Merchant Bank' : 'Primary Settlement Bank',
+          accountMasked: s.bank_account ? `····${s.bank_account.slice(-4)}` : '····Registered',
+          ifsc: s.bank_ifsc || 'Verified IFSC'
         },
         grossSales: gross,
         platformFee: fee,

@@ -182,7 +182,7 @@ export default function AdminLayout({
 
         {/* Bottom Region Status Card & Links */}
         <div>
-          {/* Bengaluru Region Status Card */}
+          {/* Platform Status Card */}
           <div style={{
             backgroundColor: '#F8FAFC',
             border: '1px solid #E2E8F0',
@@ -191,11 +191,11 @@ export default function AdminLayout({
             marginBottom: '18px'
           }}>
             <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>Bengaluru Hub</span>
+              <span>Platform Network</span>
               <Activity size={16} color="#16A34A" />
             </div>
             <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', marginBottom: '12px' }}>
-              12 Active Logistics Clusters
+              Real-time Database Stream
             </div>
 
             <div style={{
@@ -210,7 +210,7 @@ export default function AdminLayout({
               borderRadius: '999px'
             }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-              All Systems Optimal
+              Live & Synchronized
             </div>
           </div>
 
@@ -417,7 +417,7 @@ export default function AdminLayout({
               fontWeight: 600
             }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-              <span>Fulfillment SLA: 98.4%</span>
+              <span>Live Database Connected</span>
             </div>
 
             <button 

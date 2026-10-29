@@ -37,6 +37,8 @@ export default function NivvoAdminCustomersView({ onBack }) {
 
   useEffect(() => {
     loadRealCustomers();
+    const interval = setInterval(loadRealCustomers, 12000);
+    return () => clearInterval(interval);
   }, []);
 
   const totalCustomers = customers.length;
@@ -163,7 +165,7 @@ export default function NivvoAdminCustomersView({ onBack }) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ArrowUpRight size={15} />
-              <span>100% Real Live Database Users</span>
+              <span>Registered shopper profiles</span>
             </div>
           </div>
 
@@ -225,18 +227,18 @@ export default function NivvoAdminCustomersView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Doorstep Try-On Keep Rate
+                VIP Shoppers
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Heart size={20} color="#D97706" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              92.4%
+              {customers.filter(c => c.tier?.includes('VIP')).length}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ShieldCheck size={15} />
-              <span>Multi-size doorstep trial retention</span>
+              <span>Loyalty & repeat members</span>
             </div>
           </div>
         </div>
@@ -594,18 +596,10 @@ export default function NivvoAdminCustomersView({ onBack }) {
                   <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 12px 0' }}>
                     Verified Size Locker Profile
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                    <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                      <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>TOP SIZE</div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>{inspectCustomer.fittingProfile.top}</div>
-                    </div>
-                    <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                      <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>WAIST SIZE</div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>{inspectCustomer.fittingProfile.bottom}</div>
-                    </div>
-                    <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                      <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>SHOE SIZE</div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>{inspectCustomer.fittingProfile.shoe}</div>
+                  <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>PREFERRED FIT / SIZE</div>
+                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', marginTop: '4px' }}>
+                      {inspectCustomer.fittingProfile?.top || 'Standard Fit'}
                     </div>
                   </div>
                 </div>

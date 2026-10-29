@@ -91,6 +91,8 @@ export default function NivvoAdminSellersView({ onBack }) {
 
   useEffect(() => {
     fetchQueues();
+    const interval = setInterval(fetchQueues, 15000);
+    return () => clearInterval(interval);
   }, [authToken]);
 
   // Admin Verification Decision Handler
@@ -247,61 +249,6 @@ export default function NivvoAdminSellersView({ onBack }) {
               <span>Register Merchant</span>
             </button>
           </div>
-        </div>
-
-        {/* Operational Constraint Alert Banner */}
-        <div style={{
-          backgroundColor: '#FFFBEB',
-          border: '1.5px solid #FCD34D',
-          borderRadius: '14px',
-          padding: '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '20px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              backgroundColor: '#FEF3C7',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <AlertTriangle size={20} color="#B45309" />
-            </div>
-            <div>
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#92400E' }}>
-                Koramangala Logistics Hub Capacity Constrained
-              </div>
-              <div style={{ fontSize: '14px', color: '#B45309', marginTop: '2px' }}>
-                Delivery windows temporarily extended to 25–35 minutes. Automatic dynamic surge buffer engaged.
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => showToast('Inspecting active Koramangala dispatch zone')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #FCD34D',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#92400E',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            <span>Inspect Dispatch Fleet</span>
-            <ArrowUpRight size={15} />
-          </button>
         </div>
 
         {/* Spacious Top Navigation Tabs */}

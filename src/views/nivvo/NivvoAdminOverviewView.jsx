@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   ArrowUpRight, ChevronDown, RefreshCw, TrendingUp, Percent, 
-  PackageCheck, Store, Clock, Activity, FileSpreadsheet, Layers, ShieldCheck, MapPin
+  PackageCheck, Store, Clock, Activity, FileSpreadsheet, Layers, ShieldCheck, MapPin, Users
 } from 'lucide-react';
 import { playClickSound } from '../../utils/audioEffects';
 import AdminLayout from '../../components/nivvo/AdminLayout';
@@ -17,6 +17,7 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
     totalGmv: 0,
     commissionNet: 0,
     totalOrders: 0,
+    totalCustomers: 0,
     activeShops: 0,
     totalShops: 0,
     onlineRiders: 0,
@@ -46,6 +47,8 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
 
   useEffect(() => {
     loadRealOverview();
+    const interval = setInterval(loadRealOverview, 12000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -129,7 +132,7 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
           </div>
         </div>
 
-        {/* Filter Toolbar */}
+        {/* Status & Sync Bar */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -152,11 +155,10 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
               padding: '8px 16px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer'
+              fontWeight: 600
             }}>
               <MapPin size={16} color="#A3E635" />
-              <span>Bengaluru Metro</span>
+              <span>Active Network Pods</span>
             </div>
 
             <div style={{
@@ -169,30 +171,10 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
               padding: '8px 16px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer'
+              fontWeight: 600
             }}>
               <Layers size={16} color="#64748B" />
-              <span>{selectedZone}</span>
-              <ChevronDown size={15} color="#64748B" />
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#F8FAFC',
-              color: '#0F172A',
-              border: '1px solid #CBD5E1',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}>
-              <Clock size={16} color="#64748B" />
-              <span>{timeRange}</span>
-              <ChevronDown size={15} color="#64748B" />
+              <span>{zones.length} Logistics Hubs</span>
             </div>
           </div>
 
@@ -208,7 +190,7 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
             borderRadius: '20px'
           }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-            <span>Live Telemetry Connected</span>
+            <span>Database Stream Active</span>
           </div>
         </div>
 
@@ -235,7 +217,7 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
             </div>
             <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
               <TrendingUp size={16} />
-              <span>Real-time settled sales in Neon DB</span>
+              <span>Live settled sales volume</span>
             </div>
           </div>
 
@@ -314,6 +296,41 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
             <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Store size={16} />
               <span>Verified local merchant storefronts</span>
+            </div>
+          </div>
+
+          {/* Metric 5: Total Shoppers */}
+          <div 
+            onClick={() => {
+              playClickSound();
+              navigateTo('admin-customers');
+            }}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E2E8F0',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              cursor: 'pointer',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.06)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748B' }}>Total Registered Shoppers</span>
+              <ArrowUpRight size={18} color="#0F172A" />
+            </div>
+            <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+              {metrics.totalCustomers || 0}
+            </div>
+            <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Users size={16} />
+              <span>Active customer database profiles</span>
             </div>
           </div>
         </div>
@@ -458,40 +475,27 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
                   <span style={{ fontWeight: 800, color: '#2563EB', fontSize: '16px' }}>{metrics.liveOrders} In Transit</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
-                  <span style={{ color: '#64748B', fontWeight: 500 }}>Average Delivery SLA</span>
-                  <span style={{ fontWeight: 800, color: '#16A34A', fontSize: '16px' }}>8–10 Minutes</span>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>Total Fulfilled Orders</span>
+                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>{metrics.totalOrders} Orders</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
-                  <span style={{ color: '#64748B', fontWeight: 500 }}>Catalog Stock Accuracy</span>
-                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>99.2%</span>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>Active Boutiques</span>
+                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>{metrics.activeShops} Stores</span>
                 </div>
               </div>
 
               <div style={{
-                backgroundColor: '#F8FAFC',
-                border: '1px solid #E2E8F0',
+                backgroundColor: '#F0FDF4',
+                border: '1px solid #BBF7D0',
                 borderRadius: '10px',
                 padding: '14px',
                 fontSize: '13px',
-                color: '#475569',
-                lineHeight: 1.5
+                color: '#166534',
+                lineHeight: 1.5,
+                fontWeight: 600
               }}>
-                10-Minute guaranteed delivery routes are active across Indiranagar, HSR Layout, and Jayanagar.
+                All delivery pods and couriers are actively connected with zero dispatch bottlenecks.
               </div>
-            </div>
-
-            <div style={{
-              backgroundColor: '#FEF3C7',
-              border: '1px solid #FCD34D',
-              color: '#92400E',
-              fontSize: '13px',
-              fontWeight: 700,
-              padding: '10px 16px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              marginTop: '16px'
-            }}>
-              Koramangala Hub: Capacity Monitoring Active
             </div>
           </div>
         </div>

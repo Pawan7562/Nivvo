@@ -43,9 +43,23 @@ export default function NivvoAdminDeliveryView({ onBack }) {
 
   useEffect(() => {
     loadRealCouriers();
+    const interval = setInterval(loadRealCouriers, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const onlineCouriersCount = couriers.filter(c => c.status !== 'offline').length;
+  const totalDeliveriesCount = couriers.reduce((acc, c) => acc + (Number(c.todayDeliveries) || 0), 0);
+  const uniqueHubs = Array.from(new Set(couriers.map(c => c.hub || 'Central Pod'))).map(hubName => {
+    const hubCouriers = couriers.filter(c => (c.hub || 'Central Pod') === hubName);
+    const online = hubCouriers.filter(c => c.status !== 'offline').length;
+    return {
+      name: hubName,
+      address: 'Operational Logistics Micro-Pod',
+      couriers: hubCouriers.length,
+      onlineCouriers: online,
+      status: online > 0 ? 'Active' : 'Standby'
+    };
+  });
 
   const filteredCouriers = couriers.filter(courier => {
     if (selectedZone !== 'all' && !courier.hub?.toLowerCase().includes(selectedZone.toLowerCase())) return false;
@@ -82,7 +96,7 @@ export default function NivvoAdminDeliveryView({ onBack }) {
               Delivery Network & Fleet
             </h1>
             <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
-              Live PostgreSQL delivery fleet telemetry, dark-store fulfillment pods, and courier onboarding compliance.
+              Live delivery fleet telemetry, micro-fulfillment pods, and courier onboarding compliance.
             </p>
           </div>
 
@@ -174,18 +188,18 @@ export default function NivvoAdminDeliveryView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Pod Dispatch Handover
+                Active Online Couriers
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Clock size={20} color="#16A34A" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              2.4 min
+              {onlineCouriersCount}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <CheckCircle2 size={15} />
-              <span>Shelf to courier bag handover SLA</span>
+              <span>{couriers.length - onlineCouriersCount} couriers on standby</span>
             </div>
           </div>
 
@@ -199,18 +213,18 @@ export default function NivvoAdminDeliveryView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Doorstep Delivery Time
+                Completed Deliveries
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#FDF4FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <MapPin size={20} color="#A855F7" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              8.6 min
+              {totalDeliveriesCount}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ShieldCheck size={15} />
-              <span>99.2% within 10-Minute Guarantee</span>
+              <span>Direct verified order drop-offs</span>
             </div>
           </div>
 
@@ -224,60 +238,32 @@ export default function NivvoAdminDeliveryView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Micro-Fulfillment Pods
+                Active Fulfillment Pods
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Store size={20} color="#D97706" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              3 Hubs
+              {uniqueHubs.length} Pods
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
-              <span>100% Operational · 0 Bottlenecks</span>
+              <span>100% Operational · Connected</span>
             </div>
           </div>
         </div>
 
-        {/* 3 Dark Store Fulfillment Pods Status Cards */}
+        {/* Dark Store Fulfillment Pods Dynamic Status Cards */}
         <div>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: '0 0 16px 0' }}>
-            Dark Store & Logistics Pod Telemetry
+            Fulfillment Pod Telemetry
           </h2>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '18px'
           }}>
-            {[
-              {
-                name: 'Indiranagar Flagship Pod',
-                address: '100ft Road & CMH Cluster',
-                couriers: 18,
-                utilization: '88%',
-                queue: '4 orders',
-                sync: '99.9%',
-                status: 'Optimal'
-              },
-              {
-                name: 'Koramangala Hyper-Pod',
-                address: '80ft Road, 4th Block Cluster',
-                couriers: 14,
-                utilization: '74%',
-                queue: '2 orders',
-                sync: '99.8%',
-                status: 'Optimal'
-              },
-              {
-                name: 'HSR Layout Micro-Hub',
-                address: '27th Main, Sector 1 Cluster',
-                couriers: 11,
-                utilization: '62%',
-                queue: '1 order',
-                sync: '99.7%',
-                status: 'Optimal'
-              }
-            ].map((hub, i) => (
+            {uniqueHubs.map((hub, i) => (
               <div key={i} style={{
                 backgroundColor: '#FFFFFF',
                 border: '1px solid #E2E8F0',
@@ -292,8 +278,8 @@ export default function NivvoAdminDeliveryView({ onBack }) {
                   <span style={{
                     fontSize: '12px',
                     fontWeight: 700,
-                    backgroundColor: '#ECFDF5',
-                    color: '#065F46',
+                    backgroundColor: hub.status === 'Active' ? '#ECFDF5' : '#F1F5F9',
+                    color: hub.status === 'Active' ? '#065F46' : '#64748B',
                     padding: '3px 8px',
                     borderRadius: '6px'
                   }}>
@@ -306,20 +292,20 @@ export default function NivvoAdminDeliveryView({ onBack }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Available Couriers</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>{hub.couriers} Active</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Assigned Couriers</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>{hub.couriers} Fleet</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Pod Queue</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563EB', marginTop: '2px' }}>{hub.queue}</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Online on Duty</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#16A34A', marginTop: '2px' }}>{hub.onlineCouriers} Couriers</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fulfillment Speed</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#16A34A', marginTop: '2px' }}>2.2 min avg</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>Instant Handover</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Inventory Live Sync</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>{hub.sync}</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fleet Radar</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563EB', marginTop: '2px' }}>Connected</div>
                   </div>
                 </div>
               </div>
