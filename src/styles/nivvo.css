@@ -47,19 +47,20 @@ body {
   width: 100%;
 }
 
-/* Master Responsive App Shell */
+/* Master Responsive App Shell - Full-Width Production Responsive Architecture */
 .nivvo-app-viewport {
-  width: 100%;
-  max-width: 440px;
-  min-height: 100vh;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  margin: 0 !important;
   background-color: var(--nv-canvas);
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: max-width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  display: block !important;
+  overflow: visible !important;
 }
 
 /* Full-Width Luxury Responsive Architecture for Website */

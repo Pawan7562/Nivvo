@@ -42,25 +42,7 @@ export function NivvoAppProvider({ children }) {
         if (window.__IS_MOBILE_APP__ || window.ReactNativeWebView || window.location.protocol === 'file:') {
           return 'app';
         }
-        const searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.get('platform') === 'app' || searchParams.get('mode') === 'mobile') {
-          return 'app';
-        }
-        if (searchParams.get('platform') === 'web') {
-          return 'web';
-        }
-        const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0];
-        const webScreens = ['landing', 'seller-dash', 'seller-prods', 'seller-orders', 'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support', 'admin-overview', 'admin-sellers'];
-        const webAnchors = ['how-it-works', 'collections', 'boutiques', 'try-on-demo', 'seller-onboarding', 'coverage', 'faq', 'app-download', 'features', 'revenue-calculator'];
-        if (webScreens.includes(hash) || webAnchors.includes(hash) || hash.startsWith('seller-') || hash.startsWith('admin-')) {
-          return 'web';
-        }
-        const appScreens = ['home', 'categories', 'shops', 'shop-detail', 'sneakers', 'product-detail', 'bag', 'checkout', 'tracking', 'profile', 'grocery', 'food'];
-        if (appScreens.includes(hash) || hash.startsWith('rider-')) {
-          return 'app';
-        }
-        const stored = localStorage.getItem('nivvo_platform_mode');
-        if (stored === 'web' || stored === 'app') return stored;
+        return 'web';
       }
     } catch (e) {}
     return 'web';
@@ -403,7 +385,7 @@ export function NivvoAppProvider({ children }) {
           setAppMode('rider');
         } else if (APP_SCREENS.includes(hash)) {
           setCurrentScreen(hash);
-          setPlatformMode('app');
+          setPlatformMode('web');
           setAppMode('customer');
         } else {
           // Fallback to website landing

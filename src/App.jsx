@@ -174,132 +174,11 @@ function AppContent() {
 
   return (
     <div>
-      {/* Top Demo Screen Quick Switcher Bar (Only in Mobile App Simulator Mode, Never on Website) */}
-      {platformMode === 'app' && currentScreen !== 'landing' && (
-        <div className="nivvo-screen-switcher-bar">
-          {/* Active Platform Badge & Switcher Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '6px' }}>
-            <span style={{
-              backgroundColor: platformMode === 'web' ? '#24452D' : '#1F2937',
-              color: '#B7F34A',
-              fontSize: '11px',
-              fontWeight: 800,
-              padding: '4px 10px',
-              borderRadius: '999px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '5px'
-            }}>
-              {platformMode === 'web' ? <Monitor size={12} /> : <Smartphone size={12} />}
-              <span>{platformMode === 'web' ? 'Website Portal' : 'Mobile App'}</span>
-            </span>
+      {/* Main Full-Width Responsive Viewport */}
+      <div className="nivvo-app-viewport mode-web-portal">
 
-            <button
-              onClick={() => {
-                playClickSound();
-                if (platformMode === 'web') switchToAppMode();
-                else switchToWebMode();
-              }}
-              className="nivvo-switcher-btn"
-              style={{
-                borderColor: '#B7F34A',
-                color: '#B7F34A',
-                fontWeight: 800,
-                backgroundColor: 'rgba(183, 243, 74, 0.12)'
-              }}
-              title={platformMode === 'web' ? 'Switch to Customer & Rider Mobile App' : 'Switch to Seller & Admin Website Portal'}
-            >
-              {platformMode === 'web' ? 'Open Mobile App' : 'Open Website Portal'}
-            </button>
-          </div>
-
-          <span className="nivvo-switcher-label">
-            <span>{platformMode === 'web' ? 'Website Pages:' : 'App Screens:'}</span>
-          </span>
-
-          {(platformMode === 'web' ? websiteScreens : mobileAppScreens).map((sc) => (
-            <button
-              key={sc.id}
-              className={`nivvo-switcher-btn ${currentScreen === sc.id ? 'active' : ''}`}
-              onClick={() => {
-                playClickSound();
-                if (sc.role === 'Rider' || sc.id.startsWith('rider-')) {
-                  setAppMode('rider');
-                } else if (sc.role === 'Customer' || ['home', 'categories', 'shops', 'shop-detail', 'sneakers', 'product-detail', 'bag', 'checkout', 'tracking', 'profile'].includes(sc.id)) {
-                  setAppMode('customer');
-                }
-                navigateTo(sc.id);
-              }}
-            >
-              {sc.label}
-            </button>
-          ))}
-
-          {/* Device Viewport Mode Switcher: Desktop Website vs Mobile/Tablet simulation */}
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', paddingLeft: '12px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-            {isWebPortal ? (
-              <span style={{
-                backgroundColor: '#24452D',
-                color: '#B7F34A',
-                fontSize: '11px',
-                fontWeight: 800,
-                padding: '4px 10px',
-                borderRadius: '999px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}>
-                <Monitor size={12} />
-                <span>Desktop Website Portal</span>
-              </span>
-            ) : (
-              <>
-                <button
-                  onClick={() => { playClickSound(); setViewMode('mobile'); }}
-                  className={`nivvo-switcher-btn ${viewMode === 'mobile' ? 'active' : ''}`}
-                  title="Mobile iPhone View (390px)"
-                >
-                  <Smartphone size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '3px' }} />
-                  <span>Mobile</span>
-                </button>
-                <button
-                  onClick={() => { playClickSound(); setViewMode('tablet'); }}
-                  className={`nivvo-switcher-btn ${viewMode === 'tablet' ? 'active' : ''}`}
-                  title="Tablet iPad View (768px)"
-                >
-                  <Tablet size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '3px' }} />
-                  <span>Tablet</span>
-                </button>
-                <button
-                  onClick={() => { playClickSound(); setViewMode('desktop'); }}
-                  className={`nivvo-switcher-btn ${viewMode === 'desktop' ? 'active' : ''}`}
-                  title="Responsive Desktop View"
-                >
-                  <Monitor size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '3px' }} />
-                  <span>Desktop</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Main Responsive Viewport: If web portal, render full width with no phone status bar */}
-      <div className={`nivvo-app-viewport ${isWebPortal ? 'mode-web-portal' : `mode-${viewMode}`}`}>
-        {/* iOS Mobile Status Bar only for mobile apps (Customer & Rider) */}
-        {!isWebPortal && (
-          <div className="nivvo-status-bar">
-            <span>2:30</span>
-            <div className="nivvo-status-icons" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '10px', letterSpacing: '1px', opacity: 0.8 }}>LTE</span>
-              <Wifi size={13} strokeWidth={2.2} />
-              <Battery size={15} strokeWidth={2.2} />
-            </div>
-          </div>
-        )}
-
-        {/* Home Screen Header (Clean Modern 2-Row Architecture) - Only on Mobile App */}
-        {platformMode === 'app' && currentScreen === 'home' && appMode === 'customer' && (
+        {/* Home Screen Header (Clean Modern 2-Row Architecture) */}
+        {currentScreen === 'home' && (
           <div className="nivvo-master-header" style={{ padding: '6px 14px 10px 14px', borderBottom: '1px solid #E7EAE3' }}>
             {/* Row 1: Brand Logo, Location Selector, Notifications & Bag */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
@@ -1223,26 +1102,6 @@ function AppContent() {
           isOpen={becomeRiderModalOpen}
           onClose={() => setBecomeRiderModalOpen(false)}
         />
-      </div>
-
-      {/* Floating Platform Switcher Dock: Seamless 1-Click Connection Between Website & Mobile App */}
-      <div className="nivvo-platform-dock" role="navigation" aria-label="Platform Switcher">
-        <button
-          className={`nivvo-platform-dock-btn ${platformMode === 'web' ? 'active' : ''}`}
-          onClick={() => { playClickSound(); switchToWebMode(); }}
-          title="Switch to Nivvo Website (Seller & Admin Portal)"
-        >
-          <Monitor size={15} />
-          <span>Website (Seller/Admin)</span>
-        </button>
-        <button
-          className={`nivvo-platform-dock-btn ${platformMode === 'app' ? 'active' : ''}`}
-          onClick={() => { playClickSound(); switchToAppMode(); }}
-          title="Switch to Nivvo Mobile App (Customer & Delivery Fleet)"
-        >
-          <Smartphone size={15} />
-          <span>Mobile App (Customer/Rider)</span>
-        </button>
       </div>
     </div>
   );
