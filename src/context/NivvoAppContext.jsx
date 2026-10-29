@@ -3259,6 +3259,7 @@ export function NivvoAppProvider({ children }) {
       setAuthModalRole,
       handleLoginSuccess,
       logoutUser,
+      logout: logoutUser,
       // Platform Architecture: Website (Seller/Admin) vs Mobile App (Customer/Rider)
       platformMode,
       setPlatformMode,

@@ -13,8 +13,23 @@ export default function AdminLayout({
   children,
   onTabChange
 }) {
-  const { navigateTo, showToast, logout, currentUser } = useNivvo();
+  const { navigateTo, showToast, logout, logoutUser, currentUser } = useNivvo();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    playClickSound();
+    setMobileMenuOpen(false);
+    if (typeof logoutUser === 'function') {
+      logoutUser();
+    } else if (typeof logout === 'function') {
+      logout();
+    } else {
+      localStorage.removeItem('nivvo_user');
+      localStorage.removeItem('nivvo_token');
+      navigateTo('landing');
+      showToast('Signed out of Admin Console');
+    }
+  };
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} strokeWidth={2} />, route: 'admin-overview' },
@@ -199,30 +214,82 @@ export default function AdminLayout({
             </div>
           </div>
 
-          {/* Quick Support & Switch Portal */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '8px' }}>
-            <button 
-              onClick={() => {
-                playClickSound();
-                showToast('Platform Console Documentation & Operations Playbook');
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#475569',
-                cursor: 'pointer',
-                padding: '4px 0'
-              }}
-            >
-              <span>Documentation & Guides</span>
-              <ExternalLink size={14} />
-            </button>
+          {/* Admin Identity & Sign Out Card */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '14px',
+            padding: '14px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              position: 'relative',
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              backgroundColor: '#0F172A',
+              color: '#FFFFFF',
+              fontSize: '15px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              AD
+              <span style={{
+                position: 'absolute',
+                bottom: '-2px',
+                right: '-2px',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#16A34A',
+                border: '2px solid #FFFFFF'
+              }} />
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentUser?.name || 'Platform Admin'}
+              </div>
+              <div style={{ fontSize: '12px', color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentUser?.email || 'admin@nivvo.com'}
+              </div>
+            </div>
+          </div>
 
+          {/* Dedicated Sign Out Button */}
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#DC2626',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              marginBottom: '10px',
+              transition: 'background-color 0.15s ease'
+            }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FEE2E2'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#FEF2F2'}
+          >
+            <LogOut size={16} color="#DC2626" />
+            <span>Sign Out</span>
+          </button>
+
+          {/* Storefront Link */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
             <button 
               onClick={() => {
                 playClickSound();
@@ -233,17 +300,34 @@ export default function AdminLayout({
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                fontSize: '14px',
+                gap: '6px',
+                fontSize: '13px',
                 fontWeight: 600,
-                color: '#0F172A',
+                color: '#64748B',
                 cursor: 'pointer',
-                padding: '4px 0',
-                textAlign: 'left'
+                padding: '4px 0'
               }}
             >
-              <LogOut size={15} color="#64748B" />
-              <span>Back to Storefront</span>
+              <ExternalLink size={13} color="#64748B" />
+              <span>Customer Storefront</span>
+            </button>
+
+            <button 
+              onClick={() => {
+                playClickSound();
+                showToast('Console Docs & Operations Manual');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#64748B',
+                cursor: 'pointer',
+                padding: '4px 0'
+              }}
+            >
+              Docs
             </button>
           </div>
         </div>
@@ -373,10 +457,11 @@ export default function AdminLayout({
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              paddingLeft: '6px',
+              paddingLeft: '14px',
               borderLeft: '1px solid #E2E8F0'
             }}>
               <div style={{
+                position: 'relative',
                 width: '38px',
                 height: '38px',
                 borderRadius: '10px',
@@ -390,8 +475,18 @@ export default function AdminLayout({
                 cursor: 'pointer'
               }} title="Operations Admin">
                 AD
+                <span style={{
+                  position: 'absolute',
+                  bottom: '-2px',
+                  right: '-2px',
+                  width: '9px',
+                  height: '9px',
+                  borderRadius: '50%',
+                  backgroundColor: '#16A34A',
+                  border: '2px solid #FFFFFF'
+                }} />
               </div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
                   {currentUser?.name || 'Platform Admin'}
                 </div>
@@ -399,9 +494,110 @@ export default function AdminLayout({
                   Operations Lead
                 </div>
               </div>
+
+              {/* Direct Header Sign Out Button */}
+              <button
+                onClick={handleLogout}
+                title="Sign out of Admin Console"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  backgroundColor: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#DC2626',
+                  cursor: 'pointer',
+                  marginLeft: '8px',
+                  transition: 'background-color 0.15s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FEE2E2'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#FEF2F2'}
+              >
+                <LogOut size={14} color="#DC2626" />
+                <span>Sign Out</span>
+              </button>
             </div>
           </div>
         </header>
+
+        {/* Mobile Navigation & Logout Drawer */}
+        {mobileMenuOpen && (
+          <div style={{
+            position: 'fixed',
+            top: '72px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#FFFFFF',
+            zIndex: 90,
+            padding: '24px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            overflowY: 'auto',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+          }}>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {navItems.map((item) => {
+                const isActive = currentTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '14px 16px',
+                      borderRadius: '10px',
+                      fontSize: '15px',
+                      fontWeight: isActive ? 700 : 600,
+                      backgroundColor: isActive ? '#0F172A' : 'transparent',
+                      color: isActive ? '#FFFFFF' : '#334155',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <span style={{ color: isActive ? '#C6F432' : '#64748B' }}>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div style={{ paddingTop: '20px', borderTop: '1px solid #E2E8F0', marginTop: '24px' }}>
+              <div style={{ marginBottom: '14px', fontSize: '14px', color: '#64748B' }}>
+                Signed in as <strong>{currentUser?.name || 'Platform Admin'}</strong>
+              </div>
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  backgroundColor: '#DC2626',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <LogOut size={18} color="#FFFFFF" />
+                <span>Sign Out of Admin Console</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Page Content Container */}
         <main style={{
