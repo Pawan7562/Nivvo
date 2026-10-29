@@ -4,6 +4,17 @@ import { playClickSound, playAddSound, playTrialSound } from '../utils/audioEffe
 
 const NivvoAppContext = createContext();
 
+export const parsePrice = (val) => {
+  if (typeof val === 'number') return isNaN(val) ? 0 : val;
+  if (!val) return 0;
+  if (typeof val === 'string') {
+    const cleaned = val.replace(/[^0-9.]/g, '');
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
+};
+
 export const isNativeMobileApp = () => {
   try {
     if (typeof window === 'undefined') return false;
@@ -2712,8 +2723,13 @@ export function NivvoAppProvider({ children }) {
     }, 2800);
   };
 
-  // Cart Calculations
-  const cartSubtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  // Cart Calculations with safe number parsing
+  const cartSubtotal = cart.reduce((acc, item) => {
+    const itemPrice = parsePrice(item.price);
+    const itemQty = Number(item.quantity) || 1;
+    return acc + (itemPrice * itemQty);
+  }, 0);
+
   // Free delivery rule: ₹200 or more is FREE (0), below ₹200 is ₹39
   const cartDeliveryFee = (cart.length > 0 && cartSubtotal < 200) ? 39 : 0;
   const cartPlatformFee = cart.length > 0 ? 9 : 0;
@@ -2721,54 +2737,74 @@ export function NivvoAppProvider({ children }) {
   let discountAmount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.type === 'flat') {
-      discountAmount = Math.min(appliedCoupon.value, cartSubtotal);
+      discountAmount = Math.min(Number(appliedCoupon.value) || 0, cartSubtotal);
     } else if (appliedCoupon.type === 'percent') {
-      discountAmount = Math.round((cartSubtotal * appliedCoupon.value) / 100);
+      discountAmount = Math.round((cartSubtotal * (Number(appliedCoupon.value) || 0)) / 100);
     } else if (appliedCoupon.type === 'freedel') {
       discountAmount = cartDeliveryFee;
     }
   }
 
   const cartTotal = Math.max(0, cartSubtotal + cartDeliveryFee + cartPlatformFee - discountAmount);
-  const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalCartCount = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
 
   // Cart Actions
   const addToCart = (product, size = 'UK 8', customShop = null) => {
     playAddSound();
-    const shop = customShop || { name: product.shopName || 'Sole Street', id: product.shopId || 'sole-street' };
-    const cartItemId = `cart-${shop.id}-${product.id || 'custom'}-${size}`;
+    
+    // Support passing size inside product object
+    const selectedSize = size || product.size || 'UK 8';
 
-    const baseSellerPrice = product.sellerPrice || (product.price ? Math.round(product.price / 1.10) : 100);
-    const baseCommission = product.commission || (product.price ? (product.price - baseSellerPrice) : 10);
-    const custPrice = product.price || (baseSellerPrice + baseCommission);
+    // Parse clean numeric prices
+    const rawPrice = product.priceNum !== undefined ? product.priceNum : product.price;
+    const numPrice = parsePrice(rawPrice) || 1299;
+    const numOrigPrice = parsePrice(product.originalPrice) || Math.round(numPrice * 1.25);
+    const numSellerPrice = parsePrice(product.sellerPrice) || Math.round(numPrice / 1.10);
+    const numCommission = parsePrice(product.commission) || (numPrice - numSellerPrice);
+
+    // Resolve shop name and shop id
+    let shopName = product.shopName || product.shop || '';
+    if (!shopName && product.proximity) {
+      shopName = product.proximity.split('·')[0].trim();
+    }
+    if (!shopName) shopName = 'Sole Street';
+
+    const shopId = product.shopId || shopName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const shop = customShop || { name: shopName, id: shopId };
+
+    const prodId = product.id || `nv-prod-${Date.now()}`;
+    const cartItemId = `cart-${shop.id}-${prodId}-${selectedSize}`;
+
+    const prodName = product.name || product.title || 'Everyday Court Sneaker';
+    const prodImage = product.image || product.img || '/assets/figma/product_court_sneaker.png';
 
     setCart(prevCart => {
-      const existing = prevCart.find(i => i.id === cartItemId || (i.productId === product.id && i.size === size));
+      const existing = prevCart.find(i => i.id === cartItemId || (i.productId === prodId && i.size === selectedSize));
       if (existing) {
-        return prevCart.map(i => i === existing ? { ...i, quantity: i.quantity + 1 } : i);
+        return prevCart.map(i => i === existing ? { ...i, quantity: (Number(i.quantity) || 1) + 1 } : i);
       } else {
         const newItem = {
           id: cartItemId,
-          productId: product.id || `nv-prod-${Date.now()}`,
+          productId: prodId,
           shopId: shop.id,
           shopName: shop.name,
-          name: product.name,
-          variant: `${product.color || 'Standard'} · ${size}`,
-          size: size,
-          sellerPrice: baseSellerPrice,
-          commission: baseCommission,
-          price: custPrice,
-          originalPrice: product.originalPrice || (custPrice + 300),
-          eta: product.deliveryTime || '12–18 min',
-          stockNote: `${size} reserved at checkout · Local verified stock`,
-          image: product.image || '/assets/figma/product_court_sneaker.png',
+          name: prodName,
+          variant: `${product.color || 'Standard'} · ${selectedSize}`,
+          size: selectedSize,
+          sellerPrice: numSellerPrice,
+          commission: numCommission,
+          price: numPrice,
+          originalPrice: numOrigPrice,
+          eta: product.deliveryTime || product.eta || '12–18 min',
+          stockNote: `${selectedSize} reserved at checkout · Local verified stock`,
+          image: prodImage,
           quantity: 1
         };
         return [...prevCart, newItem];
       }
     });
 
-    showToast(`Added ${product.name} (${size}) to your bag 🛍️`);
+    showToast(`Added ${prodName} (${selectedSize}) to your bag 🛍️`);
   };
 
   const updateCartQuantity = (cartItemId, delta) => {
@@ -3048,6 +3084,7 @@ export function NivvoAppProvider({ children }) {
       cartPlatformFee,
       discountAmount,
       cartTotal,
+      parsePrice,
       // Coupons
       appliedCoupon,
       applyCouponCode,

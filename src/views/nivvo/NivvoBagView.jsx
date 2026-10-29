@@ -32,11 +32,19 @@ export default function NivvoBagView({
     setAuthModalRole
   } = useNivvo();
 
+  const safeNum = (v, fallback = 0) => {
+    if (typeof v === 'number') return isNaN(v) ? fallback : v;
+    if (!v) return fallback;
+    const n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? fallback : n;
+  };
+
   // Free delivery threshold: ₹200 or more
   const FREE_DELIVERY_THRESHOLD = 200;
-  const isFreeDelivery = cartSubtotal >= FREE_DELIVERY_THRESHOLD;
-  const amountNeeded = Math.max(0, FREE_DELIVERY_THRESHOLD - cartSubtotal);
-  const deliveryProgress = Math.min(100, Math.round((cartSubtotal / FREE_DELIVERY_THRESHOLD) * 100));
+  const subtotal = safeNum(cartSubtotal, 0);
+  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
+  const amountNeeded = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
+  const deliveryProgress = Math.min(100, Math.round((subtotal / FREE_DELIVERY_THRESHOLD) * 100));
 
   // Doorstep Trial Opt-in
   const [doorstepTrialEnabled, setDoorstepTrialEnabled] = useState(true);
@@ -308,11 +316,11 @@ export default function NivvoBagView({
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
                           <span style={{ fontSize: '15px', fontWeight: 800, color: '#20251F' }}>
-                            ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                            ₹{(safeNum(item.price, 1299) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
                           </span>
                           {item.originalPrice && (
                             <span style={{ fontSize: '11px', color: '#73796F', textDecoration: 'line-through' }}>
-                              ₹{(item.originalPrice * item.quantity).toLocaleString('en-IN')}
+                              ₹{(safeNum(item.originalPrice, Math.round(safeNum(item.price, 1299) * 1.25)) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
                             </span>
                           )}
                         </div>
@@ -533,25 +541,25 @@ export default function NivvoBagView({
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
                 <span>Item Total ({totalCartCount} item{totalCartCount > 1 ? 's' : ''})</span>
-                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{cartSubtotal.toLocaleString('en-IN')}</span>
+                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartSubtotal, 0).toLocaleString('en-IN')}</span>
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
                 <span>Delivery ({uniqueShops.length} pickup{uniqueShops.length > 1 ? 's' : ''})</span>
                 <span style={{ color: '#20251F', fontWeight: 600 }}>
-                  {isFreeDelivery ? <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span> : `₹${cartDeliveryFee}`}
+                  {isFreeDelivery ? <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span> : `₹${safeNum(cartDeliveryFee, 0)}`}
                 </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
                 <span>Platform Fee</span>
-                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{cartPlatformFee}</span>
+                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartPlatformFee, 9)}</span>
               </div>
 
               {discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#238636' }}>
                   <span>Coupon Discount ({appliedCoupon?.code})</span>
-                  <span style={{ fontWeight: 800 }}>-₹{discountAmount}</span>
+                  <span style={{ fontWeight: 800 }}>-₹{safeNum(discountAmount, 0)}</span>
                 </div>
               )}
 
@@ -566,7 +574,7 @@ export default function NivvoBagView({
                   <span style={{ fontSize: '11px', color: '#73796F' }}>Inclusive of all taxes</span>
                 </div>
                 <span style={{ fontSize: '18px', fontWeight: 900, color: '#20251F' }}>
-                  ₹{cartTotal.toLocaleString('en-IN')}
+                  ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}
                 </span>
               </div>
             </div>
@@ -626,7 +634,7 @@ export default function NivvoBagView({
               else navigateTo('checkout');
             }}
           >
-            <span>Proceed to Checkout · ₹{cartTotal.toLocaleString('en-IN')}</span>
+            <span>Proceed to Checkout · ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}</span>
             <ArrowRight size={17} />
           </button>
         </div>

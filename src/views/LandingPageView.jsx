@@ -1340,7 +1340,15 @@ export default function LandingPageView({
                             className="figma-card-trial-btn"
                             onClick={() => {
                               playTrialSound();
-                              addToCart({ ...prod, size: prod.sizes ? prod.sizes[0] : 'Free Size', isTrial: true });
+                              addToCart({
+                                ...prod,
+                                name: prod.title,
+                                price: prod.priceNum !== undefined ? prod.priceNum : prod.price,
+                                originalPrice: prod.originalPrice,
+                                image: prod.img,
+                                size: prod.sizes ? prod.sizes[0] : 'Free Size',
+                                isTrial: true
+                              }, prod.sizes ? prod.sizes[0] : 'Free Size');
                               showToast(`Added 2-Size Trial for ${prod.title} to bag!`);
                             }}
                           >
@@ -1353,7 +1361,14 @@ export default function LandingPageView({
                           className={`figma-card-add-btn${inBagItem ? ' in-cart' : ''}`}
                           onClick={() => {
                             playAddSound();
-                            addToCart({ ...prod, size: prod.sizes ? prod.sizes[0] : 'Standard' });
+                            addToCart({
+                              ...prod,
+                              name: prod.title,
+                              price: prod.priceNum !== undefined ? prod.priceNum : prod.price,
+                              originalPrice: prod.originalPrice,
+                              image: prod.img,
+                              size: prod.sizes ? prod.sizes[0] : 'Standard'
+                            }, prod.sizes ? prod.sizes[0] : 'Standard');
                             showToast(`Added ${prod.title} to bag!`);
                           }}
                           title="Add to Bag"
@@ -2345,11 +2360,12 @@ export default function LandingPageView({
                       addToCart({
                         id: showProductModal.id,
                         name: showProductModal.title,
-                        price: showProductModal.priceNum,
+                        price: showProductModal.priceNum !== undefined ? showProductModal.priceNum : showProductModal.price,
+                        originalPrice: showProductModal.originalPrice,
                         image: showProductModal.img,
                         size: showProductModal.sizes ? modalPrimarySize : (showProductModal.weight || 'Standard'),
                         quantity: 1
-                      });
+                      }, showProductModal.sizes ? modalPrimarySize : (showProductModal.weight || 'Standard'));
                     }
                     setShowProductModal(null);
                     showToast(`Added ${showProductModal.title} to bag!`);
