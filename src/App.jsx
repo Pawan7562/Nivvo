@@ -135,16 +135,16 @@ function AppContent() {
   // When on website mode or on any website portal screen, render full desktop view
   const isWebPortal = platformMode === 'web' || [
     'landing',
-    'seller-dash', 'seller-prods', 'seller-orders', 
+    'seller-dash', 'seller-overview', 'seller-prods', 'seller-orders', 
     'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support',
-    'admin-overview', 'admin-sellers'
+    'admin-overview', 'admin-sellers', 'profile'
   ].includes(currentScreen) || currentScreen.startsWith('seller-') || currentScreen.startsWith('admin-');
 
   // On website, hide the mobile bottom navigation bar completely
   const hideBottomNav = platformMode === 'web' || [
-    'landing',
+    'landing', 'profile',
     'bag', 'checkout', 'product-detail', 
-    'seller-dash', 'seller-prods', 'seller-orders',
+    'seller-dash', 'seller-overview', 'seller-prods', 'seller-orders',
     'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support',
     'rider-duty', 'rider-active', 'rider-earnings', 'rider-support', 'rider-profile',
     'admin-overview', 'admin-sellers', 'brand'
@@ -638,7 +638,7 @@ function AppContent() {
           )}
 
           {/* Shop Owner Screens (9 to 11) - Handled Exclusively on Desktop Website Portal */}
-          {platformMode === 'web' && currentScreen === 'seller-dash' && (
+          {platformMode === 'web' && (currentScreen === 'seller-dash' || currentScreen === 'seller-overview') && (
             currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
               <ApplicationStatusView 
                 role="seller"
@@ -654,7 +654,7 @@ function AppContent() {
               />
             ) : (
               <NivvoSellerDashboard 
-                onBack={() => navigateTo('home')}
+                onBack={() => navigateTo('landing')}
               />
             )
           )}
@@ -790,7 +790,7 @@ function AppContent() {
           {/* Platform Admin Screens (15 to 16) - Handled Exclusively on Desktop Website Portal */}
           {platformMode === 'web' && currentScreen === 'admin-overview' && (
             <NivvoAdminOverviewView 
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo('landing')}
               onNavigateSellers={() => navigateTo('admin-sellers')}
             />
           )}
@@ -804,7 +804,7 @@ function AppContent() {
           {/* Brand System (17) */}
           {currentScreen === 'brand' && (
             <NivvoBrandSystemView 
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
             />
           )}
 
@@ -900,8 +900,8 @@ function AppContent() {
           </nav>
         )}
 
-        {/* Customer Mode Bottom Navigation Bar (Home, Categories, Shop, Orders, You) */}
-        {!isRiderActive && !hideBottomNav && (
+        {/* Customer Mode Bottom Navigation Bar (Mobile App ONLY: Home, Categories, Shop, Orders, You) */}
+        {platformMode === 'app' && !isRiderActive && !hideBottomNav && (
           <nav className="nivvo-bottom-nav" role="navigation" aria-label="Customer Bottom Navigation">
             <button 
               id="nivvo-nav-home"

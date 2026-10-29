@@ -125,7 +125,7 @@ body {
     padding-bottom: calc(76px + env(safe-area-inset-bottom, 16px)) !important;
   }
 
-  /* Fixed Bottom Navigation (Home, Shop, Orders, You) */
+  /* Fixed Bottom Navigation (Mobile App ONLY: Home, Shop, Orders, You) */
   .nivvo-bottom-nav {
     position: fixed !important;
     bottom: 0 !important;
@@ -144,6 +144,23 @@ body {
     justify-content: space-around !important;
     align-items: center !important;
     z-index: 1000 !important;
+  }
+
+  /* Desktop and Web Platform Guard: Strictly hide mobile bottom navigation bar */
+  .mode-web-portal .nivvo-bottom-nav,
+  body.web-platform-active .nivvo-bottom-nav,
+  html.web-platform-active .nivvo-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  @media (min-width: 820px) {
+    .nivvo-bottom-nav {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
   }
 
   /* Sticky Footer Action Bar (for Product Detail, Bag, Checkout) */
