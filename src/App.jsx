@@ -35,6 +35,7 @@ import NivvoAdminOverviewView from './views/nivvo/NivvoAdminOverviewView';
 import NivvoAdminSellersView from './views/nivvo/NivvoAdminSellersView';
 import NivvoBrandSystemView from './views/nivvo/NivvoBrandSystemView';
 import NivvoProfileView from './views/nivvo/NivvoProfileView';
+import NivvoWebCustomerPortal from './views/nivvo/NivvoWebCustomerPortal';
 
 import { NIVVO_PRODUCTS, NIVVO_SHOPS } from './data/nivvoData';
 import { ShoppingBag, ChevronDown, Search, Home, Store, Package, User, Smartphone, Tablet, Monitor, Bell, Heart, Bike, Zap, TrendingUp, RotateCcw, HelpCircle, Menu, LayoutGrid, Wifi, Battery, MapPin, X, Mic } from 'lucide-react';
@@ -807,11 +808,17 @@ function AppContent() {
             />
           )}
 
-          {/* Customer Profile, Dashboard & Support Hub - Handled in Both Website & Mobile App */}
-          {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'profile' && (
-            <NivvoProfileView 
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
-            />
+          {/* Customer Profile, Dashboard & Support Hub */}
+          {currentScreen === 'profile' && (
+            platformMode === 'web' ? (
+              <NivvoWebCustomerPortal 
+                onBack={() => navigateTo('landing')}
+              />
+            ) : (
+              <NivvoProfileView 
+                onBack={() => navigateTo('home')}
+              />
+            )
           )}
         </div>
 

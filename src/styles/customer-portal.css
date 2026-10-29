@@ -1,0 +1,812 @@
+/* ==========================================================================
+   NIVVO LUXURY CUSTOMER PORTAL & ACCOUNT DASHBOARD (DESKTOP WEBSITE)
+   High-end, responsive web layout for customer profile, orders, & addresses
+   ========================================================================== */
+
+.nivvo-cust-portal {
+  min-height: 100vh;
+  background-color: #F7F9F5;
+  color: #1A3622;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top Bar ── */
+.nivvo-cust-topbar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E7EDE3;
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 2px 10px rgba(26, 54, 34, 0.03);
+}
+
+.nivvo-cust-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.nivvo-cust-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #24452D;
+  color: #B7F34A;
+}
+
+.nivvo-cust-brand-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #24452D;
+}
+
+.nivvo-cust-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #71826E;
+  margin-left: 12px;
+  padding-left: 16px;
+  border-left: 1px solid #E7EDE3;
+}
+
+.nivvo-cust-breadcrumb span.current {
+  color: #24452D;
+  font-weight: 700;
+}
+
+.nivvo-cust-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nivvo-cust-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: #F1F5EE;
+  color: #24452D;
+  border: 1px solid #DCE4D8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.nivvo-cust-back-btn:hover {
+  background: #24452D;
+  color: #FFFFFF;
+  border-color: #24452D;
+}
+
+.nivvo-cust-cart-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: #24452D;
+  color: #FFFFFF;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.nivvo-cust-cart-badge-btn:hover {
+  opacity: 0.92;
+}
+
+.nivvo-cust-cart-count {
+  background: #B7F34A;
+  color: #1A3622;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* ── Main Layout Container (Sidebar + Content) ── */
+.nivvo-cust-layout {
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  gap: 32px;
+  max-width: 1380px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 40px 60px 40px;
+  flex: 1;
+}
+
+/* ── Sidebar ── */
+.nivvo-cust-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nivvo-cust-user-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 26px 22px;
+  border: 1px solid #E7EDE3;
+  box-shadow: 0 4px 16px rgba(36, 69, 45, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.nivvo-cust-avatar-wrapper {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.nivvo-cust-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1C3322, #24452D);
+  color: #B7F34A;
+  font-size: 26px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(36, 69, 45, 0.15);
+}
+
+.nivvo-cust-vip-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #F59E0B;
+  color: #FFFFFF;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nivvo-cust-user-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1A3622;
+  margin: 0 0 4px 0;
+}
+
+.nivvo-cust-user-contact {
+  font-size: 13px;
+  color: #6B7A68;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.nivvo-cust-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EEF5E6;
+  color: #15803D;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.nivvo-cust-nav-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 12px;
+  border: 1px solid #E7EDE3;
+  box-shadow: 0 4px 16px rgba(36, 69, 45, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nivvo-cust-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #435242;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.nivvo-cust-nav-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nivvo-cust-nav-item:hover {
+  background: #F4F7F1;
+  color: #1A3622;
+}
+
+.nivvo-cust-nav-item.active {
+  background: #24452D;
+  color: #FFFFFF;
+}
+
+.nivvo-cust-nav-item.active .nivvo-cust-nav-icon {
+  color: #B7F34A;
+}
+
+.nivvo-cust-nav-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.nivvo-cust-nav-item.active .nivvo-cust-nav-badge {
+  background: #B7F34A;
+  color: #1A3622;
+}
+
+.nivvo-cust-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #DC2626;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+  width: 100%;
+  margin-top: 4px;
+  border-top: 1px solid #F1F5EE;
+}
+
+.nivvo-cust-logout-btn:hover {
+  background: #FEE2E2;
+}
+
+/* ── Content Area ── */
+.nivvo-cust-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.nivvo-cust-header-banner {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 24px 30px;
+  border: 1px solid #E7EDE3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.nivvo-cust-header-title h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1A3622;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.nivvo-cust-header-title p {
+  font-size: 13.5px;
+  color: #6B7A68;
+  margin: 0;
+}
+
+.nivvo-cust-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: #24452D;
+  color: #FFFFFF;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.nivvo-cust-btn-primary:hover {
+  background: #1C3322;
+  transform: translateY(-1px);
+}
+
+.nivvo-cust-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #24452D;
+  border: 1px solid #DCE4D8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.nivvo-cust-btn-outline:hover {
+  border-color: #24452D;
+  background: #F7F9F5;
+}
+
+/* ── Metrics Cards Grid ── */
+.nivvo-cust-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.nivvo-cust-metric-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid #E7EDE3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nivvo-cust-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(36, 69, 45, 0.05);
+}
+
+.nivvo-cust-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nivvo-cust-metric-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #EEF5E6;
+  color: #15803D;
+}
+
+.nivvo-cust-metric-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1A3622;
+  letter-spacing: -0.02em;
+}
+
+.nivvo-cust-metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7A68;
+}
+
+/* ── Live Active Delivery Card ── */
+.nivvo-cust-active-order-card {
+  background: linear-gradient(135deg, #1C3322 0%, #24452D 100%);
+  border-radius: 20px;
+  padding: 24px 28px;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 10px 28px rgba(36, 69, 45, 0.14);
+}
+
+.nivvo-cust-active-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nivvo-cust-active-pulsing-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(183, 243, 74, 0.18);
+  color: #B7F34A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nivvo-cust-active-info h3 {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  color: #FFFFFF;
+}
+
+.nivvo-cust-active-info p {
+  font-size: 13px;
+  color: #A8C4A0;
+  margin: 0;
+}
+
+.nivvo-cust-active-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nivvo-cust-active-otp {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #B7F34A;
+}
+
+/* ── Orders List ── */
+.nivvo-cust-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nivvo-cust-order-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1px solid #E7EDE3;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.18s ease;
+}
+
+.nivvo-cust-order-card:hover {
+  border-color: #C5D6BF;
+}
+
+.nivvo-cust-order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #F1F5EE;
+}
+
+.nivvo-cust-order-id-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nivvo-cust-order-id {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1A3622;
+}
+
+.nivvo-cust-order-date {
+  font-size: 12px;
+  color: #71826E;
+}
+
+.nivvo-cust-order-status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nivvo-cust-order-status-pill.delivered {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.nivvo-cust-order-status-pill.transit {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.nivvo-cust-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nivvo-cust-order-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+}
+
+.nivvo-cust-order-item-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nivvo-cust-order-item-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #F7F9F5;
+}
+
+.nivvo-cust-order-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #F1F5EE;
+}
+
+.nivvo-cust-order-total {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1A3622;
+}
+
+.nivvo-cust-order-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Addresses Grid ── */
+.nivvo-cust-addresses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.nivvo-cust-address-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid #E7EDE3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all 0.16s ease;
+  position: relative;
+}
+
+.nivvo-cust-address-card.selected {
+  border-color: #24452D;
+  box-shadow: 0 4px 16px rgba(36, 69, 45, 0.08);
+}
+
+.nivvo-cust-addr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nivvo-cust-addr-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #EEF5E6;
+  color: #15803D;
+}
+
+.nivvo-cust-addr-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nivvo-cust-addr-icon-btn {
+  background: none;
+  border: none;
+  color: #71826E;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.nivvo-cust-addr-icon-btn:hover {
+  color: #1A3622;
+}
+
+.nivvo-cust-addr-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1A3622;
+  margin: 0 0 6px 0;
+}
+
+.nivvo-cust-addr-text {
+  font-size: 13px;
+  color: #56634F;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Wallet Card ── */
+.nivvo-cust-wallet-banner {
+  background: linear-gradient(135deg, #1C3322 0%, #24452D 50%, #366542 100%);
+  border-radius: 22px;
+  padding: 32px 36px;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  box-shadow: 0 12px 32px rgba(36, 69, 45, 0.12);
+}
+
+.nivvo-cust-wallet-balance-wrap span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #A8C4A0;
+}
+
+.nivvo-cust-wallet-amount {
+  font-size: 36px;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 6px 0 0 0;
+  letter-spacing: -0.03em;
+}
+
+.nivvo-cust-wallet-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.nivvo-cust-quick-amt-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nivvo-cust-quick-amt-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Form Card & Controls ── */
+.nivvo-cust-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid #E7EDE3;
+  box-shadow: 0 4px 16px rgba(36, 69, 45, 0.03);
+}
+
+.nivvo-cust-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.nivvo-cust-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nivvo-cust-form-group.full {
+  grid-column: 1 / -1;
+}
+
+.nivvo-cust-form-group label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #364433;
+}
+
+.nivvo-cust-input {
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid #DCE4D8;
+  font-size: 13.5px;
+  color: #1A3622;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.nivvo-cust-input:focus {
+  border-color: #24452D;
+}
+
+/* ── Responsive Breakpoints ── */
+@media (max-width: 1080px) {
+  .nivvo-cust-layout {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+  .nivvo-cust-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .nivvo-cust-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .nivvo-cust-addresses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .nivvo-cust-topbar {
+    padding: 12px 18px;
+  }
+  .nivvo-cust-sidebar {
+    grid-template-columns: 1fr;
+  }
+  .nivvo-cust-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .nivvo-cust-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
