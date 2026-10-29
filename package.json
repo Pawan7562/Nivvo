@@ -7,7 +7,10 @@
     "dev": "vite",
     "server": "node server/server.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bundle:apk": "vite build && node scripts/prepare-standalone-apk.cjs",
+    "build:apk": "npm run bundle:apk && cd expo-apk && npx eas-cli build -p android --profile preview",
+    "build:playstore": "npm run bundle:apk && cd expo-apk && npx eas-cli build -p android --profile production"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
