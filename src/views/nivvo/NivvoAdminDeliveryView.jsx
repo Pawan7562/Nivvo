@@ -260,56 +260,70 @@ export default function NivvoAdminDeliveryView({ onBack }) {
           </h2>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: uniqueHubs.length > 0 ? 'repeat(auto-fit, minmax(320px, 1fr))' : '1fr',
             gap: '18px'
           }}>
-            {uniqueHubs.map((hub, i) => (
-              <div key={i} style={{
+            {uniqueHubs.length === 0 ? (
+              <div style={{
                 backgroundColor: '#FFFFFF',
                 border: '1px solid #E2E8F0',
                 borderRadius: '16px',
-                padding: '20px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                padding: '32px 24px',
+                textAlign: 'center',
+                color: '#64748B'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
-                    {hub.name}
-                  </div>
-                  <span style={{
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    backgroundColor: hub.status === 'Active' ? '#ECFDF5' : '#F1F5F9',
-                    color: hub.status === 'Active' ? '#065F46' : '#64748B',
-                    padding: '3px 8px',
-                    borderRadius: '6px'
-                  }}>
-                    {hub.status}
-                  </span>
-                </div>
-                <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>
-                  {hub.address}
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Assigned Couriers</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>{hub.couriers} Fleet</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Online on Duty</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#16A34A', marginTop: '2px' }}>{hub.onlineCouriers} Couriers</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fulfillment Speed</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>Instant Handover</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fleet Radar</div>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563EB', marginTop: '2px' }}>Connected</div>
-                  </div>
-                </div>
+                <div style={{ fontWeight: 600, color: '#0F172A', marginBottom: '4px' }}>No active couriers assigned to pods</div>
+                <div style={{ fontSize: '13px' }}>As delivery riders register and check into dark stores, their live telemetry will appear here.</div>
               </div>
-            ))}
+            ) : (
+              uniqueHubs.map((hub, i) => (
+                <div key={i} style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                      {hub.name}
+                    </div>
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      backgroundColor: hub.status === 'Active' ? '#ECFDF5' : '#F1F5F9',
+                      color: hub.status === 'Active' ? '#065F46' : '#64748B',
+                      padding: '3px 8px',
+                      borderRadius: '6px'
+                    }}>
+                      {hub.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>
+                    {hub.address}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Assigned Couriers</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>{hub.couriers} Fleet</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Online on Duty</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#16A34A', marginTop: '2px' }}>{hub.onlineCouriers} Couriers</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fulfillment Speed</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>Instant Handover</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>Fleet Radar</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563EB', marginTop: '2px' }}>Connected</div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

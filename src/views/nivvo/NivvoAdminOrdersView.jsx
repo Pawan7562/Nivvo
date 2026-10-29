@@ -402,8 +402,13 @@ export default function NivvoAdminOrdersView({ onBack }) {
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B', fontSize: '15px' }}>
-                      No orders found matching the filter criteria.
+                    <td colSpan={7} style={{ padding: '56px 20px', textAlign: 'center', color: '#64748B', fontSize: '15px' }}>
+                      <div style={{ fontWeight: 600, color: '#0F172A', marginBottom: '6px' }}>
+                        {searchQuery ? 'No orders match your search' : 'No customer orders placed yet'}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#94A3B8' }}>
+                        {searchQuery ? 'Try clearing your search query' : 'When shoppers place orders, they will stream here live in real-time.'}
+                      </div>
                     </td>
                   </tr>
                 ) : (

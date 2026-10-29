@@ -115,88 +115,6 @@ export async function initAuthSchema(pool) {
       );
     }
 
-    // 7. Seed default approved Delivery Partner account
-    const riderPhone = '+91 98450 12345';
-    const riderEmail = 'ravi.fleet@nivvo.in';
-    const riderPassHash = await bcrypt.hash('Rider@Nivvo2026!', 10);
-    let riderUserId = null;
-
-    const existingRiderUser = await pool.query('SELECT * FROM users WHERE phone = $1 OR email = $2', [riderPhone, riderEmail]);
-    if (existingRiderUser.rows.length === 0) {
-      const insRes = await pool.query(
-        `INSERT INTO users (role, name, phone, email, password_hash, is_verified, status)
-         VALUES ('rider', 'Ravi Kumar', $1, $2, $3, true, 'active')
-         RETURNING id`,
-        [riderPhone, riderEmail, riderPassHash]
-      );
-      riderUserId = insRes.rows[0].id;
-      console.log('🚲 Default Delivery Partner Account Initialized: +91 98450 12345 / Rider@Nivvo2026!');
-    } else {
-      riderUserId = existingRiderUser.rows[0].id;
-      await pool.query(
-        `UPDATE users SET role = 'rider', password_hash = $1, is_verified = true, status = 'active'
-         WHERE phone = $2 OR email = $3`,
-        [riderPassHash, riderPhone, riderEmail]
-      );
-    }
-
-    // Ensure delivery_partners table record exists and is approved
-    const existingDp = await pool.query("SELECT * FROM delivery_partners WHERE REPLACE(phone, ' ', '') = REPLACE($1, ' ', '')", [riderPhone]);
-    if (existingDp.rows.length === 0) {
-      await pool.query(
-        `INSERT INTO delivery_partners (user_id, partner_id, name, phone, email, city, hub_id, vehicle_type, vehicle_number, verification_status, status, is_online, total_deliveries, today_earnings)
-         VALUES ($1, 'RDR-2041', 'Ravi Kumar', $2, $3, 'Bengaluru', 'Indiranagar Hub #14', 'Electric Scooter (EV)', 'KA-03-EV-4421', 'approved', 'ACTIVE', true, 428, 1240)`,
-        [riderUserId, riderPhone, riderEmail]
-      );
-    } else {
-      await pool.query(
-        `UPDATE delivery_partners SET user_id = $1, verification_status = 'approved', status = 'ACTIVE', is_online = true
-         WHERE id = $2`,
-        [riderUserId, existingDp.rows[0].id]
-      );
-    }
-
-    // 8. Seed default approved Seller account (Sole Street Sneaker Studio)
-    const sellerPhone = '+91 98450 67890';
-    const sellerEmail = 'seller@solestreet.in';
-    const sellerPassHash = await bcrypt.hash('Seller@Nivvo2026!', 10);
-    let sellerUserId = null;
-
-    const existingSellerUser = await pool.query('SELECT * FROM users WHERE phone = $1 OR email = $2', [sellerPhone, sellerEmail]);
-    if (existingSellerUser.rows.length === 0) {
-      const insRes = await pool.query(
-        `INSERT INTO users (role, name, phone, email, password_hash, is_verified, status)
-         VALUES ('seller', 'Vikram Sen', $1, $2, $3, true, 'active')
-         RETURNING id`,
-        [sellerPhone, sellerEmail, sellerPassHash]
-      );
-      sellerUserId = insRes.rows[0].id;
-      console.log('🏪 Default Merchant Account Initialized: seller@solestreet.in / Seller@Nivvo2026!');
-    } else {
-      sellerUserId = existingSellerUser.rows[0].id;
-      await pool.query(
-        `UPDATE users SET role = 'seller', password_hash = $1, is_verified = true, status = 'active'
-         WHERE phone = $2 OR email = $3`,
-        [sellerPassHash, sellerPhone, sellerEmail]
-      );
-    }
-
-    // Ensure shop_partners table record exists and is approved
-    const existingShop = await pool.query("SELECT * FROM shop_partners WHERE REPLACE(phone, ' ', '') = REPLACE($1, ' ', '')", [sellerPhone]);
-    if (existingShop.rows.length === 0) {
-      await pool.query(
-        `INSERT INTO shop_partners (user_id, partner_id, owner_name, shop_name, phone, email, category, address, city, state, pincode, verification_status, status, rating, total_orders, today_revenue)
-         VALUES ($1, 'SHP-1001', 'Vikram Sen', 'Sole Street Sneaker Studio', $2, $3, 'Footwear & Apparel', '100ft Road, Indiranagar', 'Bengaluru', 'Karnataka', '560038', 'approved', 'ACTIVE', 4.9, 142, 284500)`,
-        [sellerUserId, sellerPhone, sellerEmail]
-      );
-    } else {
-      await pool.query(
-        `UPDATE shop_partners SET user_id = $1, verification_status = 'approved', status = 'ACTIVE'
-         WHERE id = $2`,
-        [sellerUserId, existingShop.rows[0].id]
-      );
-    }
-
     console.log('🔒 Nivvo Production Authentication & Verification Tables Ready!');
   } catch (err) {
     console.error('Error initializing auth schema:', err);
@@ -1326,7 +1244,7 @@ export function createAuthRouter(pool) {
           if (dpRes.rows.length === 0) {
             await pool.query(
               `INSERT INTO delivery_partners (user_id, partner_id, name, phone, email, city, hub_id, vehicle_type, vehicle_number, verification_status, status, is_online, total_deliveries, today_earnings)
-               VALUES ($1, 'RDR-2041', $2, $3, $4, 'Bengaluru', 'Indiranagar Hub #14', 'Electric Scooter (EV)', 'KA-03-EV-4421', 'approved', 'ACTIVE', true, 428, 1240)
+               VALUES ($1, 'RDR-' || floor(1000 + random() * 9000)::text, $2, $3, $4, 'Bengaluru', 'Indiranagar Hub', 'Electric Scooter (EV)', 'KA-03-EV-0000', 'approved', 'ACTIVE', true, 0, 0)
                ON CONFLICT (phone) DO UPDATE SET user_id = EXCLUDED.user_id, verification_status = 'approved'`,
               [user.id, user.name, user.phone, user.email]
             );

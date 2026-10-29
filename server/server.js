@@ -315,19 +315,19 @@ async function initSchema() {
         phone VARCHAR(30) UNIQUE NOT NULL,
         email VARCHAR(150),
         city VARCHAR(100) DEFAULT 'Bangalore',
-        hub_id VARCHAR(100) DEFAULT 'Indiranagar Dark Store #14',
+        hub_id VARCHAR(100) DEFAULT 'Indiranagar Hub',
         vehicle_type VARCHAR(50) DEFAULT 'Electric Scooter (EV)',
-        vehicle_number VARCHAR(50) DEFAULT 'KA-03-EV-4421',
-        license_number VARCHAR(100) DEFAULT 'DL-04202100892',
-        aadhaar_number VARCHAR(50) DEFAULT 'XXXX-XXXX-4819',
-        bank_account VARCHAR(50) DEFAULT 'HDFC-889129031',
-        bank_ifsc VARCHAR(50) DEFAULT 'HDFC0001824',
-        upi_id VARCHAR(100) DEFAULT 'rahul.ev@okhdfc',
+        vehicle_number VARCHAR(50),
+        license_number VARCHAR(100),
+        aadhaar_number VARCHAR(50),
+        bank_account VARCHAR(50),
+        bank_ifsc VARCHAR(50),
+        upi_id VARCHAR(100),
         status VARCHAR(50) DEFAULT 'ACTIVE',
-        is_online BOOLEAN DEFAULT true,
-        rating NUMERIC DEFAULT 4.96,
-        total_deliveries INT DEFAULT 342,
-        today_earnings NUMERIC DEFAULT 890,
+        is_online BOOLEAN DEFAULT false,
+        rating NUMERIC DEFAULT 5.0,
+        total_deliveries INT DEFAULT 0,
+        today_earnings NUMERIC DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -341,29 +341,24 @@ async function initSchema() {
         category VARCHAR(100) DEFAULT 'Footwear, Apparel & Accessories',
         address TEXT NOT NULL,
         pincode VARCHAR(20) DEFAULT '560038',
-        gstin VARCHAR(50) DEFAULT '29AABCU9603R1ZM',
-        pan_number VARCHAR(50) DEFAULT 'AABCU9603R',
+        gstin VARCHAR(50),
+        pan_number VARCHAR(50),
         fulfillment_model VARCHAR(50) DEFAULT 'dark_store',
-        bank_account VARCHAR(50) DEFAULT 'ICICI-992104812',
-        bank_ifsc VARCHAR(50) DEFAULT 'ICIC0000492',
+        bank_account VARCHAR(50),
+        bank_ifsc VARCHAR(50),
         status VARCHAR(50) DEFAULT 'ACTIVE',
         is_open BOOLEAN DEFAULT true,
-        rating NUMERIC DEFAULT 4.92,
-        total_orders INT DEFAULT 1284,
-        today_revenue NUMERIC DEFAULT 24890,
+        rating NUMERIC DEFAULT 5.0,
+        total_orders INT DEFAULT 0,
+        today_revenue NUMERIC DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      -- Ensure default demo partners exist if empty
-      INSERT INTO delivery_partners (partner_id, name, phone, email, city, hub_id, vehicle_type, vehicle_number, total_deliveries, today_earnings)
-      VALUES ('RDR-1082', 'Rahul Sharma', '+91 9876543210', 'rahul.fleet@blinkwear.in', 'Bangalore', 'Indiranagar Dark Store #14', 'Electric Scooter (EV)', 'KA-03-EV-4421', 342, 890)
-      ON CONFLICT (phone) DO NOTHING;
-
       -- Ensure delivery partner columns exist
-      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS emergency_contact VARCHAR(30) DEFAULT '+91 80 4912 8820';
+      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS emergency_contact VARCHAR(30);
       ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS kyc_status VARCHAR(50) DEFAULT 'APPROVED';
-      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS total_distance_km NUMERIC DEFAULT 142.5;
-      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS incentives_today NUMERIC DEFAULT 120;
+      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS total_distance_km NUMERIC DEFAULT 0;
+      ALTER TABLE delivery_partners ADD COLUMN IF NOT EXISTS incentives_today NUMERIC DEFAULT 0;
 
       CREATE TABLE IF NOT EXISTS delivery_issues (
         id SERIAL PRIMARY KEY,
@@ -375,10 +370,6 @@ async function initSchema() {
         status VARCHAR(50) DEFAULT 'Acknowledged by Fleet Dispatch',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-
-      INSERT INTO shop_partners (shop_id, shop_name, owner_name, phone, email, category, address, pincode, total_orders, today_revenue)
-      VALUES ('SHP-4012', 'Urban Trendz Fashion Boutique', 'Sunita Mehta', '+91 9876543210', 'contact@urbantrendz.in', 'Footwear, Apparel & Accessories', '100ft Road, Indiranagar, Bangalore', '560038', 1284, 24890)
-      ON CONFLICT (phone) DO NOTHING;
 
       -- Ensure all newly added columns exist in shop_partners table
       ALTER TABLE shop_partners ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT 'Bangalore';
@@ -444,7 +435,7 @@ async function initSchema() {
       -- Shop Customer Reviews
       CREATE TABLE IF NOT EXISTS shop_reviews (
         id SERIAL PRIMARY KEY,
-        shop_id VARCHAR(50) NOT NULL DEFAULT 'SHP-4012',
+        shop_id VARCHAR(50) NOT NULL,
         customer_name VARCHAR(100) NOT NULL,
         rating INT NOT NULL DEFAULT 5,
         product_name VARCHAR(150),
@@ -454,35 +445,21 @@ async function initSchema() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      -- Seed sample reviews if empty
-      INSERT INTO shop_reviews (shop_id, customer_name, rating, product_name, comment, merchant_reply, tags)
-      SELECT 'SHP-4012', 'Aarav S.', 5, 'Everyday court sneaker · UK 8', 'Amazing packaging and fit! Delivered in under 12 minutes on Sunday.', 'Thank you Aarav! We take extreme care in prepping each pair.', '["Lightning Fast", "Original Quality", "Perfect Fit"]'::jsonb
-      WHERE NOT EXISTS (SELECT 1 FROM shop_reviews WHERE shop_id = 'SHP-4012');
-
-      INSERT INTO shop_reviews (shop_id, customer_name, rating, product_name, comment, merchant_reply, tags)
-      SELECT 'SHP-4012', 'Meera N.', 5, 'Two-strap leather sandal · UK 7', 'High grade genuine leather. Loved the doorstep try-on option.', NULL, '["Premium Finish", "Great Value"]'::jsonb
-      WHERE (SELECT COUNT(*) FROM shop_reviews WHERE shop_id = 'SHP-4012') < 2;
-
       -- Shop Promotional Campaigns
       CREATE TABLE IF NOT EXISTS shop_campaigns (
         id SERIAL PRIMARY KEY,
         campaign_id VARCHAR(50) UNIQUE NOT NULL,
-        shop_id VARCHAR(50) NOT NULL DEFAULT 'SHP-4012',
+        shop_id VARCHAR(50) NOT NULL,
         title VARCHAR(150) NOT NULL,
         code VARCHAR(50),
         discount_type VARCHAR(50) DEFAULT 'PERCENT',
         discount_val NUMERIC DEFAULT 10,
         min_order NUMERIC DEFAULT 499,
         status VARCHAR(50) DEFAULT 'ACTIVE',
-        usage_count INT DEFAULT 42,
+        usage_count INT DEFAULT 0,
         banner_text TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-
-      -- Seed sample campaign if empty
-      INSERT INTO shop_campaigns (campaign_id, shop_id, title, code, discount_type, discount_val, min_order, status, usage_count, banner_text)
-      SELECT 'CMP-FEST-2026', 'SHP-4012', 'Festive Season Rush Discount', 'FESTIVE10', 'PERCENT', 10, 799, 'ACTIVE', 56, '10% OFF on all festive footwear & ethnic styles'
-      WHERE NOT EXISTS (SELECT 1 FROM shop_campaigns WHERE shop_id = 'SHP-4012');
     `);
     
     // Initialize Auth & Verification schemas
