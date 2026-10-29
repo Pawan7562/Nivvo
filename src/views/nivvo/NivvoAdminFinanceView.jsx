@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   Wallet, Search, Filter, ArrowUpRight, Clock, MapPin, 
@@ -15,83 +15,50 @@ export default function NivvoAdminFinanceView({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedBatch, setSelectedBatch] = useState(null);
+  const [settlements, setSettlements] = useState([]);
+  const [metrics, setMetrics] = useState({
+    totalGmv: 0,
+    platformFeeNet: 0,
+    pendingSettlements: 0,
+    courierPayouts: 0
+  });
+  const [isLoadingFinance, setIsLoadingFinance] = useState(true);
 
-  // Financial Settlement Ledger Dataset
-  const settlements = [
-    {
-      batchId: 'STL-88219',
-      merchant: { name: 'Sole Street Indiranagar', category: 'Sneakers & Streetwear', gstin: '29AABCS1429P1ZK' },
-      bank: { bankName: 'HDFC Bank', accountMasked: '····8821', ifsc: 'HDFC000182' },
-      grossSales: 168400,
-      platformFee: 16840,
-      logisticsFee: 4200,
-      netPayable: 147360,
-      cycle: 'Today · T+1 Clearance',
-      status: 'scheduled',
-      statusLabel: 'Scheduled for 18:00',
-      utr: null
-    },
-    {
-      batchId: 'STL-88218',
-      merchant: { name: 'Elegance Couture', category: 'Designer Kurtis & Silks', gstin: '29AAECE9012M1Z3' },
-      bank: { bankName: 'ICICI Bank', accountMasked: '····4410', ifsc: 'ICIC000041' },
-      grossSales: 94200,
-      platformFee: 9420,
-      logisticsFee: 2350,
-      netPayable: 82430,
-      cycle: 'Today · Immediate',
-      status: 'settled',
-      statusLabel: 'Settled · UTR Available',
-      utr: 'CMS202410298819201'
-    },
-    {
-      batchId: 'STL-88217',
-      merchant: { name: 'Apex Electronics', category: 'Wearables & Audio', gstin: '29AAHCA2291M1Z5' },
-      bank: { bankName: 'Axis Bank', accountMasked: '····9924', ifsc: 'UTIB000084' },
-      grossSales: 245000,
-      platformFee: 24500,
-      logisticsFee: 5800,
-      netPayable: 214700,
-      cycle: 'Today · T+1 Clearance',
-      status: 'scheduled',
-      statusLabel: 'Scheduled for 18:00',
-      utr: null
-    },
-    {
-      batchId: 'STL-88216',
-      merchant: { name: 'Meenakshi Silks & Sarees', category: 'Ethnic Silks & Sarees', gstin: '29AAECM1048P1ZP' },
-      bank: { bankName: 'State Bank of India', accountMasked: '····3319', ifsc: 'SBIN000412' },
-      grossSales: 112000,
-      platformFee: 11200,
-      logisticsFee: 2800,
-      netPayable: 98000,
-      cycle: 'Yesterday · Disbursed',
-      status: 'settled',
-      statusLabel: 'Settled · UTR Available',
-      utr: 'CMS202410284419082'
-    },
-    {
-      batchId: 'STL-88215',
-      merchant: { name: 'Urban Chic Studio', category: 'Western Apparel', gstin: '29AACU9901R1Z8' },
-      bank: { bankName: 'Kotak Mahindra Bank', accountMasked: '····1182', ifsc: 'KKBK000821' },
-      grossSales: 76500,
-      platformFee: 7650,
-      logisticsFee: 1900,
-      netPayable: 66950,
-      cycle: 'Audit Pending',
-      status: 'audit',
-      statusLabel: 'Under Reconciliation',
-      utr: null
+  const loadRealFinance = async () => {
+    try {
+      setIsLoadingFinance(true);
+      const res = await fetch('/api/admin/finance');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.settlements)) {
+          setSettlements(data.settlements);
+        }
+        if (data.metrics) {
+          setMetrics(data.metrics);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load real admin finance:', err);
+    } finally {
+      setIsLoadingFinance(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    loadRealFinance();
+  }, []);
+
+  const scheduledCount = settlements.filter(s => s.status === 'scheduled').length;
+  const settledCount = settlements.filter(s => s.status === 'settled').length;
+  const auditCount = settlements.filter(s => s.status === 'audit').length;
 
   const filteredSettlements = settlements.filter(s => {
     if (activeTab === 'settlements' && selectedStatus !== 'all' && s.status !== selectedStatus) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchBatch = s.batchId.toLowerCase().includes(q);
-      const matchMerchant = s.merchant.name.toLowerCase().includes(q);
-      const matchBank = s.bank.bankName.toLowerCase().includes(q);
+      const matchBatch = s.batchId?.toLowerCase().includes(q);
+      const matchMerchant = s.merchant?.name?.toLowerCase().includes(q);
+      const matchBank = s.bank?.bankName?.toLowerCase().includes(q);
       if (!matchBatch && !matchMerchant && !matchBank) return false;
     }
     return true;
@@ -120,7 +87,7 @@ export default function NivvoAdminFinanceView({ onBack }) {
               Financial Settlement & Clearinghouse
             </h1>
             <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
-              Merchant payment settlement ledger, 10% platform commission accounting, and automated bank payouts.
+              Live PostgreSQL settlement ledger, 10% platform take-rate accounting, and merchant disbursements.
             </p>
           </div>
 
@@ -147,7 +114,8 @@ export default function NivvoAdminFinanceView({ onBack }) {
             </button>
 
             <button
-              onClick={() => { playTrialSound(); showToast('Automated T+1 Bank Disbursals cleared for 48 merchants! 🎉'); }}
+              onClick={() => { playTrialSound(); loadRealFinance(); showToast('T+1 Bank Settlement batch synchronized!'); }}
+              disabled={isLoadingFinance}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -160,11 +128,12 @@ export default function NivvoAdminFinanceView({ onBack }) {
                 fontWeight: 700,
                 color: '#FFFFFF',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(15,23,42,0.15)'
+                boxShadow: '0 2px 4px rgba(15,23,42,0.15)',
+                opacity: isLoadingFinance ? 0.7 : 1
               }}
             >
-              <RefreshCw size={16} color="#FFFFFF" />
-              <span>Execute T+1 Payout Run</span>
+              <RefreshCw size={16} color="#FFFFFF" className={isLoadingFinance ? 'animate-spin' : ''} />
+              <span>{isLoadingFinance ? 'Processing...' : 'Execute T+1 Payout Run'}</span>
             </button>
           </div>
         </div>
@@ -192,11 +161,11 @@ export default function NivvoAdminFinanceView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹8,42,850
+              ₹{(metrics.totalGmv || 0).toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ArrowUpRight size={15} />
-              <span>+18.4% growth today</span>
+              <span>100% Real PostgreSQL Order GMV</span>
             </div>
           </div>
 
@@ -217,10 +186,10 @@ export default function NivvoAdminFinanceView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹84,285
+              ₹{(metrics.platformFeeNet || 0).toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#2563EB', fontWeight: 600 }}>
-              <span>Clean net margin on retail checkouts</span>
+              <span>Clean contractual net margin</span>
             </div>
           </div>
 
@@ -241,10 +210,10 @@ export default function NivvoAdminFinanceView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹3,18,400
+              ₹{(metrics.pendingSettlements || 0).toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#D97706', fontWeight: 600 }}>
-              <span>48 Merchant batches queued for 18:00</span>
+              <span>{settlements.length} Merchant batches queued for T+1</span>
             </div>
           </div>
 
@@ -265,11 +234,11 @@ export default function NivvoAdminFinanceView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹64,200
+              ₹{(metrics.courierPayouts || 0).toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <CheckCircle2 size={15} />
-              <span>84 Couriers paid via Instant UPI</span>
+              <span>Instant Dark-Store Courier Payouts</span>
             </div>
           </div>
         </div>
@@ -289,10 +258,10 @@ export default function NivvoAdminFinanceView({ onBack }) {
           {/* Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {[
-              { id: 'all', label: 'All Batches', count: 48 },
-              { id: 'scheduled', label: 'Scheduled (18:00)', count: 32 },
-              { id: 'settled', label: 'Settled & Paid', count: 14 },
-              { id: 'audit', label: 'Audit Required', count: 2 }
+              { id: 'all', label: 'All Batches', count: settlements.length },
+              { id: 'scheduled', label: 'Scheduled (18:00)', count: scheduledCount },
+              { id: 'settled', label: 'Settled & Paid', count: settledCount },
+              { id: 'audit', label: 'Audit Required', count: auditCount }
             ].map(tab => {
               const active = selectedStatus === tab.id;
               return (
@@ -407,7 +376,7 @@ export default function NivvoAdminFinanceView({ onBack }) {
                 {filteredSettlements.length === 0 ? (
                   <tr>
                     <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B', fontSize: '15px' }}>
-                      No settlement batches found.
+                      {isLoadingFinance ? 'Loading live financial settlements from database...' : 'No settlement batches found.'}
                     </td>
                   </tr>
                 ) : (

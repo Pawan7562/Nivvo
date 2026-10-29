@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   Bike, Search, Filter, ArrowUpRight, Clock, MapPin, 
@@ -21,114 +21,39 @@ export default function NivvoAdminDeliveryView({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedZone, setSelectedZone] = useState('all');
   const [inspectCourier, setInspectCourier] = useState(null);
+  const [couriers, setCouriers] = useState([]);
+  const [isLoadingCouriers, setIsLoadingCouriers] = useState(true);
 
-  // Active Fleet Dataset
-  const activeCouriers = [
-    {
-      id: 'RDR-2011',
-      name: 'Kiran Murthy',
-      phone: '+91 99008 12345',
-      hub: 'Indiranagar Flagship',
-      zone: 'Indiranagar Zone 1',
-      vehicle: 'Ather 450X (EV)',
-      vehicleNumber: 'KA-04-EV-2104',
-      battery: '84%',
-      status: 'delivering',
-      statusLabel: 'En Route to Customer',
-      activeOrder: 'NV-8921',
-      todayDeliveries: 16,
-      rating: 4.94,
-      onTimeRate: '99.4%'
-    },
-    {
-      id: 'RDR-2012',
-      name: 'Arjun Gowda',
-      phone: '+91 98451 99001',
-      hub: 'Indiranagar Flagship',
-      zone: 'Indiranagar Zone 2',
-      vehicle: 'Ola S1 Pro (EV)',
-      vehicleNumber: 'KA-03-JJ-9901',
-      battery: '72%',
-      status: 'tryon',
-      statusLabel: 'Doorstep Try-On Active',
-      activeOrder: 'NV-8920',
-      todayDeliveries: 14,
-      rating: 4.88,
-      onTimeRate: '98.8%'
-    },
-    {
-      id: 'RDR-2013',
-      name: 'Siddharth Rao',
-      phone: '+91 98860 33421',
-      hub: 'Koramangala Hyper-Pod',
-      zone: 'Koramangala 4th Block',
-      vehicle: 'TVS iQube (EV)',
-      vehicleNumber: 'KA-01-EE-4402',
-      battery: '91%',
-      status: 'available',
-      statusLabel: 'Waiting at Pod',
-      activeOrder: null,
-      todayDeliveries: 18,
-      rating: 4.96,
-      onTimeRate: '100%'
-    },
-    {
-      id: 'RDR-2014',
-      name: 'Manoj Kumar',
-      phone: '+91 99450 77123',
-      hub: 'HSR Layout Micro-Hub',
-      zone: 'HSR Sector 1–3',
-      vehicle: 'Honda Activa 6G',
-      vehicleNumber: 'KA-05-MK-1120',
-      battery: 'Fuel: Full',
-      status: 'available',
-      statusLabel: 'Waiting at Pod',
-      activeOrder: null,
-      todayDeliveries: 15,
-      rating: 4.82,
-      onTimeRate: '97.6%'
-    },
-    {
-      id: 'RDR-2015',
-      name: 'Pradeep Gowda',
-      phone: '+91 97400 99812',
-      hub: 'Indiranagar Flagship',
-      zone: 'Indiranagar Zone 1',
-      vehicle: 'Bajaj Chetak (EV)',
-      vehicleNumber: 'KA-04-EV-9021',
-      battery: '68%',
-      status: 'returning',
-      statusLabel: 'Restocking Return to Pod',
-      activeOrder: 'NV-8917',
-      todayDeliveries: 12,
-      rating: 4.90,
-      onTimeRate: '98.2%'
-    },
-    {
-      id: 'RDR-2016',
-      name: 'Rajesh N',
-      phone: '+91 99010 44231',
-      hub: 'Indiranagar Flagship',
-      zone: 'Indiranagar Defense Colony',
-      vehicle: 'Ather 450S (EV)',
-      vehicleNumber: 'KA-03-EV-8812',
-      battery: '95%',
-      status: 'delivering',
-      statusLabel: 'Dispatching from Store',
-      activeOrder: 'NV-8922',
-      todayDeliveries: 11,
-      rating: 4.92,
-      onTimeRate: '99.0%'
+  const loadRealCouriers = async () => {
+    try {
+      setIsLoadingCouriers(true);
+      const res = await fetch('/api/admin/delivery');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.couriers)) {
+          setCouriers(data.couriers);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load live delivery fleet:', err);
+    } finally {
+      setIsLoadingCouriers(false);
     }
-  ];
+  };
 
-  const filteredCouriers = activeCouriers.filter(courier => {
-    if (selectedZone !== 'all' && !courier.hub.toLowerCase().includes(selectedZone.toLowerCase())) return false;
+  useEffect(() => {
+    loadRealCouriers();
+  }, []);
+
+  const onlineCouriersCount = couriers.filter(c => c.status !== 'offline').length;
+
+  const filteredCouriers = couriers.filter(courier => {
+    if (selectedZone !== 'all' && !courier.hub?.toLowerCase().includes(selectedZone.toLowerCase())) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchName = courier.name.toLowerCase().includes(q);
-      const matchId = courier.id.toLowerCase().includes(q);
-      const matchPlate = courier.vehicleNumber.toLowerCase().includes(q);
+      const matchName = courier.name?.toLowerCase().includes(q);
+      const matchId = courier.id?.toLowerCase().includes(q);
+      const matchPlate = courier.vehicleNumber?.toLowerCase().includes(q);
       if (!matchName && !matchId && !matchPlate) return false;
     }
     return true;
@@ -157,7 +82,7 @@ export default function NivvoAdminDeliveryView({ onBack }) {
               Delivery Network & Fleet
             </h1>
             <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
-              Electric courier fleet telemetry, dark-store fulfillment pods, and courier onboarding compliance.
+              Live PostgreSQL delivery fleet telemetry, dark-store fulfillment pods, and courier onboarding compliance.
             </p>
           </div>
 
@@ -184,7 +109,8 @@ export default function NivvoAdminDeliveryView({ onBack }) {
             </button>
 
             <button
-              onClick={() => { playClickSound(); showToast('Fleet telemetry refreshed'); }}
+              onClick={() => { playClickSound(); loadRealCouriers(); showToast('Fleet telemetry refreshed'); }}
+              disabled={isLoadingCouriers}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -197,11 +123,12 @@ export default function NivvoAdminDeliveryView({ onBack }) {
                 fontWeight: 700,
                 color: '#FFFFFF',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(15,23,42,0.15)'
+                boxShadow: '0 2px 4px rgba(15,23,42,0.15)',
+                opacity: isLoadingCouriers ? 0.7 : 1
               }}
             >
-              <RefreshCw size={16} color="#FFFFFF" />
-              <span>Sync Fleet Radar</span>
+              <RefreshCw size={16} color="#FFFFFF" className={isLoadingCouriers ? 'animate-spin' : ''} />
+              <span>{isLoadingCouriers ? 'Syncing...' : 'Sync Fleet Radar'}</span>
             </button>
           </div>
         </div>
@@ -229,11 +156,11 @@ export default function NivvoAdminDeliveryView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              84
+              {couriers.length}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <Zap size={15} />
-              <span>94.1% fleet availability · 72% EV Fleet</span>
+              <span>{onlineCouriersCount} online · 100% EV Electric Fleet</span>
             </div>
           </div>
 
@@ -438,7 +365,7 @@ export default function NivvoAdminDeliveryView({ onBack }) {
                 backgroundColor: activeTab === 'fleet' ? 'rgba(255,255,255,0.2)' : '#E2E8F0',
                 color: activeTab === 'fleet' ? '#FFFFFF' : '#334155'
               }}>
-                84
+                {couriers.length}
               </span>
             </button>
 
@@ -571,7 +498,7 @@ export default function NivvoAdminDeliveryView({ onBack }) {
                   {filteredCouriers.length === 0 ? (
                     <tr>
                       <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B', fontSize: '15px' }}>
-                        No couriers found matching search parameters.
+                        {isLoadingCouriers ? 'Loading live delivery fleet from database...' : 'No couriers found matching search parameters.'}
                       </td>
                     </tr>
                   ) : (

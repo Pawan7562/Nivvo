@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   Package, Search, Filter, ArrowUpRight, Clock, MapPin, 
@@ -14,127 +14,54 @@ export default function NivvoAdminOrdersView({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHub, setSelectedHub] = useState('all');
   const [inspectOrder, setInspectOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Live Operations Orders Dataset
-  const initialOrders = [
-    {
-      id: 'NV-8921',
-      time: '14:32 (8m ago)',
-      customer: { name: 'Aarav Shah', phone: '+91 98765 43210', address: 'A-302, Maple Court, 12th Main Road, Indiranagar' },
-      store: { name: 'Sole Street Indiranagar', category: 'Sneakers & Streetwear' },
-      hub: 'Indiranagar Flagship',
-      rider: { name: 'Kiran Murthy', phone: '+91 99008 12345', vehicle: 'EV Ather 450X · KA-04-EV-2104' },
-      items: [
-        { name: 'Air Jordan 1 Retro High OG', size: 'UK 9', color: 'Chicago White/Red', qty: 1, price: 16999, isTryOn: true },
-        { name: 'Air Jordan 1 Retro High OG', size: 'UK 8.5', color: 'Chicago White/Red', qty: 1, price: 16999, isTryOn: true, tryOnOption: true }
-      ],
-      amount: 16999,
-      paymentMode: 'Prepaid UPI',
-      stage: 'in_transit', // 'dispatching' | 'in_transit' | 'tryon' | 'delivered' | 'returned'
-      statusLabel: 'In Transit',
-      slaCountdown: '3m 18s left',
-      slaOnTime: true
-    },
-    {
-      id: 'NV-8920',
-      time: '14:26 (14m ago)',
-      customer: { name: 'Meera Nambiar', phone: '+91 98450 11234', address: 'Villa 14, Palm Grove, 100ft Road, Indiranagar' },
-      store: { name: 'Elegance Couture', category: 'Designer Kurtis & Silks' },
-      hub: 'Indiranagar Flagship',
-      rider: { name: 'Arjun Gowda', phone: '+91 98451 99001', vehicle: 'Ola S1 Pro · KA-03-JJ-9901' },
-      items: [
-        { name: 'Mulberry Silk Anarkali Suit', size: 'M', color: 'Emerald Green', qty: 1, price: 4899, isTryOn: false }
-      ],
-      amount: 4899,
-      paymentMode: 'Credit Card',
-      stage: 'tryon',
-      statusLabel: 'Doorstep Try-On Active',
-      slaCountdown: 'Rider at Doorstep (6m left)',
-      slaOnTime: true
-    },
-    {
-      id: 'NV-8919',
-      time: '14:21 (19m ago)',
-      customer: { name: 'Rohit Varma', phone: '+91 97410 55678', address: '4th Floor, Tech Hive, 80 Feet Road, Koramangala' },
-      store: { name: 'Apex Electronics', category: 'Audio & Wearables' },
-      hub: 'Koramangala Hyper-Pod',
-      rider: { name: 'Siddharth Rao', phone: '+91 98860 33421', vehicle: 'TVS iQube · KA-01-EE-4402' },
-      items: [
-        { name: 'Sony WH-1000XM5 Headphones', size: 'Universal', color: 'Silver', qty: 1, price: 29990, isTryOn: false }
-      ],
-      amount: 29990,
-      paymentMode: 'Net Banking',
-      stage: 'delivered',
-      statusLabel: 'Delivered in 7m 40s',
-      slaCountdown: 'Completed on-time',
-      slaOnTime: true
-    },
-    {
-      id: 'NV-8918',
-      time: '14:15 (25m ago)',
-      customer: { name: 'Pooja Hegde', phone: '+91 99801 88923', address: 'Flat 502, Prestige Enclave, 27th Main, HSR Layout' },
-      store: { name: 'Urban Chic Studio', category: 'Western Apparel' },
-      hub: 'HSR Layout Micro-Hub',
-      rider: { name: 'Manoj Kumar', phone: '+91 99450 77123', vehicle: 'Honda Activa 6G · KA-05-MK-1120' },
-      items: [
-        { name: 'Oversized Linen Blazer', size: 'S', color: 'Beige Sand', qty: 1, price: 3499, isTryOn: true },
-        { name: 'Oversized Linen Blazer', size: 'M', color: 'Beige Sand', qty: 1, price: 3499, isTryOn: true, tryOnOption: true }
-      ],
-      amount: 3499,
-      paymentMode: 'Prepaid UPI',
-      stage: 'delivered',
-      statusLabel: 'Delivered (Size S Kept)',
-      slaCountdown: 'Completed on-time',
-      slaOnTime: true
-    },
-    {
-      id: 'NV-8917',
-      time: '14:02 (38m ago)',
-      customer: { name: 'Kavita Menon', phone: '+91 98440 22910', address: '18th Cross, 3rd Block, Jayanagar' },
-      store: { name: 'Meenakshi Silks', category: 'Ethnic Wear' },
-      hub: 'Indiranagar Flagship',
-      rider: { name: 'Pradeep Gowda', phone: '+91 97400 99812', vehicle: 'Bajaj Chetak EV · KA-04-EV-9021' },
-      items: [
-        { name: 'Kanjivaram Silk Saree', size: 'Free Size', color: 'Crimson Gold', qty: 1, price: 12450, isTryOn: false }
-      ],
-      amount: 12450,
-      paymentMode: 'Prepaid UPI',
-      stage: 'returns',
-      statusLabel: 'Doorstep Returned to Store',
-      slaCountdown: 'Restocked at Boutique',
-      slaOnTime: true
-    },
-    {
-      id: 'NV-8922',
-      time: 'Just now (1m ago)',
-      customer: { name: 'Vikram Joshi', phone: '+91 98800 66211', address: 'Plot 77, Defense Colony, Indiranagar' },
-      store: { name: 'Sole Street Indiranagar', category: 'Sneakers & Streetwear' },
-      hub: 'Indiranagar Flagship',
-      rider: { name: 'Rajesh N', phone: '+91 99010 44231', vehicle: 'Ather 450S · KA-03-EV-8812' },
-      items: [
-        { name: 'Nike Dunk Low Retro', size: 'UK 10', color: 'Panda Black/White', qty: 1, price: 9695, isTryOn: true }
-      ],
-      amount: 9695,
-      paymentMode: 'Prepaid UPI',
-      stage: 'dispatching',
-      statusLabel: 'Dispatching from Store',
-      slaCountdown: '9m 10s left',
-      slaOnTime: true
+  const loadRealOrders = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/admin/orders');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load live admin orders:', err);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
-  const filteredOrders = initialOrders.filter(order => {
+  useEffect(() => {
+    loadRealOrders();
+  }, []);
+
+  // Real Metric Calculations directly from live DB orders
+  const totalOrdersCount = orders.length;
+  const liveCount = orders.filter(o => ['dispatching', 'in_transit', 'tryon'].includes(o.stage)).length;
+  const tryOnCount = orders.filter(o => o.stage === 'tryon' || (o.items && o.items.some(i => i.isTryOn))).length;
+  const deliveredCount = orders.filter(o => o.stage === 'delivered').length;
+  const returnsCount = orders.filter(o => ['returns', 'returned', 'cancelled'].includes(o.stage)).length;
+  const inTransitCount = orders.filter(o => o.stage === 'in_transit' || o.stage === 'dispatching').length;
+  const doorstepTrialCount = orders.filter(o => o.stage === 'tryon').length;
+  const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
+  const avgBasket = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
+  const slaRate = totalOrdersCount > 0 ? ((orders.filter(o => o.slaOnTime).length / totalOrdersCount) * 100).toFixed(1) : '100';
+
+  const filteredOrders = orders.filter(order => {
     if (activeTab === 'live' && !['dispatching', 'in_transit', 'tryon'].includes(order.stage)) return false;
     if (activeTab === 'tryon' && order.stage !== 'tryon') return false;
     if (activeTab === 'delivered' && order.stage !== 'delivered') return false;
     if (activeTab === 'returns' && order.stage !== 'returns') return false;
-    if (selectedHub !== 'all' && !order.hub.toLowerCase().includes(selectedHub.toLowerCase())) return false;
+    if (selectedHub !== 'all' && !order.hub?.toLowerCase().includes(selectedHub.toLowerCase())) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchId = order.id.toLowerCase().includes(q);
-      const matchCustomer = order.customer.name.toLowerCase().includes(q);
-      const matchStore = order.store.name.toLowerCase().includes(q);
-      const matchRider = order.rider.name.toLowerCase().includes(q);
+      const matchId = order.id?.toLowerCase().includes(q);
+      const matchCustomer = order.customer?.name?.toLowerCase().includes(q);
+      const matchStore = order.store?.name?.toLowerCase().includes(q);
+      const matchRider = order.rider?.name?.toLowerCase().includes(q);
       if (!matchId && !matchCustomer && !matchStore && !matchRider) return false;
     }
     return true;
@@ -163,13 +90,13 @@ export default function NivvoAdminOrdersView({ onBack }) {
               Orders & Live Dispatch
             </h1>
             <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
-              Real-time dispatch telemetry, 10-minute delivery SLA monitoring, and doorstep trial fulfillment.
+              Live PostgreSQL orders, active dispatch telemetry, and 10-minute delivery SLA monitoring.
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
-              onClick={() => { playClickSound(); showToast('Exporting active dispatch manifest to CSV...'); }}
+              onClick={() => { playClickSound(); showToast('Exporting live dispatch manifest to CSV...'); }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -190,7 +117,8 @@ export default function NivvoAdminOrdersView({ onBack }) {
             </button>
 
             <button
-              onClick={() => { playClickSound(); showToast('Dispatch telemetry refreshed'); }}
+              onClick={() => { playClickSound(); loadRealOrders(); showToast('Dispatch telemetry refreshed'); }}
+              disabled={isLoading}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -203,11 +131,12 @@ export default function NivvoAdminOrdersView({ onBack }) {
                 fontWeight: 700,
                 color: '#FFFFFF',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(15,23,42,0.15)'
+                boxShadow: '0 2px 4px rgba(15,23,42,0.15)',
+                opacity: isLoading ? 0.7 : 1
               }}
             >
-              <RefreshCw size={16} color="#FFFFFF" />
-              <span>Refresh SLA Radar</span>
+              <RefreshCw size={16} color="#FFFFFF" className={isLoading ? 'animate-spin' : ''} />
+              <span>{isLoading ? 'Syncing...' : 'Refresh SLA Radar'}</span>
             </button>
           </div>
         </div>
@@ -228,18 +157,18 @@ export default function NivvoAdminOrdersView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Today's Orders
+                Total Orders (Neon DB)
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Package size={20} color="#0F172A" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              1,248
+              {totalOrdersCount}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ArrowUpRight size={15} />
-              <span>+14.2% vs yesterday</span>
+              <span>100% Real Live Database Orders</span>
             </div>
           </div>
 
@@ -260,11 +189,11 @@ export default function NivvoAdminOrdersView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              42
+              {liveCount}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#2563EB', fontWeight: 600 }}>
               <Clock size={15} />
-              <span>18 In Transit · 24 Doorstep Trials</span>
+              <span>{inTransitCount} In Transit · {doorstepTrialCount} Doorstep Trials</span>
             </div>
           </div>
 
@@ -289,7 +218,7 @@ export default function NivvoAdminOrdersView({ onBack }) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ShieldCheck size={15} />
-              <span>98.9% 10-Minute SLA Adherence</span>
+              <span>{slaRate}% 10-Minute SLA Adherence</span>
             </div>
           </div>
 
@@ -310,10 +239,10 @@ export default function NivvoAdminOrdersView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹2,840
+              ₹{avgBasket.toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
-              <span>2.4 multi-size trial items / basket</span>
+              <span>Total GMV ₹{totalRevenue.toLocaleString('en-IN')}</span>
             </div>
           </div>
         </div>
@@ -333,11 +262,11 @@ export default function NivvoAdminOrdersView({ onBack }) {
           {/* Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {[
-              { id: 'all', label: 'All Orders', count: 1248 },
-              { id: 'live', label: 'Live Dispatch', count: 42 },
-              { id: 'tryon', label: 'Doorstep Try-On', count: 24 },
-              { id: 'delivered', label: 'Delivered', count: 1167 },
-              { id: 'returns', label: 'Returns', count: 15 }
+              { id: 'all', label: 'All Orders', count: totalOrdersCount },
+              { id: 'live', label: 'Live Dispatch', count: liveCount },
+              { id: 'tryon', label: 'Doorstep Try-On', count: tryOnCount },
+              { id: 'delivered', label: 'Delivered', count: deliveredCount },
+              { id: 'returns', label: 'Returns', count: returnsCount }
             ].map(tab => {
               const active = activeTab === tab.id;
               return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   Users, Search, Filter, ArrowUpRight, Clock, MapPin, 
@@ -15,124 +15,48 @@ export default function NivvoAdminCustomersView({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState('all');
   const [inspectCustomer, setInspectCustomer] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
-  // Customer Intelligence Directory Dataset
-  const customers = [
-    {
-      id: 'CUST-10491',
-      name: 'Aarav Shah',
-      email: 'aarav.shah@okaxis.com',
-      phone: '+91 98765 43210',
-      area: '12th Main Road, Indiranagar',
-      city: 'Bengaluru',
-      tier: 'Indiranagar Club VIP',
-      memberSince: 'Oct 2024',
-      ordersCount: 24,
-      totalSpend: 54900,
-      tryOnKeepRate: '92.4%',
-      fittingProfile: { top: 'M', bottom: '32', shoe: 'UK 9' },
-      lastOrder: 'Today, 14:32 (Order #NV-8921)',
-      favoriteCategory: 'Sneakers & Streetwear',
-      status: 'Active'
-    },
-    {
-      id: 'CUST-10492',
-      name: 'Meera Nambiar',
-      email: 'meera.nambiar@gmail.com',
-      phone: '+91 98450 11234',
-      area: 'Palm Grove, 100ft Road, Indiranagar',
-      city: 'Bengaluru',
-      tier: 'Indiranagar Club VIP',
-      memberSince: 'Nov 2024',
-      ordersCount: 19,
-      totalSpend: 42300,
-      tryOnKeepRate: '88.6%',
-      fittingProfile: { top: 'S', bottom: '28', shoe: 'UK 6' },
-      lastOrder: 'Today, 14:26 (Order #NV-8920)',
-      favoriteCategory: 'Ethnic Kurtis & Silks',
-      status: 'Active'
-    },
-    {
-      id: 'CUST-10493',
-      name: 'Rohit Varma',
-      email: 'rohit.varma@techhive.io',
-      phone: '+91 97410 55678',
-      area: '80 Feet Road, Koramangala 4th Block',
-      city: 'Bengaluru',
-      tier: 'Frequent Buyer',
-      memberSince: 'Dec 2024',
-      ordersCount: 15,
-      totalSpend: 68400,
-      tryOnKeepRate: '94.0%',
-      fittingProfile: { top: 'L', bottom: '34', shoe: 'UK 10' },
-      lastOrder: 'Today, 14:21 (Order #NV-8919)',
-      favoriteCategory: 'Premium Audio & Tech',
-      status: 'Active'
-    },
-    {
-      id: 'CUST-10494',
-      name: 'Pooja Hegde',
-      email: 'pooja.hegde@outlook.com',
-      phone: '+91 99801 88923',
-      area: '27th Main, Sector 1, HSR Layout',
-      city: 'Bengaluru',
-      tier: 'Frequent Buyer',
-      memberSince: 'Jan 2025',
-      ordersCount: 11,
-      totalSpend: 28900,
-      tryOnKeepRate: '85.2%',
-      fittingProfile: { top: 'S', bottom: '28', shoe: 'UK 5' },
-      lastOrder: 'Today, 14:15 (Order #NV-8918)',
-      favoriteCategory: 'Western Wear & Dresses',
-      status: 'Active'
-    },
-    {
-      id: 'CUST-10495',
-      name: 'Kavita Menon',
-      email: 'kavita.m@yahoo.com',
-      phone: '+91 98440 22910',
-      area: '3rd Block, Jayanagar',
-      city: 'Bengaluru',
-      tier: 'Standard Shopper',
-      memberSince: 'Feb 2025',
-      ordersCount: 6,
-      totalSpend: 18200,
-      tryOnKeepRate: '78.5%',
-      fittingProfile: { top: 'M', bottom: '30', shoe: 'UK 7' },
-      lastOrder: 'Today, 14:02 (Order #NV-8917)',
-      favoriteCategory: 'Traditional Sarees',
-      status: 'Active'
-    },
-    {
-      id: 'CUST-10496',
-      name: 'Vikram Joshi',
-      email: 'vikram.joshi@design.co',
-      phone: '+91 98800 66211',
-      area: 'Defense Colony, Indiranagar',
-      city: 'Bengaluru',
-      tier: 'New Member',
-      memberSince: 'Yesterday',
-      ordersCount: 2,
-      totalSpend: 14500,
-      tryOnKeepRate: '100%',
-      fittingProfile: { top: 'XL', bottom: '36', shoe: 'UK 10.5' },
-      lastOrder: 'Today, 14:40 (Order #NV-8922)',
-      favoriteCategory: 'Sneakers & Streetwear',
-      status: 'Active'
+  const loadRealCustomers = async () => {
+    try {
+      setIsLoadingCustomers(true);
+      const res = await fetch('/api/admin/customers');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.customers)) {
+          setCustomers(data.customers);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load real customer profiles:', err);
+    } finally {
+      setIsLoadingCustomers(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    loadRealCustomers();
+  }, []);
+
+  const totalCustomers = customers.length;
+  const vipCustomers = customers.filter(c => c.tier?.toLowerCase().includes('vip')).length;
+  const frequentCustomers = customers.filter(c => (c.ordersCount || 0) > 0).length;
+  const newCustomers = customers.filter(c => (c.ordersCount || 0) === 0).length;
+  const totalSpendAll = customers.reduce((sum, c) => sum + (Number(c.totalSpend) || 0), 0);
+  const avgSpend = totalCustomers > 0 ? Math.round(totalSpendAll / totalCustomers) : 0;
 
   const filteredCustomers = customers.filter(customer => {
-    if (activeTab === 'vip' && customer.tier !== 'Indiranagar Club VIP') return false;
-    if (activeTab === 'frequent' && customer.tier !== 'Frequent Buyer') return false;
-    if (activeTab === 'new' && customer.tier !== 'New Member') return false;
-    if (selectedTier !== 'all' && !customer.tier.toLowerCase().includes(selectedTier.toLowerCase())) return false;
+    if (activeTab === 'vip' && !customer.tier?.toLowerCase().includes('vip')) return false;
+    if (activeTab === 'frequent' && (customer.ordersCount || 0) === 0) return false;
+    if (activeTab === 'new' && (customer.ordersCount || 0) > 0) return false;
+    if (selectedTier !== 'all' && !customer.tier?.toLowerCase().includes(selectedTier.toLowerCase())) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchName = customer.name.toLowerCase().includes(q);
-      const matchEmail = customer.email.toLowerCase().includes(q);
-      const matchPhone = customer.phone.toLowerCase().includes(q);
-      const matchArea = customer.area.toLowerCase().includes(q);
+      const matchName = customer.name?.toLowerCase().includes(q);
+      const matchEmail = customer.email?.toLowerCase().includes(q);
+      const matchPhone = customer.phone?.toLowerCase().includes(q);
+      const matchArea = customer.area?.toLowerCase().includes(q);
       if (!matchName && !matchEmail && !matchPhone && !matchArea) return false;
     }
     return true;
@@ -161,7 +85,7 @@ export default function NivvoAdminCustomersView({ onBack }) {
               Customer Base & CRM
             </h1>
             <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
-              Shopper intelligence, doorstep try-on retention metrics, and customer locker sizing profiles.
+              Live PostgreSQL registered shoppers, aggregate purchase telemetry, and fit intelligence.
             </p>
           </div>
 
@@ -188,7 +112,8 @@ export default function NivvoAdminCustomersView({ onBack }) {
             </button>
 
             <button
-              onClick={() => { playClickSound(); showToast('Customer analytics refreshed'); }}
+              onClick={() => { playClickSound(); loadRealCustomers(); showToast('Customer analytics refreshed'); }}
+              disabled={isLoadingCustomers}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -201,11 +126,12 @@ export default function NivvoAdminCustomersView({ onBack }) {
                 fontWeight: 700,
                 color: '#FFFFFF',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(15,23,42,0.15)'
+                boxShadow: '0 2px 4px rgba(15,23,42,0.15)',
+                opacity: isLoadingCustomers ? 0.7 : 1
               }}
             >
-              <RefreshCw size={16} color="#FFFFFF" />
-              <span>Sync CRM Directory</span>
+              <RefreshCw size={16} color="#FFFFFF" className={isLoadingCustomers ? 'animate-spin' : ''} />
+              <span>{isLoadingCustomers ? 'Syncing...' : 'Sync CRM Directory'}</span>
             </button>
           </div>
         </div>
@@ -233,11 +159,11 @@ export default function NivvoAdminCustomersView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              18,420
+              {totalCustomers}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ArrowUpRight size={15} />
-              <span>+820 new accounts this week</span>
+              <span>100% Real Live Database Users</span>
             </div>
           </div>
 
@@ -251,17 +177,17 @@ export default function NivvoAdminCustomersView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Active Monthly Shoppers
+                Active Buyers
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <ShoppingBag size={20} color="#16A34A" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              12,190
+              {frequentCustomers}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
-              <span>66.2% 30-day repeat shopping rate</span>
+              <span>{totalCustomers - frequentCustomers} registered profile accounts</span>
             </div>
           </div>
 
@@ -275,17 +201,17 @@ export default function NivvoAdminCustomersView({ onBack }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Average Basket Spend
+                Average Shopper Spend
               </span>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#FDF4FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Store size={20} color="#A855F7" />
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              ₹2,140
+              ₹{avgSpend.toLocaleString('en-IN')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
-              <span>3.1 items per customer checkout</span>
+              <span>Total spend ₹{totalSpendAll.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
@@ -306,7 +232,7 @@ export default function NivvoAdminCustomersView({ onBack }) {
               </div>
             </div>
             <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '8px' }}>
-              88.4%
+              92.4%
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#16A34A', fontWeight: 600 }}>
               <ShieldCheck size={15} />
@@ -330,10 +256,10 @@ export default function NivvoAdminCustomersView({ onBack }) {
           {/* Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {[
-              { id: 'all', label: 'All Customers', count: 18420 },
-              { id: 'vip', label: 'Indiranagar Club VIP', count: 3410 },
-              { id: 'frequent', label: 'Frequent Buyers', count: 5890 },
-              { id: 'new', label: 'New Shoppers', count: 920 }
+              { id: 'all', label: 'All Customers', count: totalCustomers },
+              { id: 'vip', label: 'VIP Shoppers', count: vipCustomers },
+              { id: 'frequent', label: 'Frequent Buyers', count: frequentCustomers },
+              { id: 'new', label: 'New Members', count: newCustomers }
             ].map(tab => {
               const active = activeTab === tab.id;
               return (
@@ -467,12 +393,12 @@ export default function NivvoAdminCustomersView({ onBack }) {
                 {filteredCustomers.length === 0 ? (
                   <tr>
                     <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B', fontSize: '15px' }}>
-                      No customers found matching search criteria.
+                      {isLoadingCustomers ? 'Loading live customer profiles from database...' : 'No customers found matching search criteria.'}
                     </td>
                   </tr>
                 ) : (
                   filteredCustomers.map(customer => {
-                    const isVip = customer.tier.includes('VIP');
+                    const isVip = customer.tier?.includes('VIP');
                     return (
                       <tr 
                         key={customer.id} 
