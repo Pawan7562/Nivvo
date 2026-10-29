@@ -32,7 +32,8 @@ export const WEB_SCREENS = [
   'landing', 
   'seller-dash', 'seller-overview', 'seller-prods', 'seller-orders', 
   'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support', 
-  'admin-overview', 'admin-sellers'
+  'admin-overview', 'admin-sellers', 'admin-orders', 'admin-delivery', 'admin-customers', 'admin-finance',
+  'profile', 'customer', 'customer-portal'
 ];
 
 export const APP_SCREENS = [
@@ -69,6 +70,13 @@ export const resolveUrlRoute = () => {
       target = 'landing';
     }
 
+    // Read stored user role if available for role-aware routing
+    let storedUserRole = 'customer';
+    try {
+      const u = JSON.parse(localStorage.getItem('nivvo_user') || '{}');
+      if (u && u.role) storedUserRole = u.role;
+    } catch {}
+
     // Aliases normalization
     if (['seller-overview', 'seller-dash', 'seller', 'merchant'].includes(target)) {
       return { screen: 'seller-dash', mode: 'web' };
@@ -79,7 +87,7 @@ export const resolveUrlRoute = () => {
     if (['seller-orders', 'merchant-orders'].includes(target)) {
       return { screen: 'seller-orders', mode: 'web' };
     }
-    if (['seller-payouts', 'payouts'].includes(target)) {
+    if (['seller-payouts'].includes(target)) {
       return { screen: 'seller-payouts', mode: 'web' };
     }
     if (['seller-profile', 'store-profile'].includes(target)) {
@@ -97,7 +105,37 @@ export const resolveUrlRoute = () => {
     if (['admin-sellers', 'merchant-ops'].includes(target)) {
       return { screen: 'admin-sellers', mode: 'web' };
     }
-    if (['profile', 'account', 'customer', 'customer-portal'].includes(target)) {
+    if (['admin-orders', 'admin-dispatch'].includes(target)) {
+      return { screen: 'admin-orders', mode: 'web' };
+    }
+    if (['admin-delivery', 'admin-fleet'].includes(target)) {
+      return { screen: 'admin-delivery', mode: 'web' };
+    }
+    if (['admin-customers', 'admin-crm'].includes(target)) {
+      return { screen: 'admin-customers', mode: 'web' };
+    }
+    if (['admin-finance', 'admin-settlements'].includes(target)) {
+      return { screen: 'admin-finance', mode: 'web' };
+    }
+
+    // Role-aware generic aliases
+    if (['orders', 'order', 'dispatch'].includes(target)) {
+      if (storedUserRole === 'admin') return { screen: 'admin-orders', mode: 'web' };
+      if (storedUserRole === 'seller') return { screen: 'seller-orders', mode: 'web' };
+      return { screen: isNativeMobileApp() ? 'tracking' : 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
+    }
+    if (['finance', 'payouts', 'settlement', 'settlements'].includes(target)) {
+      if (storedUserRole === 'admin') return { screen: 'admin-finance', mode: 'web' };
+      if (storedUserRole === 'seller') return { screen: 'seller-payouts', mode: 'web' };
+      return { screen: 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
+    }
+    if (['delivery', 'fleet'].includes(target)) {
+      if (storedUserRole === 'admin') return { screen: 'admin-delivery', mode: 'web' };
+      if (storedUserRole === 'rider') return { screen: 'rider-duty', mode: 'app' };
+      return { screen: 'tracking', mode: isNativeMobileApp() ? 'app' : 'web' };
+    }
+    if (['customer', 'customers', 'customer-portal', 'profile', 'account'].includes(target)) {
+      if (storedUserRole === 'admin' && target === 'customers') return { screen: 'admin-customers', mode: 'web' };
       return { screen: 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
     }
     if (target.startsWith('rider-')) {
@@ -3024,7 +3062,33 @@ export function NivvoAppProvider({ children }) {
     if (['seller-overview', 'seller-dash', 'seller', 'merchant'].includes(target)) target = 'seller-dash';
     if (['admin-overview', 'admin', 'admin-ops'].includes(target)) target = 'admin-overview';
     if (['admin-sellers', 'merchant-ops'].includes(target)) target = 'admin-sellers';
-    if (['profile', 'account', 'customer-portal'].includes(target)) target = 'profile';
+    if (['admin-orders', 'admin-dispatch'].includes(target)) target = 'admin-orders';
+    if (['admin-delivery', 'admin-fleet'].includes(target)) target = 'admin-delivery';
+    if (['admin-customers', 'admin-crm'].includes(target)) target = 'admin-customers';
+    if (['admin-finance', 'admin-settlements'].includes(target)) target = 'admin-finance';
+
+    if (['orders', 'order'].includes(target)) {
+      if (currentUser?.role === 'admin') target = 'admin-orders';
+      else if (currentUser?.role === 'seller') target = 'seller-orders';
+      else target = 'profile';
+    }
+    if (['finance', 'payouts'].includes(target)) {
+      if (currentUser?.role === 'admin') target = 'admin-finance';
+      else if (currentUser?.role === 'seller') target = 'seller-payouts';
+      else target = 'profile';
+    }
+    if (['delivery', 'fleet'].includes(target)) {
+      if (currentUser?.role === 'admin') target = 'admin-delivery';
+      else if (currentUser?.role === 'rider') target = 'rider-duty';
+      else target = 'tracking';
+    }
+    if (['profile', 'account', 'customer', 'customer-portal', 'customers'].includes(target)) {
+      if (currentUser?.role === 'admin' && (target === 'customers' || target === 'admin-customers')) {
+        target = 'admin-customers';
+      } else {
+        target = 'profile';
+      }
+    }
 
     setCurrentScreen(target);
 

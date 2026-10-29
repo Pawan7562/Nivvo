@@ -33,6 +33,10 @@ import NivvoRiderSupportView from './views/nivvo/NivvoRiderSupportView';
 import NivvoRiderProfileView from './views/nivvo/NivvoRiderProfileView';
 import NivvoAdminOverviewView from './views/nivvo/NivvoAdminOverviewView';
 import NivvoAdminSellersView from './views/nivvo/NivvoAdminSellersView';
+import NivvoAdminOrdersView from './views/nivvo/NivvoAdminOrdersView';
+import NivvoAdminDeliveryView from './views/nivvo/NivvoAdminDeliveryView';
+import NivvoAdminCustomersView from './views/nivvo/NivvoAdminCustomersView';
+import NivvoAdminFinanceView from './views/nivvo/NivvoAdminFinanceView';
 import NivvoBrandSystemView from './views/nivvo/NivvoBrandSystemView';
 import NivvoProfileView from './views/nivvo/NivvoProfileView';
 import NivvoWebCustomerPortal from './views/nivvo/NivvoWebCustomerPortal';
@@ -137,17 +141,19 @@ function AppContent() {
     'landing',
     'seller-dash', 'seller-overview', 'seller-prods', 'seller-orders', 
     'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support',
-    'admin-overview', 'admin-sellers', 'profile'
+    'admin-overview', 'admin-sellers', 'admin-orders', 'admin-delivery', 'admin-customers', 'admin-finance',
+    'profile', 'customer', 'customer-portal'
   ].includes(currentScreen) || currentScreen.startsWith('seller-') || currentScreen.startsWith('admin-');
 
   // On website, hide the mobile bottom navigation bar completely
   const hideBottomNav = platformMode === 'web' || [
-    'landing', 'profile',
+    'landing', 'profile', 'customer', 'customer-portal',
     'bag', 'checkout', 'product-detail', 
     'seller-dash', 'seller-overview', 'seller-prods', 'seller-orders',
     'seller-payouts', 'seller-profile', 'seller-reviews', 'seller-support',
     'rider-duty', 'rider-active', 'rider-earnings', 'rider-support', 'rider-profile',
-    'admin-overview', 'admin-sellers', 'brand'
+    'admin-overview', 'admin-sellers', 'admin-orders', 'admin-delivery', 'admin-customers', 'admin-finance',
+    'brand'
   ].includes(currentScreen) || currentScreen.startsWith('seller-') || currentScreen.startsWith('admin-');
 
   const isRiderActive = appMode === 'rider' || currentScreen.startsWith('rider-');
@@ -832,7 +838,7 @@ function AppContent() {
             />
           )}
 
-          {/* Platform Admin Screens (15 to 16) - Handled Exclusively on Desktop Website Portal */}
+          {/* Platform Admin Screens - Handled Exclusively on Desktop Website Portal */}
           {currentScreen === 'admin-overview' && (
             <NivvoAdminOverviewView 
               onBack={() => navigateTo('landing')}
@@ -846,7 +852,31 @@ function AppContent() {
             />
           )}
 
-          {/* Brand System (17) */}
+          {currentScreen === 'admin-orders' && (
+            <NivvoAdminOrdersView 
+              onBack={() => navigateTo('admin-overview')}
+            />
+          )}
+
+          {currentScreen === 'admin-delivery' && (
+            <NivvoAdminDeliveryView 
+              onBack={() => navigateTo('admin-overview')}
+            />
+          )}
+
+          {currentScreen === 'admin-customers' && (
+            <NivvoAdminCustomersView 
+              onBack={() => navigateTo('admin-overview')}
+            />
+          )}
+
+          {currentScreen === 'admin-finance' && (
+            <NivvoAdminFinanceView 
+              onBack={() => navigateTo('admin-overview')}
+            />
+          )}
+
+          {/* Brand System */}
           {currentScreen === 'brand' && (
             <NivvoBrandSystemView 
               onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
@@ -854,7 +884,7 @@ function AppContent() {
           )}
 
           {/* Customer Profile, Dashboard & Support Hub */}
-          {currentScreen === 'profile' && (
+          {['profile', 'customer', 'customer-portal', 'account'].includes(currentScreen) && (
             platformMode === 'web' ? (
               <NivvoWebCustomerPortal 
                 onBack={() => navigateTo('landing')}

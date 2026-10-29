@@ -19,10 +19,10 @@ export default function AdminLayout({
   const navItems = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} strokeWidth={2} />, route: 'admin-overview' },
     { id: 'sellers', label: 'Merchants & Operations', icon: <Store size={20} strokeWidth={2} />, route: 'admin-sellers' },
-    { id: 'orders', label: 'Orders & Dispatch', icon: <Package size={20} strokeWidth={2} />, tab: 'orders' },
-    { id: 'delivery', label: 'Delivery Network', icon: <Bike size={20} strokeWidth={2} />, tab: 'delivery' },
-    { id: 'customers', label: 'Customer Base', icon: <Users size={20} strokeWidth={2} />, tab: 'customers' },
-    { id: 'finance', label: 'Financial Settlement', icon: <Wallet size={20} strokeWidth={2} />, tab: 'finance' }
+    { id: 'orders', label: 'Orders & Dispatch', icon: <Package size={20} strokeWidth={2} />, route: 'admin-orders' },
+    { id: 'delivery', label: 'Delivery Network', icon: <Bike size={20} strokeWidth={2} />, route: 'admin-delivery' },
+    { id: 'customers', label: 'Customer Base', icon: <Users size={20} strokeWidth={2} />, route: 'admin-customers' },
+    { id: 'finance', label: 'Financial Settlement', icon: <Wallet size={20} strokeWidth={2} />, route: 'admin-finance' }
   ];
 
   const handleNavClick = (item) => {
@@ -33,7 +33,7 @@ export default function AdminLayout({
     } else if (onTabChange) {
       onTabChange(item.tab);
     } else {
-      showToast(`Admin Console: ${item.label} module`);
+      navigateTo(`admin-${item.id}`);
     }
   };
 
