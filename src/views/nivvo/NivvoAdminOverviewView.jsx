@@ -1,220 +1,265 @@
 import React, { useState } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
-import { ArrowUpRight, ChevronDown, RefreshCw } from 'lucide-react';
-import { playClickSound, playTrialSound } from '../../utils/audioEffects';
+import { 
+  ArrowUpRight, ChevronDown, RefreshCw, TrendingUp, Percent, 
+  PackageCheck, Store, Clock, Activity, FileSpreadsheet, Layers, ShieldCheck, MapPin
+} from 'lucide-react';
+import { playClickSound } from '../../utils/audioEffects';
 import AdminLayout from '../../components/nivvo/AdminLayout';
 
 export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
   const { showToast, navigateTo } = useNivvo();
-  const [selectedZone, setSelectedZone] = useState('All 12 zones');
+  const [selectedZone, setSelectedZone] = useState('All 12 Zones');
+  const [timeRange, setTimeRange] = useState('Today (Real-time)');
 
   const bars = [
-    { time: '08:00', orders: 90, height: '32%', color: '#254530' },
-    { time: '09:00', orders: 130, height: '46%', color: '#254530' },
-    { time: '10:00', orders: 128, height: '45%', color: '#254530' },
-    { time: '11:00', orders: 190, height: '66%', color: '#254530' },
-    { time: '12:00', orders: 165, height: '58%', color: '#254530' },
-    { time: '13:00', orders: 260, height: '91%', color: '#254530' },
-    { time: '14:00', orders: 285, height: '100%', color: '#B8F135' }
+    { time: '08:00', orders: 90, height: '32%', color: '#1E293B' },
+    { time: '09:00', orders: 130, height: '46%', color: '#1E293B' },
+    { time: '10:00', orders: 128, height: '45%', color: '#1E293B' },
+    { time: '11:00', orders: 190, height: '66%', color: '#1E293B' },
+    { time: '12:00', orders: 165, height: '58%', color: '#1E293B' },
+    { time: '13:00', orders: 260, height: '91%', color: '#1E293B' },
+    { time: '14:00', orders: 285, height: '100%', color: '#16A34A', isPeak: true }
   ];
 
   const zones = [
-    { name: 'Indiranagar', orders: 284, gmv: '₹2.12L', eta: '12–30 min', ontime: '97.8%', capacity: 'Healthy · 18 free', isWatch: false },
-    { name: 'Koramangala', orders: 312, gmv: '₹2.46L', eta: '25–40 min', ontime: '93.4%', capacity: 'Watch · 4 free', isWatch: true },
-    { name: 'HSR Layout', orders: 198, gmv: '₹1.24L', eta: '18–30 min', ontime: '96.5%', capacity: 'Healthy · 14 free', isWatch: false },
-    { name: 'Jayanagar', orders: 166, gmv: '₹0.98L', eta: '20–35 min', ontime: '96.9%', capacity: 'Healthy · 11 free', isWatch: false }
+    { name: 'Indiranagar Hub #14', orders: 284, gmv: '₹2,12,400', eta: '12–18 min', ontime: '97.8%', capacity: '18 Available Couriers', status: 'optimal' },
+    { name: 'Koramangala Hub #08', orders: 312, gmv: '₹2,46,800', eta: '25–35 min', ontime: '93.4%', capacity: '4 Available Couriers', status: 'constrained' },
+    { name: 'HSR Layout Hub #05', orders: 198, gmv: '₹1,24,300', eta: '15–22 min', ontime: '96.5%', capacity: '14 Available Couriers', status: 'optimal' },
+    { name: 'Jayanagar Hub #11', orders: 166, gmv: '₹98,200', eta: '18–25 min', ontime: '96.9%', capacity: '11 Available Couriers', status: 'optimal' }
   ];
 
   return (
-    <AdminLayout currentTab="overview" breadcrumb="Overview" onBack={onBack}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <AdminLayout currentTab="overview" breadcrumb="Operations Overview" onBack={onBack}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         
-        {/* Title & Actions Row matching Figma */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
-          <div>
-            <h1 style={{
-              margin: '0 0 4px 0',
-              fontSize: '30px',
-              fontWeight: 500,
-              letterSpacing: '-0.02em',
-              color: '#14281C'
-            }}>
-              Marketplace at a glance
-            </h1>
-            <p style={{ margin: 0, fontSize: '13px', color: '#73796F' }}>
-              Bengaluru · Live health across local shops, customers and delivery partners.
-            </p>
-          </div>
-
-          <button
-            onClick={() => {
-              playClickSound();
-              showToast('Generating comprehensive marketplace PDF report...');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E2E5DC',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#14281C',
-              cursor: 'pointer',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-            }}
-          >
-            <span>Export report</span>
-            <ArrowUpRight size={14} />
-          </button>
-        </div>
-
-        {/* Filter Pills Row matching Figma */}
+        {/* Title & Actions Bar */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '12px'
+          gap: '16px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div>
+            <h1 style={{
+              margin: '0 0 6px 0',
+              fontSize: '32px',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              color: '#0F172A'
+            }}>
+              Operations Overview
+            </h1>
+            <p style={{ margin: 0, fontSize: '15px', color: '#475569', fontWeight: 500 }}>
+              Live marketplace health across retail merchants, customer orders, and dispatch fleet.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => {
+                playClickSound();
+                showToast('Refreshed real-time marketplace metrics');
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 16px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#334155',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
+              }}
+            >
+              <RefreshCw size={16} />
+              <span>Refresh</span>
+            </button>
+
+            <button
+              onClick={() => {
+                playClickSound();
+                showToast('Generating official marketplace PDF audit report...');
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 18px',
+                backgroundColor: '#0F172A',
+                border: '1px solid #0F172A',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(15,23,42,0.1)'
+              }}
+            >
+              <FileSpreadsheet size={16} />
+              <span>Export Audit Report</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Toolbar */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: '14px',
+          padding: '12px 20px',
+          flexWrap: 'wrap',
+          gap: '14px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#1E3827',
+              gap: '8px',
+              backgroundColor: '#0F172A',
               color: '#FFFFFF',
-              padding: '6px 14px',
-              borderRadius: '999px',
-              fontSize: '12px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
               fontWeight: 600,
               cursor: 'pointer'
             }}>
-              <span>Bengaluru</span>
-              <ChevronDown size={14} />
+              <MapPin size={16} color="#A3E635" />
+              <span>Bengaluru Metro</span>
             </div>
 
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#FFFFFF',
-              color: '#14281C',
-              border: '1px solid #E5E7DE',
-              padding: '6px 14px',
-              borderRadius: '999px',
-              fontSize: '12px',
+              gap: '8px',
+              backgroundColor: '#F8FAFC',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
               fontWeight: 600,
               cursor: 'pointer'
             }}>
-              <span>All 12 zones</span>
-              <ChevronDown size={14} color="#73796F" />
+              <Layers size={16} color="#64748B" />
+              <span>{selectedZone}</span>
+              <ChevronDown size={15} color="#64748B" />
             </div>
 
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#FFFFFF',
-              color: '#14281C',
-              border: '1px solid #E5E7DE',
-              padding: '6px 14px',
-              borderRadius: '999px',
-              fontSize: '12px',
+              gap: '8px',
+              backgroundColor: '#F8FAFC',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
               fontWeight: 600,
               cursor: 'pointer'
             }}>
-              <span>Today, 25 Oct</span>
-              <ChevronDown size={14} color="#73796F" />
+              <Clock size={16} color="#64748B" />
+              <span>{timeRange}</span>
+              <ChevronDown size={15} color="#64748B" />
             </div>
           </div>
 
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '12px',
-            color: '#14281C',
-            fontWeight: 500
+            gap: '8px',
+            fontSize: '13px',
+            color: '#0F172A',
+            fontWeight: 600,
+            backgroundColor: '#DCFCE7',
+            padding: '6px 14px',
+            borderRadius: '20px'
           }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1E3827' }} />
-            <span>Live · 2:46 pm IST</span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+            <span>Live Telemetry Connected</span>
           </div>
         </div>
 
-        {/* Top KPI Cards matching Figma with Company 10% Commission Tracking */}
+        {/* Top 4 KPI Executive Metric Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '20px'
         }}>
-          {/* Metric 1 */}
+          {/* Metric 1: GMV */}
           <div style={{
             backgroundColor: '#FFFFFF',
-            border: '1px solid #ECEEE7',
-            borderRadius: '14px',
-            padding: '20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            border: '1px solid #E2E8F0',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
           }}>
-            <div style={{ fontSize: '12px', color: '#73796F', marginBottom: '8px' }}>
-              Gross merchandise value
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748B' }}>Gross Merchandise Value</span>
+              <span style={{ backgroundColor: '#F1F5F9', color: '#0F172A', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>GMV</span>
             </div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#14281C', letterSpacing: '-0.02em', marginBottom: '8px' }}>
-              ₹8.42L
+            <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+              ₹8,42,850
             </div>
-            <div style={{ fontSize: '12px', color: '#1C7532', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>↗ 14.2% vs last Sunday</span>
+            <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <TrendingUp size={16} />
+              <span>+14.2% vs previous period</span>
             </div>
           </div>
 
-          {/* Metric 2: Company 10% Commission Revenue */}
+          {/* Metric 2: Net Commission (10%) */}
           <div style={{
-            backgroundColor: '#F5FAF3',
-            border: '1.5px solid #C8DEC3',
-            borderRadius: '14px',
-            padding: '20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            backgroundColor: '#F0FDF4',
+            border: '1.5px solid #BBF7D0',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
           }}>
-            <div style={{ fontSize: '12px', color: '#24452D', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>Company 10% Commission</span>
-              <span style={{ backgroundColor: '#24452D', color: '#B7F34A', fontSize: '10px', padding: '1px 6px', borderRadius: '4px', fontWeight: 800 }}>Automated</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#166534' }}>Platform Commission (10%)</span>
+              <span style={{ backgroundColor: '#DCFCE7', color: '#15803D', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>Automated</span>
             </div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#166534', letterSpacing: '-0.02em', marginBottom: '8px' }}>
-              ₹84,200
+            <div style={{ fontSize: '38px', fontWeight: 800, color: '#15803D', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+              ₹84,285
             </div>
-            <div style={{ fontSize: '12px', color: '#166534', fontWeight: 600 }}>
-              ₹10 per ₹100 product value earned on customer orders
+            <div style={{ fontSize: '14px', color: '#166534', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Percent size={16} />
+              <span>Calculated at 10% on fulfilled orders</span>
             </div>
           </div>
 
-          {/* Metric 3 */}
+          {/* Metric 3: Orders */}
           <div style={{
             backgroundColor: '#FFFFFF',
-            border: '1px solid #ECEEE7',
-            borderRadius: '14px',
-            padding: '20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            border: '1px solid #E2E8F0',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
           }}>
-            <div style={{ fontSize: '12px', color: '#73796F', marginBottom: '8px' }}>
-              Orders placed
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748B' }}>Fulfillment Volume</span>
+              <span style={{ backgroundColor: '#F1F5F9', color: '#0F172A', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>Orders</span>
             </div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#14281C', letterSpacing: '-0.02em', marginBottom: '8px' }}>
+            <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: '10px' }}>
               1,248
             </div>
-            <div style={{ fontSize: '12px', color: '#1C7532', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>Free delivery on orders ₹200+</span>
+            <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <PackageCheck size={16} />
+              <span>96.2% delivered within SLA</span>
             </div>
           </div>
 
-          {/* Metric 3 */}
+          {/* Metric 4: Merchant Network */}
           <div 
             onClick={() => {
               playClickSound();
@@ -223,98 +268,89 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
             }}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #ECEEE7',
-              borderRadius: '14px',
-              padding: '20px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-              cursor: 'pointer'
+              border: '1px solid #E2E8F0',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              cursor: 'pointer',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.06)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
             }}
           >
-            <div style={{ fontSize: '12px', color: '#73796F', marginBottom: '8px' }}>
-              Live sellers / approved
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748B' }}>Active Merchant Network</span>
+              <ArrowUpRight size={18} color="#0F172A" />
             </div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#14281C', letterSpacing: '-0.02em', marginBottom: '8px' }}>
+            <div style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: '10px' }}>
               186 / 214
             </div>
-            <div style={{ fontSize: '12px', color: '#1C7532', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>↑ 8 sellers onboarded this week</span>
-            </div>
-          </div>
-
-          {/* Metric 4 */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #ECEEE7',
-            borderRadius: '14px',
-            padding: '20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{ fontSize: '12px', color: '#73796F', marginBottom: '8px' }}>
-              Within quoted window
-            </div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#14281C', letterSpacing: '-0.02em', marginBottom: '8px' }}>
-              96.2%
-            </div>
-            <div style={{ fontSize: '12px', color: '#1C7532', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>↗ 1.4 percentage points</span>
+            <div style={{ fontSize: '14px', color: '#16A34A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Store size={16} />
+              <span>8 new merchants onboarded</span>
             </div>
           </div>
         </div>
 
-        {/* Two Column Grid: Order Demand Bar Chart + Delivery Capacity */}
+        {/* Main Content Grid: Order Demand Hourly Chart + Capacity Status */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
-          gap: '16px'
+          gap: '20px'
         }}>
-          {/* Left: Order Demand Hourly Chart */}
+          {/* Left: Hourly Demand Chart */}
           <div style={{
             backgroundColor: '#FFFFFF',
-            border: '1px solid #ECEEE7',
+            border: '1px solid #E2E8F0',
             borderRadius: '16px',
-            padding: '24px',
+            padding: '28px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
           }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#14281C' }}>
-                  Order demand
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  Hourly Order Volume
                 </h3>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  fontSize: '12px',
+                  gap: '6px',
+                  fontSize: '13px',
                   fontWeight: 600,
-                  color: '#14281C',
-                  cursor: 'pointer'
+                  color: '#475569',
+                  backgroundColor: '#F1F5F9',
+                  padding: '6px 12px',
+                  borderRadius: '6px'
                 }}>
-                  <span>Hourly</span>
+                  <span>Today's Cadence</span>
                   <ChevronDown size={14} />
-                  <ArrowUpRight size={13} style={{ marginLeft: '2px' }} />
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px', color: '#73796F' }}>
-                <span>All orders · Today</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#14281C' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1E3827' }} />
-                  Orders per hour
+              <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <span>Real-time dispatch distribution</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#0F172A', fontWeight: 600 }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+                  Peak: 14:00 (285 Orders/hr)
                 </span>
               </div>
             </div>
 
-            {/* Bar Chart Graphics matching Figma */}
+            {/* Clean, Large Bar Chart Graphics */}
             <div style={{
               display: 'flex',
               alignItems: 'flex-end',
               justifyContent: 'space-between',
-              gap: '12px',
-              height: '180px',
-              paddingTop: '28px',
-              borderBottom: '1px solid #F0F2ED'
+              gap: '16px',
+              height: '240px',
+              paddingTop: '32px',
+              borderBottom: '1px solid #E2E8F0'
             }}>
               {bars.map((b) => (
                 <div key={b.time} style={{
@@ -326,25 +362,26 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
                   justifyContent: 'flex-end'
                 }}>
                   <span style={{
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    color: '#14281C',
-                    marginBottom: '6px'
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: b.isPeak ? '#16A34A' : '#0F172A',
+                    marginBottom: '8px'
                   }}>
                     {b.orders}
                   </span>
                   <div style={{
                     width: '100%',
-                    maxWidth: '56px',
+                    maxWidth: '64px',
                     height: b.height,
                     backgroundColor: b.color,
-                    borderRadius: '4px 4px 0 0',
+                    borderRadius: '6px 6px 0 0',
                     transition: 'height 0.4s ease'
                   }} />
                   <span style={{
-                    fontSize: '11px',
-                    color: '#73796F',
-                    marginTop: '8px'
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#64748B',
+                    marginTop: '10px'
                   }}>
                     {b.time}
                   </span>
@@ -353,84 +390,100 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
             </div>
           </div>
 
-          {/* Right: Delivery Capacity Breakdown matching Figma */}
+          {/* Right: Fleet Capacity Panel */}
           <div style={{
             backgroundColor: '#FFFFFF',
-            border: '1px solid #ECEEE7',
+            border: '1px solid #E2E8F0',
             borderRadius: '16px',
-            padding: '24px',
+            padding: '28px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
           }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#14281C' }}>
-                  Delivery capacity
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  Fleet Logistics Capacity
                 </h3>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#14281C', cursor: 'pointer' }}>
-                  Live ↗
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: '#16A34A',
+                  backgroundColor: '#DCFCE7',
+                  padding: '4px 10px',
+                  borderRadius: '20px'
+                }}>
+                  Active Dispatch
                 </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                  <span style={{ color: '#73796F' }}>Available riders</span>
-                  <span style={{ fontWeight: 600, color: '#14281C' }}>84</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>Available Couriers</span>
+                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>84 Riders</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                  <span style={{ color: '#73796F' }}>On active jobs</span>
-                  <span style={{ fontWeight: 600, color: '#14281C' }}>168</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>En Route Deliveries</span>
+                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>168 Jobs</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                  <span style={{ color: '#73796F' }}>Median delivery time</span>
-                  <span style={{ fontWeight: 600, color: '#14281C' }}>24 min</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>Average Delivery Time</span>
+                  <span style={{ fontWeight: 800, color: '#16A34A', fontSize: '16px' }}>18 Minutes</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                  <span style={{ color: '#73796F' }}>Stock accuracy</span>
-                  <span style={{ fontWeight: 600, color: '#14281C' }}>98.6%</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px' }}>
+                  <span style={{ color: '#64748B', fontWeight: 500 }}>Catalog Stock Accuracy</span>
+                  <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px' }}>98.6%</span>
                 </div>
               </div>
 
               <div style={{
-                borderTop: '1px solid #F0F2ED',
-                paddingTop: '14px',
-                fontSize: '11px',
-                color: '#73796F',
-                lineHeight: '1.4',
-                marginBottom: '14px'
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '10px',
+                padding: '14px',
+                fontSize: '13px',
+                color: '#475569',
+                lineHeight: 1.5
               }}>
-                ~10 min enabled only on eligible routes with confirmed stock and spare capacity.
+                10-Minute guaranteed delivery routes are active across Indiranagar, HSR Layout, and Jayanagar.
               </div>
             </div>
 
             <div style={{
-              backgroundColor: '#F6F4DC',
-              color: '#736814',
-              fontSize: '11px',
-              fontWeight: 600,
-              padding: '6px 12px',
-              borderRadius: '999px',
-              textAlign: 'center'
+              backgroundColor: '#FEF3C7',
+              border: '1px solid #FCD34D',
+              color: '#92400E',
+              fontSize: '13px',
+              fontWeight: 700,
+              padding: '10px 16px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              marginTop: '16px'
             }}>
-              Koramangala · Capacity watch
+              Koramangala Hub: Capacity Monitoring Active
             </div>
           </div>
         </div>
 
-        {/* Neighbourhood Performance Table matching Figma 1:1 */}
+        {/* Neighbourhood Logistics Hub Performance Table */}
         <div style={{
           backgroundColor: '#FFFFFF',
-          border: '1px solid #ECEEE7',
+          border: '1px solid #E2E8F0',
           borderRadius: '16px',
-          padding: '24px',
+          padding: '28px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#14281C' }}>
-              Neighbourhood performance
-            </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                Logistics Cluster Performance
+              </h3>
+              <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                Real-time delivery fulfillment and merchant throughput by micro-hub.
+              </p>
+            </div>
+
             <button
               onClick={() => {
                 playClickSound();
@@ -438,79 +491,84 @@ export default function NivvoAdminOverviewView({ onBack, onNavigateSellers }) {
                 else navigateTo('admin-sellers');
               }}
               style={{
-                background: 'none',
-                border: 'none',
-                color: '#14281C',
+                background: '#F1F5F9',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                color: '#0F172A',
                 fontWeight: 600,
-                fontSize: '13px',
+                fontSize: '14px',
+                padding: '8px 16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                gap: '6px',
                 cursor: 'pointer'
               }}
             >
-              <span>View operations</span>
-              <ArrowUpRight size={14} />
+              <span>Manage Merchants</span>
+              <ArrowUpRight size={15} />
             </button>
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #ECEEE7', color: '#73796F', fontSize: '12px', fontWeight: 500, backgroundColor: '#FAFBF8' }}>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>Zone</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>Orders</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>GMV</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>Quoted ETA</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>On-time</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 500 }}>Capacity</th>
+                <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', backgroundColor: '#F8FAFC' }}>
+                  <th style={{ padding: '14px 18px' }}>Logistics Hub</th>
+                  <th style={{ padding: '14px 18px' }}>Orders Today</th>
+                  <th style={{ padding: '14px 18px' }}>Gross GMV</th>
+                  <th style={{ padding: '14px 18px' }}>Fulfillment ETA</th>
+                  <th style={{ padding: '14px 18px' }}>SLA Adherence</th>
+                  <th style={{ padding: '14px 18px' }}>Dispatch Status</th>
                 </tr>
               </thead>
               <tbody>
                 {zones.map((z, idx) => (
                   <tr key={z.name} style={{
-                    borderBottom: idx === zones.length - 1 ? 'none' : '1px solid #F0F2ED',
-                    backgroundColor: '#FFFFFF'
+                    borderBottom: idx === zones.length - 1 ? 'none' : '1px solid #F1F5F9',
+                    backgroundColor: '#FFFFFF',
+                    transition: 'background-color 0.15s ease'
                   }}>
-                    <td style={{ padding: '16px', fontWeight: 600, color: '#14281C' }}>
+                    <td style={{ padding: '18px', fontWeight: 700, color: '#0F172A', fontSize: '15px' }}>
                       {z.name}
                     </td>
-                    <td style={{ padding: '16px', color: '#14281C' }}>
-                      {z.orders}
+                    <td style={{ padding: '18px', color: '#0F172A', fontWeight: 600 }}>
+                      {z.orders} Orders
                     </td>
-                    <td style={{ padding: '16px', color: '#14281C' }}>
+                    <td style={{ padding: '18px', color: '#0F172A', fontWeight: 700 }}>
                       {z.gmv}
                     </td>
-                    <td style={{ padding: '16px', color: '#73796F' }}>
+                    <td style={{ padding: '18px', color: '#475569' }}>
                       {z.eta}
                     </td>
-                    <td style={{ padding: '16px', color: '#14281C' }}>
+                    <td style={{ padding: '18px', color: '#16A34A', fontWeight: 700 }}>
                       {z.ontime}
                     </td>
-                    <td style={{ padding: '16px', color: z.isWatch ? '#736814' : '#14281C' }}>
-                      {z.capacity}
+                    <td style={{ padding: '18px' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        backgroundColor: z.status === 'optimal' ? '#DCFCE7' : '#FEF3C7',
+                        color: z.status === 'optimal' ? '#166534' : '#92400E'
+                      }}>
+                        <span style={{
+                          width: '7px',
+                          height: '7px',
+                          borderRadius: '50%',
+                          backgroundColor: z.status === 'optimal' ? '#16A34A' : '#D97706'
+                        }} />
+                        {z.capacity}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-
-        {/* Footer Meta Note */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '11px',
-          color: '#73796F',
-          padding: '0 4px',
-          marginTop: '4px'
-        }}>
-          <span>Live estimates reflect stock, preparation and rider capacity.</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }} onClick={() => showToast('Refreshed cluster metrics')}>
-            Last synced 14:46 IST <RefreshCw size={11} />
-          </span>
         </div>
 
       </div>

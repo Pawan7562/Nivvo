@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   LayoutDashboard, Store, Package, Bike, Users, Wallet, 
-  Bell, Menu, X, ArrowLeft, ArrowUpRight
+  Bell, Menu, X, ArrowLeft, ArrowUpRight, ShieldCheck, LogOut, ExternalLink, Activity
 } from 'lucide-react';
 import { playClickSound } from '../../utils/audioEffects';
 
@@ -13,16 +13,16 @@ export default function AdminLayout({
   children,
   onTabChange
 }) {
-  const { navigateTo, showToast } = useNivvo();
+  const { navigateTo, showToast, logout, currentUser } = useNivvo();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={17} strokeWidth={1.8} />, route: 'admin-overview' },
-    { id: 'sellers', label: 'Sellers & operations', icon: <Store size={17} strokeWidth={1.8} />, route: 'admin-sellers' },
-    { id: 'orders', label: 'Orders', icon: <Package size={17} strokeWidth={1.8} />, tab: 'orders' },
-    { id: 'delivery', label: 'Delivery network', icon: <Bike size={17} strokeWidth={1.8} />, tab: 'delivery' },
-    { id: 'customers', label: 'Customers', icon: <Users size={17} strokeWidth={1.8} />, tab: 'customers' },
-    { id: 'finance', label: 'Finance', icon: <Wallet size={17} strokeWidth={1.8} />, tab: 'finance' }
+    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} strokeWidth={2} />, route: 'admin-overview' },
+    { id: 'sellers', label: 'Merchants & Operations', icon: <Store size={20} strokeWidth={2} />, route: 'admin-sellers' },
+    { id: 'orders', label: 'Orders & Dispatch', icon: <Package size={20} strokeWidth={2} />, tab: 'orders' },
+    { id: 'delivery', label: 'Delivery Network', icon: <Bike size={20} strokeWidth={2} />, tab: 'delivery' },
+    { id: 'customers', label: 'Customer Base', icon: <Users size={20} strokeWidth={2} />, tab: 'customers' },
+    { id: 'finance', label: 'Financial Settlement', icon: <Wallet size={20} strokeWidth={2} />, tab: 'finance' }
   ];
 
   const handleNavClick = (item) => {
@@ -42,67 +42,77 @@ export default function AdminLayout({
       display: 'flex',
       minHeight: '100vh',
       width: '100%',
-      backgroundColor: '#FAFBF8',
-      color: '#14281C',
+      backgroundColor: '#F8FAFC',
+      color: '#0F172A',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
-      {/* ─── DESKTOP SIDEBAR MATCHING FIGMA ─── */}
+      {/* ─── DESKTOP ENTERPRISE SIDEBAR ─── */}
       <aside style={{
-        width: '240px',
+        width: '280px',
         flexShrink: 0,
         backgroundColor: '#FFFFFF',
-        borderRight: '1px solid #EAECE5',
+        borderRight: '1px solid #E2E8F0',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        padding: '28px 18px 24px',
+        padding: '28px 20px 24px',
         boxSizing: 'border-box',
         position: 'sticky',
         top: 0,
         height: '100vh',
-        zIndex: 50
+        zIndex: 50,
+        boxShadow: '1px 0 3px rgba(0,0,0,0.02)'
       }} className="nivvo-admin-desktop-sidebar">
         {/* Top Branding Lockup */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingLeft: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', paddingLeft: '8px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              backgroundColor: '#C6F432',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              backgroundColor: '#0F172A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#14281C',
+              color: '#C6F432',
               fontWeight: 900,
-              fontSize: '18px'
+              fontSize: '20px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}>
-              ↗
+              N
             </div>
-            <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.04em', color: '#14281C' }}>
-              nivvo
-            </span>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.04em', color: '#0F172A', lineHeight: 1.1 }}>
+                nivvo
+              </div>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Operations Console
+              </div>
+            </div>
           </div>
 
           {/* Console Tag Pill */}
           <div style={{
-            display: 'inline-block',
-            backgroundColor: '#F3F4EE',
-            border: '1px solid #E5E7DE',
-            padding: '3px 8px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#F1F5F9',
+            border: '1px solid #E2E8F0',
+            padding: '4px 10px',
             borderRadius: '6px',
-            fontSize: '10px',
-            fontWeight: 800,
+            fontSize: '11px',
+            fontWeight: 700,
             letterSpacing: '0.04em',
-            color: '#4B5563',
+            color: '#334155',
             marginBottom: '26px',
             marginLeft: '8px'
           }}>
-            PLATFORM CONSOLE
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+            ENTERPRISE PLATFORM · V2.4
           </div>
 
           {/* Navigation Links */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {navItems.map((item) => {
               const isActive = currentTab === item.id;
               return (
@@ -112,104 +122,128 @@ export default function AdminLayout({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '14px',
                     width: '100%',
-                    padding: '10px 14px',
+                    padding: '12px 16px',
                     borderRadius: '10px',
                     border: 'none',
-                    backgroundColor: isActive ? '#E8EFE5' : 'transparent',
-                    color: isActive ? '#14281C' : '#5A6553',
+                    backgroundColor: isActive ? '#0F172A' : 'transparent',
+                    color: isActive ? '#FFFFFF' : '#475569',
                     fontWeight: isActive ? 700 : 500,
-                    fontSize: '13px',
+                    fontSize: '15px',
                     cursor: 'pointer',
                     textAlign: 'left',
                     transition: 'all 0.15s ease'
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = '#F1F5F9';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
-                  <span style={{ color: isActive ? '#14281C' : '#5A6553', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ 
+                    color: isActive ? '#C6F432' : '#64748B', 
+                    display: 'flex', 
+                    alignItems: 'center' 
+                  }}>
                     {item.icon}
                   </span>
                   <span>{item.label}</span>
+                  {isActive && (
+                    <span style={{ 
+                      marginLeft: 'auto', 
+                      width: '6px', 
+                      height: '6px', 
+                      borderRadius: '50%', 
+                      backgroundColor: '#C6F432' 
+                    }} />
+                  )}
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Bottom Region Status Card & Links matching Figma */}
+        {/* Bottom Region Status Card & Links */}
         <div>
           {/* Bengaluru Region Status Card */}
           <div style={{
-            backgroundColor: '#F5F6F2',
-            border: '1px solid #EAECE5',
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
             borderRadius: '12px',
-            padding: '14px',
+            padding: '16px',
             marginBottom: '18px'
           }}>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>
-              Bengaluru region
+            <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Bengaluru Hub</span>
+              <Activity size={16} color="#16A34A" />
             </div>
-            <div style={{ fontSize: '11px', color: '#73796F', marginTop: '2px', marginBottom: '10px' }}>
-              12 zones · Live operations
+            <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', marginBottom: '12px' }}>
+              12 Active Logistics Clusters
             </div>
 
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#E4E7DF',
-              color: '#14281C',
-              fontSize: '11px',
-              fontWeight: 600,
-              padding: '4px 10px',
+              gap: '8px',
+              backgroundColor: '#DCFCE7',
+              color: '#166534',
+              fontSize: '12px',
+              fontWeight: 700,
+              padding: '5px 12px',
               borderRadius: '999px'
             }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1E3827' }} />
-              Network online
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+              All Systems Optimal
             </div>
           </div>
 
-          {/* Help centre ↗ and Settings */}
+          {/* Quick Support & Switch Portal */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '8px' }}>
             <button 
               onClick={() => {
                 playClickSound();
-                showToast('Platform Console Documentation & Playbooks');
+                showToast('Platform Console Documentation & Operations Playbook');
               }}
               style={{
                 background: 'none',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#5A6553',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#475569',
                 cursor: 'pointer',
-                padding: 0
+                padding: '4px 0'
               }}
             >
-              <span>Help centre</span>
-              <ArrowUpRight size={13} />
+              <span>Documentation & Guides</span>
+              <ExternalLink size={14} />
             </button>
 
             <button 
               onClick={() => {
                 playClickSound();
-                showToast('Console configuration & security settings');
+                navigateTo('landing');
               }}
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#5A6553',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#0F172A',
                 cursor: 'pointer',
-                padding: 0,
+                padding: '4px 0',
                 textAlign: 'left'
               }}
             >
-              Settings
+              <LogOut size={15} color="#64748B" />
+              <span>Back to Storefront</span>
             </button>
           </div>
         </div>
@@ -221,24 +255,25 @@ export default function AdminLayout({
         display: 'flex',
         flexDirection: 'column',
         minWidth: 0,
-        backgroundColor: '#FAFBF8',
+        backgroundColor: '#F8FAFC',
         minHeight: '100vh'
       }}>
-        {/* Top Header Bar matching Figma */}
+        {/* Top Header Bar */}
         <header style={{
-          height: '60px',
+          height: '72px',
           backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #EAECE5',
+          borderBottom: '1px solid #E2E8F0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 36px',
+          padding: '0 44px',
           position: 'sticky',
           top: 0,
-          zIndex: 40
+          zIndex: 40,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
         }}>
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Breadcrumb & Navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="nivvo-admin-mobile-toggle"
@@ -246,78 +281,124 @@ export default function AdminLayout({
                 display: 'none',
                 background: 'none',
                 border: 'none',
-                padding: '4px',
-                cursor: 'pointer'
+                padding: '6px',
+                cursor: 'pointer',
+                color: '#0F172A'
               }}
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             {onBack && (
               <button 
                 onClick={onBack}
                 style={{
-                  background: 'none',
-                  border: 'none',
+                  background: '#F1F5F9',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  color: '#6B7265',
-                  fontSize: '13px',
+                  gap: '6px',
+                  color: '#334155',
+                  fontSize: '14px',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  marginRight: '6px'
+                  padding: '6px 12px',
+                  marginRight: '8px'
                 }}
               >
                 <ArrowLeft size={16} />
+                <span>Return</span>
               </button>
             )}
 
-            <span style={{ fontSize: '13px', color: '#6B7265' }}>Platform</span>
-            <span style={{ fontSize: '13px', color: '#B5BAC0' }}>/</span>
-            <span style={{ fontSize: '13px', color: '#14281C', fontWeight: 600 }}>{breadcrumb}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px' }}>
+              <span style={{ color: '#64748B', fontWeight: 500 }}>Platform Administration</span>
+              <span style={{ color: '#CBD5E1' }}>/</span>
+              <span style={{ color: '#0F172A', fontWeight: 700 }}>{breadcrumb}</span>
+            </div>
           </div>
 
-          {/* Right Status Lockup matching Figma */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-            <span style={{ fontSize: '12px', color: '#5A6553', fontWeight: 500 }}>
-              25 Oct 2026 · 14:46 IST
-            </span>
+          {/* Right Status Lockup */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: '#F1F5F9',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              color: '#334155',
+              fontWeight: 600
+            }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+              <span>Fulfillment SLA: 98.4%</span>
+            </div>
 
             <button 
               onClick={() => {
                 playClickSound();
-                showToast('Console alerts: All 12 clusters active');
+                showToast('System Notifications: All clusters functioning at target SLA');
               }}
               style={{
-                background: 'none',
-                border: 'none',
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                padding: '8px',
                 cursor: 'pointer',
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                color: '#20251F'
+                justifyContent: 'center',
+                color: '#334155'
               }}
               aria-label="Platform Alerts"
             >
-              <Bell size={18} strokeWidth={1.8} />
+              <Bell size={20} strokeWidth={2} />
+              <span style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#EF4444',
+                borderRadius: '50%',
+                border: '2px solid #FFFFFF'
+              }} />
             </button>
 
-            {/* Admin Avatar in Figma (AK) */}
+            {/* Admin Avatar & Name */}
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: '#1E2D24',
-              color: '#FFFFFF',
-              fontSize: '12px',
-              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }} title="Admin (AK)">
-              AK
+              gap: '12px',
+              paddingLeft: '6px',
+              borderLeft: '1px solid #E2E8F0'
+            }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: '#0F172A',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }} title="Operations Admin">
+                AD
+              </div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
+                  {currentUser?.name || 'Platform Admin'}
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
+                  Operations Lead
+                </div>
+              </div>
             </div>
           </div>
         </header>
@@ -325,8 +406,8 @@ export default function AdminLayout({
         {/* Page Content Container */}
         <main style={{
           flex: 1,
-          padding: '28px 36px 48px',
-          maxWidth: '1440px',
+          padding: '36px 44px 64px',
+          maxWidth: '1600px',
           width: '100%',
           boxSizing: 'border-box',
           margin: '0 auto'

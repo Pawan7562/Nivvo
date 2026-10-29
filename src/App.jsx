@@ -833,14 +833,14 @@ function AppContent() {
           )}
 
           {/* Platform Admin Screens (15 to 16) - Handled Exclusively on Desktop Website Portal */}
-          {platformMode === 'web' && currentScreen === 'admin-overview' && (
+          {currentScreen === 'admin-overview' && (
             <NivvoAdminOverviewView 
               onBack={() => navigateTo('landing')}
               onNavigateSellers={() => navigateTo('admin-sellers')}
             />
           )}
 
-          {platformMode === 'web' && currentScreen === 'admin-sellers' && (
+          {currentScreen === 'admin-sellers' && (
             <NivvoAdminSellersView 
               onBack={() => navigateTo('admin-overview')}
             />

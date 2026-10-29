@@ -3,7 +3,8 @@ import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   ArrowUpRight, Search, AlertTriangle, Check, ChevronDown, 
   Store, Power, X, FileText, CheckCircle2, AlertCircle, Clock, ShieldCheck, 
-  Bike, UserCheck, RefreshCw, Eye, MessageSquare, ChevronLeft, ChevronRight, Shield
+  Bike, UserCheck, RefreshCw, Eye, MessageSquare, ChevronLeft, ChevronRight, Shield,
+  Star, Mail, PlusCircle, Building2, ExternalLink
 } from 'lucide-react';
 import { playClickSound, playTrialSound } from '../../utils/audioEffects';
 import AdminLayout from '../../components/nivvo/AdminLayout';
@@ -20,17 +21,18 @@ export default function NivvoAdminSellersView({ onBack }) {
     approveRiderApplication,
     rejectRiderApplication
   } = useNivvo();
+  
   const [activeTab, setActiveTab] = useState('directory'); // 'directory' | 'pending' | 'alerts' | 'riders'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSellerId, setSelectedSellerId] = useState('SS-018');
-  const [selectedZoneFilter, setSelectedZoneFilter] = useState('All zones');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState('All status');
+  const [selectedZoneFilter, setSelectedZoneFilter] = useState('All Zones');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('All Status');
   
   // Real Verification Queues backed by context & backend
   const [pendingShops, setPendingShops] = useState(pendingSellerApplications || []);
   const [pendingRiders, setPendingRiders] = useState(pendingRiderApplications || []);
   const [isLoadingQueues, setIsLoadingQueues] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState(null); // for inspection drawer/modal
+  const [selectedApplication, setSelectedApplication] = useState(null);
   const [decisionNotes, setDecisionNotes] = useState('');
   const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);
 
@@ -39,147 +41,147 @@ export default function NivvoAdminSellersView({ onBack }) {
   const [inviteName, setInviteName] = useState('');
   const [invitePhone, setInvitePhone] = useState('');
 
-  // Default directory sellers matching figma frame admin_2_sellers
+  // Default directory sellers with clean metrics and no emojis
   const [sellers, setSellers] = useState([
     { 
       id: 'SS-018', 
-      name: 'Sole Street', 
-      cat: 'Footwear', 
-      zone: 'Indiranagar', 
-      rating: '★ 4.8', 
+      name: 'Sole Street Sneaker Studio', 
+      cat: 'Footwear & Streetwear', 
+      zone: 'Indiranagar Hub #14', 
+      rating: '4.8', 
       sync: '2 min ago', 
-      status: 'Live ✓', 
+      status: 'Active Store', 
       isLive: true, 
-      color: '#1C7532', 
-      address: 'Indiranagar, Bengaluru',
+      color: '#15803D', 
+      address: '100ft Road, Indiranagar, Bengaluru',
       owner: 'Rohan Sethi',
       prepTime: '4–6 min',
       stockAccuracy: '99.2%',
       acceptanceRate: '98.4%',
       verifications: [
-        'GSTIN verified · GST invoice enabled',
-        'Owner KYC approved',
-        'Settlement account verified'
+        'GSTIN Verified (29AABCU9603R1ZM)',
+        'Owner Identity & PAN Confirmed',
+        'Direct Settlement Account Verified (ICICI Bank)'
       ],
       activities: [
-        '2:39 pm · Order NV-1048 picked up by Ravi Kumar (DP-042).',
-        '2:45 pm · New order NV-1052 received. Awaiting shop acceptance.'
+        '14:39 · Order NV-1048 dispatched via EV Courier Ravi Kumar.',
+        '14:45 · New order NV-1052 received and auto-accepted.'
       ]
     },
     { 
       id: 'CH-024', 
-      name: 'Circuit House', 
-      cat: 'Electronics', 
-      zone: 'Indiranagar', 
-      rating: '★ 4.7', 
+      name: 'Circuit House Audio Labs', 
+      cat: 'Consumer Electronics & Audio', 
+      zone: 'Indiranagar Hub #14', 
+      rating: '4.7', 
       sync: '1 min ago', 
-      status: 'Live ✓', 
+      status: 'Active Store', 
       isLive: true, 
-      color: '#1C7532', 
+      color: '#15803D', 
       address: '100ft Road, Indiranagar',
       owner: 'Kavita Nair',
       prepTime: '3–5 min',
       stockAccuracy: '98.8%',
       acceptanceRate: '99.1%',
       verifications: [
-        'GSTIN verified · GST invoice enabled',
-        'Owner KYC approved',
-        'Settlement account verified'
+        'GSTIN Verified (29BBDPS4812K1Z8)',
+        'Owner Identity & PAN Confirmed',
+        'Direct Settlement Account Verified (HDFC Bank)'
       ],
       activities: [
-        '2:31 pm · Fast cable dispatched on bike DP-012.',
-        '2:41 pm · Restocked Anker GaN charger 65W.'
+        '14:31 · Ultra-fast USB-C audio cable dispatched on bike.',
+        '14:41 · Inventory synchronized for 65W GaN adapter.'
       ]
     },
     { 
       id: 'TF-032', 
-      name: 'Thread & Form', 
-      cat: 'Fashion', 
-      zone: 'Indiranagar', 
-      rating: '★ 4.6', 
+      name: 'Thread & Form Boutique', 
+      cat: 'Contemporary Apparel', 
+      zone: 'Indiranagar Hub #14', 
+      rating: '4.6', 
       sync: '3 min ago', 
-      status: 'Live ✓', 
+      status: 'Active Store', 
       isLive: true, 
-      color: '#1C7532', 
+      color: '#15803D', 
       address: 'CMH Road, Indiranagar',
       owner: 'Ananya Roy',
       prepTime: '5–7 min',
       stockAccuracy: '97.5%',
       acceptanceRate: '97.9%',
       verifications: [
-        'GSTIN verified · GST invoice enabled',
-        'Owner KYC approved',
-        'Settlement account verified'
+        'GSTIN Verified (29CCKTR9921M1Z4)',
+        'Owner Identity & PAN Confirmed',
+        'Direct Settlement Account Verified (Axis Bank)'
       ],
       activities: [
-        '2:20 pm · Linen overshirt packaged and handed to rider.'
+        '14:20 · Overshirt packaged for 10-minute doorstep trial.'
       ]
     },
     { 
       id: 'PS-061', 
-      name: 'Pocket Studio', 
-      cat: 'Mobile accessories', 
-      zone: 'Koramangala', 
-      rating: '★ 4.5', 
+      name: 'Pocket Studio Tech Gear', 
+      cat: 'Mobile Tech & Daily Essentials', 
+      zone: 'Koramangala Hub #08', 
+      rating: '4.5', 
       sync: '24 min ago', 
-      status: 'Review sync', 
+      status: 'Sync Delayed', 
       isLive: true, 
-      color: '#855700', 
+      color: '#D97706', 
       address: '80ft Road, Koramangala',
       owner: 'Devendra Patil',
       prepTime: '6–8 min',
       stockAccuracy: '94.2%',
       acceptanceRate: '96.0%',
       verifications: [
-        'GSTIN verified · GST invoice enabled',
-        'Owner KYC approved'
+        'GSTIN Verified (29DDPLL1190N1Z2)',
+        'Owner Identity & PAN Confirmed'
       ],
       activities: [
-        '2:15 pm · Automated stock sync delayed by 24 min.'
+        '14:15 · POS automated stock sync delayed by 24 min.'
       ]
     },
     { 
       id: 'WL-048', 
-      name: 'Walk Local', 
-      cat: 'Footwear', 
-      zone: 'HSR Layout', 
-      rating: '★ 4.6', 
+      name: 'Walk Local Athletic Shoes', 
+      cat: 'Footwear & Athletic Shoes', 
+      zone: 'HSR Layout Hub #05', 
+      rating: '4.6', 
       sync: '1 min ago', 
-      status: 'Live ✓', 
+      status: 'Active Store', 
       isLive: true, 
-      color: '#1C7532', 
+      color: '#15803D', 
       address: '27th Main, HSR Layout',
       owner: 'Vikram Joshi',
       prepTime: '4–5 min',
       stockAccuracy: '99.0%',
       acceptanceRate: '98.7%',
       verifications: [
-        'GSTIN verified · GST invoice enabled',
-        'Owner KYC approved',
-        'Settlement account verified'
+        'GSTIN Verified (29EEKSW7721P1Z9)',
+        'Owner Identity & PAN Confirmed',
+        'Direct Settlement Account Verified (Kotak Bank)'
       ],
       activities: [
-        '2:40 pm · Slide sandals prepared for DP-099.'
+        '14:40 · Slide sandals prepared for Courier dispatch.'
       ]
     },
     { 
       id: 'DE-078', 
-      name: 'Daily Edit', 
-      cat: 'Lifestyle', 
-      zone: 'Jayanagar', 
-      rating: '—', 
-      sync: 'Not synced', 
-      status: 'KYC review', 
+      name: 'Daily Edit Studio', 
+      cat: 'Lifestyle & Home Décor', 
+      zone: 'Jayanagar Hub #11', 
+      rating: 'New', 
+      sync: 'Pending Initial Sync', 
+      status: 'Compliance Review', 
       isLive: false, 
-      color: '#6B7265', 
+      color: '#64748B', 
       address: '4th Block, Jayanagar',
       owner: 'Megha Sharma',
-      prepTime: '—',
-      stockAccuracy: '—',
-      acceptanceRate: '—',
+      prepTime: 'Pending Review',
+      stockAccuracy: 'Under Audit',
+      acceptanceRate: 'Under Audit',
       verifications: [
-        'Awaiting GST certificate review',
-        'Bank mandate under test deposit'
+        'Trade License Under Verification',
+        'Bank Mandate Verification in Progress'
       ],
       activities: [
         'Yesterday · Merchant uploaded trade license and bank mandate.'
@@ -187,25 +189,25 @@ export default function NivvoAdminSellersView({ onBack }) {
     },
     { 
       id: 'BC-027', 
-      name: 'Byte Corner', 
-      cat: 'Computing', 
-      zone: 'Koramangala', 
-      rating: '★ 4.3', 
+      name: 'Byte Corner IT Depot', 
+      cat: 'Computing & Office Hardware', 
+      zone: 'Koramangala Hub #08', 
+      rating: '4.3', 
       sync: '48 min ago', 
-      status: 'Paused', 
+      status: 'Temporarily Paused', 
       isLive: false, 
-      color: '#14281C', 
+      color: '#475569', 
       address: '5th Block, Koramangala',
       owner: 'Siddharth Sen',
       prepTime: '8–12 min',
       stockAccuracy: '91.0%',
       acceptanceRate: '92.4%',
       verifications: [
-        'GSTIN verified',
-        'Temporary pause due to local renovation'
+        'GSTIN Verified',
+        'Store Renovation Pause Requested by Merchant'
       ],
       activities: [
-        '1:50 pm · Store paused by merchant until tomorrow.'
+        '13:50 · Merchant requested temporary maintenance pause.'
       ]
     }
   ]);
@@ -221,10 +223,10 @@ export default function NivvoAdminSellersView({ onBack }) {
         fetch('/api/admin/verifications/riders', { headers }).then(r => r.json()).catch(() => ({ riders: [] }))
       ]);
 
-      if (shopsRes?.shops) setPendingShops(shopsRes.shops);
-      if (ridersRes?.riders) setPendingRiders(ridersRes.riders);
+      if (shopsRes?.shops && shopsRes.shops.length > 0) setPendingShops(shopsRes.shops);
+      if (ridersRes?.riders && ridersRes.riders.length > 0) setPendingRiders(ridersRes.riders);
     } catch {
-      // Graceful fallback
+      // Clean fallback
     } finally {
       setIsLoadingQueues(false);
     }
@@ -248,25 +250,25 @@ export default function NivvoAdminSellersView({ onBack }) {
               {
                 id: `SH-${Math.floor(100 + Math.random() * 900)}`,
                 name: approved.shop_name,
-                cat: approved.category || 'Apparel & Sarees',
-                zone: 'Indiranagar',
-                rating: '★ 5.0',
+                cat: approved.category || 'Retail Boutique',
+                zone: 'Indiranagar Hub #14',
+                rating: '5.0',
                 sync: 'Just now',
-                status: 'Live ✓',
+                status: 'Active Store',
                 isLive: true,
-                color: '#1C7532',
+                color: '#15803D',
                 address: approved.address || 'Indiranagar, Bengaluru',
                 owner: approved.owner_name,
                 prepTime: '4–6 min',
                 stockAccuracy: '100%',
                 acceptanceRate: '100%',
                 verifications: [
-                  'GSTIN verified · GST invoice enabled',
-                  'Owner KYC approved',
-                  'Settlement account verified'
+                  'GSTIN Verified & Tax Invoice Enabled',
+                  'Owner KYC Document Approved',
+                  'Settlement Account Verified'
                 ],
                 activities: [
-                  'Just now · Store approved by Compliance Officer. Discoverable on consumer app.'
+                  'Just now · Application approved by Compliance Officer. Live on customer search.'
                 ]
               },
               ...prev
@@ -285,7 +287,7 @@ export default function NivvoAdminSellersView({ onBack }) {
         setPendingRiders(prev => prev.filter(r => r.id !== id));
       }
 
-      showToast(`Application marked as ${decisionStatus.toUpperCase()}! ✓`);
+      showToast(`Merchant application status updated to: ${decisionStatus.toUpperCase()}`);
       setSelectedApplication(null);
       setDecisionNotes('');
     } catch (err) {
@@ -305,13 +307,13 @@ export default function NivvoAdminSellersView({ onBack }) {
         return {
           ...s,
           isLive: nextLive,
-          status: nextLive ? 'Live ✓' : 'Paused',
-          color: nextLive ? '#1C7532' : '#C92A2A'
+          status: nextLive ? 'Active Store' : 'Temporarily Paused',
+          color: nextLive ? '#15803D' : '#64748B'
         };
       }
       return s;
     }));
-    showToast(`Updated store status for ${selectedSeller.name}`);
+    showToast(`Storefront status updated for ${selectedSeller.name}`);
   };
 
   const handleSendInvite = (e) => {
@@ -319,7 +321,7 @@ export default function NivvoAdminSellersView({ onBack }) {
     if (!inviteName.trim()) return;
     playTrialSound();
     setShowInviteModal(false);
-    showToast(`Onboarding invite sent to ${inviteName} (${invitePhone || '+91 98XXX'})! 📩`);
+    showToast(`Onboarding invitation sent to ${inviteName} (${invitePhone || '+91 98450 00000'})`);
     setInviteName('');
     setInvitePhone('');
   };
@@ -329,855 +331,1029 @@ export default function NivvoAdminSellersView({ onBack }) {
                           s.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           s.cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           s.zone.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesZone = selectedZoneFilter === 'All zones' || s.zone === selectedZoneFilter;
-    const matchesStatus = selectedStatusFilter === 'All status' || 
-                          (selectedStatusFilter === 'Live' && s.isLive) ||
+    const matchesZone = selectedZoneFilter === 'All Zones' || s.zone.includes(selectedZoneFilter.replace(' Hub', ''));
+    const matchesStatus = selectedStatusFilter === 'All Status' || 
+                          (selectedStatusFilter === 'Active' && s.isLive) ||
                           (selectedStatusFilter === 'Paused' && !s.isLive);
     return matchesSearch && matchesZone && matchesStatus;
   });
 
   return (
-    <AdminLayout currentTab="sellers" breadcrumb="Sellers & operations" onBack={onBack}>
-      {/* Title & Actions Row */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '24px',
-        flexWrap: 'wrap',
-        gap: '16px'
-      }}>
-        <div>
-          <h1 style={{
-            fontSize: '30px',
-            fontWeight: 700,
-            color: '#14281C',
-            letterSpacing: '-0.03em',
-            margin: '0 0 4px 0'
-          }}>
-            Sellers & operations
-          </h1>
-          <p style={{ fontSize: '14px', color: '#6B7265', margin: 0 }}>
-            Keep neighbourhood retail dependable, discoverable and ready to deliver.
-          </p>
-        </div>
-
-        <button
-          onClick={() => {
-            playClickSound();
-            setShowInviteModal(true);
-          }}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7DE',
-            borderRadius: '10px',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#14281C',
-            cursor: 'pointer',
-            transition: 'background-color 0.15s ease'
-          }}
-        >
-          <span>+ Invite seller</span>
-          <ArrowUpRight size={14} />
-        </button>
-      </div>
-
-      {/* Capacity Constraint Alert Banner */}
-      <div style={{
-        backgroundColor: '#EFF5EA',
-        borderRadius: '12px',
-        padding: '14px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '24px',
-        gap: '16px',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <AlertTriangle size={18} color="#14281C" />
+    <AdminLayout currentTab="sellers" breadcrumb="Merchants & Operations" onBack={onBack}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        
+        {/* Title & Actions Bar */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>
-              Koramangala capacity is constrained
-            </div>
-            <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '2px' }}>
-              Delivery windows extended to 25–40 min. ~10 min eligibility paused until capacity recovers.
-            </div>
+            <h1 style={{
+              fontSize: '32px',
+              fontWeight: 800,
+              color: '#0F172A',
+              letterSpacing: '-0.03em',
+              margin: '0 0 6px 0'
+            }}>
+              Merchant Operations & Compliance
+            </h1>
+            <p style={{ fontSize: '15px', color: '#475569', margin: 0, fontWeight: 500 }}>
+              Audit partner stores, review compliance applications, and monitor catalog inventory availability.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => {
+                playClickSound();
+                setShowInviteModal(true);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '11px 20px',
+                backgroundColor: '#0F172A',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#FFFFFF',
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(15,23,42,0.1)'
+              }}
+            >
+              <PlusCircle size={16} color="#A3E635" />
+              <span>Register Merchant</span>
+            </button>
           </div>
         </div>
 
-        <button
-          onClick={() => showToast('Inspecting Koramangala active dispatch zone')}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#14281C',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          <span>Review zone</span>
-          <ArrowUpRight size={13} />
-        </button>
-      </div>
-
-      {/* Filter Tabs Row matching Figma */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', overflowX: 'auto' }}>
-        <button
-          onClick={() => { playClickSound(); setActiveTab('directory'); }}
-          style={{
-            backgroundColor: activeTab === 'directory' ? '#1F3526' : '#FFFFFF',
-            color: activeTab === 'directory' ? '#FFFFFF' : '#14281C',
-            border: activeTab === 'directory' ? 'none' : '1px solid #E5E7DE',
-            padding: '8px 20px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            fontWeight: activeTab === 'directory' ? 600 : 500,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          Seller directory 214
-        </button>
-
-        <button
-          onClick={() => { playClickSound(); setActiveTab('pending'); }}
-          style={{
-            backgroundColor: activeTab === 'pending' ? '#1F3526' : '#FFFFFF',
-            color: activeTab === 'pending' ? '#FFFFFF' : '#14281C',
-            border: activeTab === 'pending' ? 'none' : '1px solid #E5E7DE',
-            padding: '8px 20px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            fontWeight: activeTab === 'pending' ? 600 : 500,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          Pending approval {pendingShops.length > 0 ? pendingShops.length : 8}
-        </button>
-
-        <button
-          onClick={() => { playClickSound(); setActiveTab('alerts'); }}
-          style={{
-            backgroundColor: activeTab === 'alerts' ? '#1F3526' : '#FFFFFF',
-            color: activeTab === 'alerts' ? '#FFFFFF' : '#14281C',
-            border: activeTab === 'alerts' ? 'none' : '1px solid #E5E7DE',
-            padding: '8px 20px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            fontWeight: activeTab === 'alerts' ? 600 : 500,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          Operations alerts 6
-        </button>
-
-        <button
-          onClick={() => { playClickSound(); setActiveTab('riders'); }}
-          style={{
-            backgroundColor: activeTab === 'riders' ? '#1F3526' : '#FFFFFF',
-            color: activeTab === 'riders' ? '#FFFFFF' : '#14281C',
-            border: activeTab === 'riders' ? 'none' : '1px solid #E5E7DE',
-            padding: '8px 20px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            fontWeight: activeTab === 'riders' ? 600 : 500,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          Delivery partners 312
-        </button>
-      </div>
-
-      {/* ==============================================================
-          TAB 1: SELLER DIRECTORY (Matching figma admin_2_sellers 1:1)
-          ============================================================== */}
-      {activeTab === 'directory' && (
-        <>
-          {/* Search & Filter Controls */}
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '20px',
-            flexWrap: 'wrap'
-          }}>
+        {/* Operational Constraint Alert Banner */}
+        <div style={{
+          backgroundColor: '#FFFBEB',
+          border: '1.5px solid #FCD34D',
+          borderRadius: '14px',
+          padding: '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
-              flex: 1,
-              minWidth: '280px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              backgroundColor: '#FEF3C7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <AlertTriangle size={20} color="#B45309" />
+            </div>
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#92400E' }}>
+                Koramangala Logistics Hub Capacity Constrained
+              </div>
+              <div style={{ fontSize: '14px', color: '#B45309', marginTop: '2px' }}>
+                Delivery windows temporarily extended to 25–35 minutes. Automatic dynamic surge buffer engaged.
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => showToast('Inspecting active Koramangala dispatch zone')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #FCD34D',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#92400E',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            <span>Inspect Dispatch Fleet</span>
+            <ArrowUpRight size={15} />
+          </button>
+        </div>
+
+        {/* Spacious Top Navigation Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          borderBottom: '1px solid #E2E8F0',
+          paddingBottom: '14px',
+          overflowX: 'auto'
+        }}>
+          <button
+            onClick={() => { playClickSound(); setActiveTab('directory'); }}
+            style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7DE',
+              backgroundColor: activeTab === 'directory' ? '#0F172A' : '#FFFFFF',
+              color: activeTab === 'directory' ? '#FFFFFF' : '#475569',
+              border: activeTab === 'directory' ? 'none' : '1px solid #CBD5E1',
+              padding: '10px 22px',
               borderRadius: '10px',
-              padding: '10px 16px'
-            }}>
-              <Search size={16} color="#6B7265" />
-              <input
-                type="text"
-                placeholder="Search seller, ID or contact"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  width: '100%',
-                  fontSize: '13px',
-                  color: '#14281C',
-                  backgroundColor: 'transparent'
-                }}
-              />
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7DE',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#14281C',
-              cursor: 'pointer'
-            }}>
-              <span>All zones</span>
-              <span style={{ fontSize: '11px', color: '#6B7265' }}>⌄</span>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E7DE',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#14281C',
-              cursor: 'pointer'
-            }}>
-              <span>Status</span>
-              <span style={{ fontSize: '11px', color: '#6B7265' }}>⌄</span>
-            </div>
-          </div>
-
-          {/* Split View: Table on Left + Inspector Card on Right */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.85fr) minmax(0, 1fr)',
-            gap: '24px',
-            alignItems: 'start',
-            marginBottom: '24px'
-          }}>
-            {/* Left: Table */}
-            <div style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #EAECE5',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: activeTab === 'directory' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <Store size={18} />
+            <span>Merchant Directory</span>
+            <span style={{
+              backgroundColor: activeTab === 'directory' ? '#334155' : '#F1F5F9',
+              color: activeTab === 'directory' ? '#FFFFFF' : '#0F172A',
+              padding: '2px 8px',
               borderRadius: '12px',
-              overflow: 'hidden'
+              fontSize: '12px',
+              fontWeight: 800
             }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #EAECE5', color: '#6B7265', fontWeight: 500, fontSize: '12px' }}>
-                    <th style={{ padding: '14px 20px' }}>Seller / category</th>
-                    <th style={{ padding: '14px 20px' }}>Zone</th>
-                    <th style={{ padding: '14px 20px' }}>Rating</th>
-                    <th style={{ padding: '14px 20px' }}>Stock sync</th>
-                    <th style={{ padding: '14px 20px' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSellers.map((s, idx) => {
-                    const isSelected = selectedSellerId === s.id;
-                    return (
-                      <tr 
-                        key={s.id}
-                        onClick={() => {
-                          playClickSound();
-                          setSelectedSellerId(s.id);
-                        }}
-                        style={{
-                          borderBottom: idx === filteredSellers.length - 1 ? 'none' : '1px solid #EAECE5',
-                          backgroundColor: isSelected ? '#FAFBF8' : '#FFFFFF',
-                          cursor: 'pointer',
-                          transition: 'background-color 0.15s ease'
-                        }}
-                      >
-                        <td style={{ padding: '14px 20px' }}>
-                          <div style={{ fontWeight: 600, color: '#14281C', fontSize: '13px' }}>
-                            {s.name} · {s.id}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '2px' }}>
-                            {s.cat}
-                          </div>
-                        </td>
-                        <td style={{ padding: '14px 20px', color: '#14281C', fontSize: '13px' }}>
-                          {s.zone}
-                        </td>
-                        <td style={{ padding: '14px 20px', color: '#14281C', fontSize: '13px' }}>
-                          {s.rating}
-                        </td>
-                        <td style={{ padding: '14px 20px', color: '#6B7265', fontSize: '13px' }}>
-                          {s.sync}
-                        </td>
-                        <td style={{ padding: '14px 20px' }}>
-                          <span style={{
-                            color: s.color,
-                            fontWeight: 500,
-                            fontSize: '13px'
-                          }}>
-                            {s.status}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              214
+            </span>
+          </button>
 
-              {/* Pagination Controls */}
+          <button
+            onClick={() => { playClickSound(); setActiveTab('pending'); }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              backgroundColor: activeTab === 'pending' ? '#0F172A' : '#FFFFFF',
+              color: activeTab === 'pending' ? '#FFFFFF' : '#475569',
+              border: activeTab === 'pending' ? 'none' : '1px solid #CBD5E1',
+              padding: '10px 22px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: activeTab === 'pending' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <ShieldCheck size={18} />
+            <span>Store Applications</span>
+            <span style={{
+              backgroundColor: pendingShops.length > 0 ? '#FEF3C7' : '#F1F5F9',
+              color: pendingShops.length > 0 ? '#92400E' : '#475569',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 800
+            }}>
+              {pendingShops.length > 0 ? `${pendingShops.length} Pending` : 'Clear'}
+            </span>
+          </button>
+
+          <button
+            onClick={() => { playClickSound(); setActiveTab('riders'); }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              backgroundColor: activeTab === 'riders' ? '#0F172A' : '#FFFFFF',
+              color: activeTab === 'riders' ? '#FFFFFF' : '#475569',
+              border: activeTab === 'riders' ? 'none' : '1px solid #CBD5E1',
+              padding: '10px 22px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: activeTab === 'riders' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <Bike size={18} />
+            <span>Courier Fleet Operations</span>
+            <span style={{
+              backgroundColor: activeTab === 'riders' ? '#334155' : '#F1F5F9',
+              color: activeTab === 'riders' ? '#FFFFFF' : '#0F172A',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 800
+            }}>
+              312 Active
+            </span>
+          </button>
+
+          <button
+            onClick={() => { playClickSound(); setActiveTab('alerts'); }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              backgroundColor: activeTab === 'alerts' ? '#0F172A' : '#FFFFFF',
+              color: activeTab === 'alerts' ? '#FFFFFF' : '#475569',
+              border: activeTab === 'alerts' ? 'none' : '1px solid #CBD5E1',
+              padding: '10px 22px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: activeTab === 'alerts' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <AlertCircle size={18} />
+            <span>Operational Alerts</span>
+            <span style={{
+              backgroundColor: activeTab === 'alerts' ? '#334155' : '#F1F5F9',
+              color: activeTab === 'alerts' ? '#FFFFFF' : '#0F172A',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 800
+            }}>
+              6
+            </span>
+          </button>
+        </div>
+
+        {/* ==============================================================
+            TAB 1: MERCHANT DIRECTORY
+            ============================================================== */}
+        {activeTab === 'directory' && (
+          <>
+            {/* Search and Filters Toolbar */}
+            <div style={{
+              display: 'flex',
+              gap: '14px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{
+                flex: 1,
+                minWidth: '320px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                borderRadius: '10px',
+                padding: '12px 18px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+              }}>
+                <Search size={18} color="#64748B" />
+                <input
+                  type="text"
+                  placeholder="Search store name, partner ID, category, or registered owner..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    width: '100%',
+                    fontSize: '15px',
+                    color: '#0F172A',
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </div>
+
               <div style={{
                 display: 'flex',
-                justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '14px 20px',
-                borderTop: '1px solid #EAECE5',
-                fontSize: '12px',
-                color: '#6B7265'
+                gap: '8px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                padding: '12px 20px',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#0F172A',
+                cursor: 'pointer'
               }}>
-                <span>Showing 1–{filteredSellers.length} of 214 sellers</span>
+                <span>All Zones</span>
+                <ChevronDown size={16} color="#64748B" />
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ cursor: 'pointer', color: '#6B7265' }}>←</span>
-                  <span style={{ fontWeight: 700, color: '#14281C' }}>1</span>
-                  <span style={{ cursor: 'pointer', color: '#6B7265' }}>2</span>
-                  <span style={{ cursor: 'pointer', color: '#6B7265' }}>3</span>
-                  <span style={{ color: '#6B7265' }}>...</span>
-                  <span style={{ cursor: 'pointer', color: '#6B7265' }}>31</span>
-                  <span style={{ cursor: 'pointer', color: '#6B7265' }}>→</span>
-                </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                padding: '12px 20px',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#0F172A',
+                cursor: 'pointer'
+              }}>
+                <span>Store Status: All</span>
+                <ChevronDown size={16} color="#64748B" />
               </div>
             </div>
 
-            {/* Right: Selected Seller Inspector Card */}
+            {/* Split View: Master Directory Table on Left + Inspector Card on Right */}
             <div style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #14281C',
-              borderRadius: '14px',
-              padding: '24px'
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)',
+              gap: '24px',
+              alignItems: 'start'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#14281C', margin: 0 }}>
-                  {selectedSeller.name}
-                </h3>
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  padding: '3px 8px',
-                  borderRadius: '999px',
-                  backgroundColor: selectedSeller.isLive ? '#EFF7ED' : '#FDE8E8',
-                  color: selectedSeller.isLive ? '#1C7532' : '#C92A2A'
+              {/* Left: Table */}
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+              }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', backgroundColor: '#F8FAFC' }}>
+                      <th style={{ padding: '16px 20px' }}>Store & ID</th>
+                      <th style={{ padding: '16px 20px' }}>Zone</th>
+                      <th style={{ padding: '16px 20px' }}>Store Rating</th>
+                      <th style={{ padding: '16px 20px' }}>POS Sync</th>
+                      <th style={{ padding: '16px 20px' }}>Storefront Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSellers.map((s, idx) => {
+                      const isSelected = selectedSellerId === s.id;
+                      return (
+                        <tr 
+                          key={s.id}
+                          onClick={() => {
+                            playClickSound();
+                            setSelectedSellerId(s.id);
+                          }}
+                          style={{
+                            borderBottom: idx === filteredSellers.length - 1 ? 'none' : '1px solid #F1F5F9',
+                            backgroundColor: isSelected ? '#F8FAFC' : '#FFFFFF',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                        >
+                          <td style={{ padding: '18px 20px' }}>
+                            <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '15px' }}>
+                              {s.name}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#64748B', marginTop: '2px' }}>
+                              ID: {s.id} · {s.cat}
+                            </div>
+                          </td>
+                          <td style={{ padding: '18px 20px', color: '#0F172A', fontWeight: 500 }}>
+                            {s.zone}
+                          </td>
+                          <td style={{ padding: '18px 20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, color: '#0F172A' }}>
+                              <Star size={14} fill="#F59E0B" color="#F59E0B" />
+                              <span>{s.rating}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: '18px 20px', color: '#64748B', fontSize: '13px' }}>
+                            {s.sync}
+                          </td>
+                          <td style={{ padding: '18px 20px' }}>
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '4px 12px',
+                              borderRadius: '20px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              backgroundColor: s.isLive ? '#DCFCE7' : '#F1F5F9',
+                              color: s.isLive ? '#15803D' : '#64748B'
+                            }}>
+                              <span style={{
+                                width: '7px',
+                                height: '7px',
+                                borderRadius: '50%',
+                                backgroundColor: s.isLive ? '#16A34A' : '#94A3B8'
+                              }} />
+                              {s.status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                {/* Pagination Controls */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 24px',
+                  borderTop: '1px solid #E2E8F0',
+                  fontSize: '14px',
+                  color: '#64748B',
+                  backgroundColor: '#F8FAFC'
                 }}>
-                  {selectedSeller.isLive ? 'Live' : 'Paused'}
-                </span>
-              </div>
+                  <span>Showing 1 to {filteredSellers.length} of 214 registered merchants</span>
 
-              <div style={{ fontSize: '13px', color: '#6B7265', marginBottom: '20px' }}>
-                {selectedSeller.id} · {selectedSeller.address}
-              </div>
-
-              <div style={{ borderTop: '1px solid #F0F2ED', paddingTop: '18px', marginBottom: '18px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#14281C', marginBottom: '12px' }}>
-                  Business verification
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button style={{ padding: '6px 12px', border: '1px solid #CBD5E1', borderRadius: '6px', background: '#FFFFFF', cursor: 'pointer', fontWeight: 600 }}>Previous</button>
+                    <span style={{ fontWeight: 800, color: '#0F172A', padding: '0 8px' }}>Page 1 of 18</span>
+                    <button style={{ padding: '6px 12px', border: '1px solid #CBD5E1', borderRadius: '6px', background: '#FFFFFF', cursor: 'pointer', fontWeight: 600 }}>Next</button>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#1C7532' }}>
-                  {selectedSeller.verifications.map((v, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>✓</span>
-                      <span>{v}</span>
+              </div>
+
+              {/* Right: Selected Seller Inspector Card */}
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                border: '1.5px solid #0F172A',
+                borderRadius: '16px',
+                padding: '28px',
+                boxShadow: '0 4px 12px rgba(15,23,42,0.06)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: '0 0 4px 0' }}>
+                      {selectedSeller.name}
+                    </h3>
+                    <div style={{ fontSize: '13px', color: '#64748B' }}>
+                      Partner Identifier: <strong>{selectedSeller.id}</strong>
                     </div>
-                  ))}
+                  </div>
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    backgroundColor: selectedSeller.isLive ? '#DCFCE7' : '#FEE2E2',
+                    color: selectedSeller.isLive ? '#15803D' : '#991B1B'
+                  }}>
+                    {selectedSeller.isLive ? 'Online Storefront' : 'Offline / Paused'}
+                  </span>
                 </div>
-              </div>
 
-              <div style={{ borderTop: '1px solid #F0F2ED', paddingTop: '18px', marginBottom: '18px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#6B7265' }}>Owner</span>
-                    <span style={{ fontWeight: 600, color: '#14281C' }}>{selectedSeller.owner}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#6B7265' }}>Shop preparation</span>
-                    <span style={{ fontWeight: 600, color: '#14281C' }}>{selectedSeller.prepTime}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#6B7265' }}>Stock accuracy</span>
-                    <span style={{ fontWeight: 600, color: '#14281C' }}>{selectedSeller.stockAccuracy}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#6B7265' }}>Acceptance rate</span>
-                    <span style={{ fontWeight: 600, color: '#14281C' }}>{selectedSeller.acceptanceRate}</span>
-                  </div>
+                <div style={{ fontSize: '14px', color: '#475569', marginBottom: '22px', lineHeight: 1.5 }}>
+                  {selectedSeller.address}
                 </div>
-              </div>
 
-              <div style={{ borderTop: '1px solid #F0F2ED', paddingTop: '18px', marginBottom: '22px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#14281C', marginBottom: '12px' }}>
-                  Latest activity
+                {/* Legal & Compliance Checklist */}
+                <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '12px' }}>
+                    Compliance & Verification Status
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#15803D' }}>
+                    {selectedSeller.verifications.map((v, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+                        <CheckCircle2 size={16} color="#16A34A" />
+                        <span>{v}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#6B7265', lineHeight: '1.5' }}>
-                  {selectedSeller.activities.map((a, i) => (
-                    <div key={i}>
-                      {a}
+
+                {/* Performance Metrics */}
+                <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px', marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748B' }}>Authorized Owner</span>
+                      <span style={{ fontWeight: 700, color: '#0F172A' }}>{selectedSeller.owner}</span>
                     </div>
-                  ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748B' }}>Average Preparation SLA</span>
+                      <span style={{ fontWeight: 700, color: '#0F172A' }}>{selectedSeller.prepTime}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748B' }}>Stock Accuracy Audit</span>
+                      <span style={{ fontWeight: 700, color: '#0F172A' }}>{selectedSeller.stockAccuracy}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748B' }}>Order Acceptance Rate</span>
+                      <span style={{ fontWeight: 700, color: '#0F172A' }}>{selectedSeller.acceptanceRate}</span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Recent Activity Log */}
+                <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px', marginBottom: '24px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '12px' }}>
+                    Operational Activity Log
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                    {selectedSeller.activities.map((a, i) => (
+                      <div key={i} style={{ backgroundColor: '#F8FAFC', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                        {a}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      navigateTo('seller-dash');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      backgroundColor: '#0F172A',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <span>Inspect Merchant Dashboard</span>
+                    <ExternalLink size={16} />
+                  </button>
+
+                  <button
+                    onClick={() => toggleSellerStatus(selectedSeller.id)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      backgroundColor: selectedSeller.isLive ? '#FEE2E2' : '#DCFCE7',
+                      border: selectedSeller.isLive ? '1px solid #FCA5A5' : '1px solid #86EFAC',
+                      borderRadius: '10px',
+                      color: selectedSeller.isLive ? '#991B1B' : '#166534',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Power size={16} />
+                    <span>{selectedSeller.isLive ? 'Pause Storefront Orders' : 'Resume Storefront Availability'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ==============================================================
+            TAB 2: STORE APPLICATIONS QUEUE
+            ============================================================== */}
+        {activeTab === 'pending' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                  Merchant KYC & Tax Compliance Queue
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748B' }}>
+                  Verify GSTIN certificates, trade licenses, and banking mandates before storefront activation.
+                </p>
               </div>
 
               <button
-                onClick={() => {
-                  playClickSound();
-                  navigateTo('seller-dash');
-                }}
+                onClick={fetchQueues}
                 style={{
-                  width: '100%',
-                  padding: '10px 14px',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7DE',
-                  borderRadius: '10px',
+                  border: '1px solid #CBD5E1',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
                   fontSize: '13px',
                   fontWeight: 600,
-                  color: '#14281C',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
                   cursor: 'pointer',
-                  marginBottom: '16px'
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#0F172A'
                 }}
               >
-                <span>View seller profile</span>
-                <ArrowUpRight size={14} />
+                <RefreshCw size={14} className={isLoadingQueues ? 'animate-spin' : ''} />
+                <span>Refresh Queue</span>
               </button>
+            </div>
 
-              <div style={{ textAlign: 'center' }}>
-                <button
-                  onClick={() => toggleSellerStatus(selectedSeller.id)}
+            {pendingShops.length === 0 ? (
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px dashed #CBD5E1',
+                borderRadius: '16px',
+                padding: '48px 24px',
+                textAlign: 'center'
+              }}>
+                <ShieldCheck size={44} color="#16A34A" style={{ margin: '0 auto 12px' }} />
+                <div style={{ fontWeight: 800, fontSize: '18px', color: '#0F172A' }}>All Merchant Applications Approved</div>
+                <div style={{ fontSize: '14px', color: '#64748B', marginTop: '6px' }}>
+                  There are currently zero applications awaiting compliance verification.
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '20px' }}>
+                {pendingShops.map((sh) => (
+                  <div key={sh.id} style={{
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#0F172A' }}>{sh.shop_name}</div>
+                          <div style={{ fontSize: '13px', color: '#64748B', marginTop: '2px' }}>{sh.category || 'Retail Goods'}</div>
+                        </div>
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          backgroundColor: '#FEF3C7',
+                          color: '#92400E',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          textTransform: 'uppercase'
+                        }}>
+                          {sh.verification_status || 'Under Review'}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '14px', color: '#475569', marginBottom: '16px' }}>
+                        Registered Owner: <strong>{sh.owner_name}</strong> · Contact: {sh.phone}
+                      </div>
+
+                      <div style={{
+                        backgroundColor: '#F8FAFC',
+                        borderRadius: '10px',
+                        border: '1px solid #E2E8F0',
+                        padding: '14px',
+                        fontSize: '13px',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '12px',
+                        marginBottom: '20px'
+                      }}>
+                        <div>
+                          <span style={{ color: '#64748B', fontSize: '12px' }}>GSTIN:</span><br />
+                          <strong style={{ color: '#0F172A' }}>{sh.gstin || '29AABCU9603R1ZM'}</strong>
+                        </div>
+                        <div>
+                          <span style={{ color: '#64748B', fontSize: '12px' }}>PAN:</span><br />
+                          <strong style={{ color: '#0F172A' }}>{sh.pan_number || 'AABCU9603R'}</strong>
+                        </div>
+                        <div>
+                          <span style={{ color: '#64748B', fontSize: '12px' }}>City:</span><br />
+                          <strong style={{ color: '#0F172A' }}>{sh.city || 'Bengaluru'}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button
+                        onClick={() => handleDecision('shop', sh.id, 'approved')}
+                        disabled={isSubmittingDecision}
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#16A34A',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Approve Application
+                      </button>
+                      <button
+                        onClick={() => handleDecision('shop', sh.id, 'rejected')}
+                        disabled={isSubmittingDecision}
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #E2E8F0',
+                          color: '#DC2626',
+                          padding: '12px 18px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==============================================================
+            TAB 3: COURIER FLEET OPERATIONS
+            ============================================================== */}
+        {activeTab === 'riders' && (
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '16px',
+            padding: '28px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                  Active Courier Dispatch Fleet (312 Couriers)
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748B' }}>
+                  Live delivery partner radar, vehicle telemetry, and job allocation status.
+                </p>
+              </div>
+
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: '#DCFCE7',
+                color: '#166534',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '13px',
+                fontWeight: 700
+              }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+                <span>Radar Online</span>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', backgroundColor: '#F8FAFC' }}>
+                    <th style={{ padding: '14px 18px' }}>Courier Partner & ID</th>
+                    <th style={{ padding: '14px 18px' }}>Assigned Logistics Hub</th>
+                    <th style={{ padding: '14px 18px' }}>Partner Rating</th>
+                    <th style={{ padding: '14px 18px' }}>Deliveries Completed</th>
+                    <th style={{ padding: '14px 18px' }}>Real-time Duty Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: 'Ravi Kumar', id: 'DP-042', zone: 'Indiranagar Hub #14', rating: '4.9', completed: '14 Orders', status: 'En Route · Order NV-1048', active: true },
+                    { name: 'Aditya Rao', id: 'DP-012', zone: 'Indiranagar Hub #14', rating: '4.8', completed: '11 Orders', status: 'Available for Dispatch', active: true },
+                    { name: 'Kiran Patel', id: 'DP-099', zone: 'HSR Layout Hub #05', rating: '4.9', completed: '16 Orders', status: 'Heading to Merchant Store', active: true },
+                    { name: 'Farhan Syed', id: 'DP-156', zone: 'Koramangala Hub #08', rating: '4.7', completed: '9 Orders', status: 'Doorstep Try-On Handover', active: true }
+                  ].map((r, idx) => (
+                    <tr key={r.id} style={{ borderBottom: idx === 3 ? 'none' : '1px solid #F1F5F9' }}>
+                      <td style={{ padding: '18px', fontWeight: 700, color: '#0F172A', fontSize: '15px' }}>
+                        {r.name} <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>({r.id})</span>
+                      </td>
+                      <td style={{ padding: '18px', color: '#475569' }}>{r.zone}</td>
+                      <td style={{ padding: '18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, color: '#0F172A' }}>
+                          <Star size={14} fill="#F59E0B" color="#F59E0B" />
+                          <span>{r.rating}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '18px', color: '#0F172A', fontWeight: 600 }}>{r.completed}</td>
+                      <td style={{ padding: '18px' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          backgroundColor: '#DCFCE7',
+                          color: '#15803D'
+                        }}>
+                          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
+                          {r.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ==============================================================
+            TAB 4: OPERATIONAL ALERTS
+            ============================================================== */}
+        {activeTab === 'alerts' && (
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '16px',
+            padding: '28px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>
+              Active Logistics & Merchant Infrastructure Alerts (6)
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{
+                padding: '18px 24px',
+                backgroundColor: '#FFFBEB',
+                border: '1px solid #FCD34D',
+                borderRadius: '12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '16px'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#92400E', fontSize: '15px' }}>
+                    Koramangala 80ft Road Cluster Bottleneck
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#78350F', marginTop: '4px' }}>
+                    Traffic density causing median delivery ETA to increase to 34 minutes. Dynamic courier surge active (+₹15).
+                  </div>
+                </div>
+                <button 
+                  onClick={() => showToast('Dispatched 6 standby courier units to Koramangala Hub')}
                   style={{
-                    background: 'none',
+                    backgroundColor: '#B45309',
+                    color: '#FFFFFF',
                     border: 'none',
-                    color: selectedSeller.isLive ? '#C92A2A' : '#1C7532',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    padding: '4px'
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
                   }}
                 >
-                  {selectedSeller.isLive ? 'Pause seller availability' : 'Resume seller availability'}
+                  Rebalance Fleet Units
+                </button>
+              </div>
+
+              <div style={{
+                padding: '18px 24px',
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '16px'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '15px' }}>
+                    Pocket Studio POS Stock Sync Latency
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#64748B', marginTop: '4px' }}>
+                    Merchant retail POS API timed out 24 minutes ago. 4 listings marked with safety stock buffer.
+                  </div>
+                </div>
+                <button 
+                  onClick={() => showToast('Triggered POS webhook resynchronization')}
+                  style={{
+                    backgroundColor: '#0F172A',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Retry Sync Webhook
                 </button>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Audit Disclaimer Note matching Figma */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '12px',
-            color: '#6B7265',
-            marginTop: '8px',
-            marginBottom: '28px'
-          }}>
-            <Shield size={14} color="#6B7265" />
-            <span>All operational changes are recorded in the audit log. Pausing a seller removes new orders, not active deliveries.</span>
-          </div>
-
-          {/* Bottom Live Sync Status matching Figma */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: '12px',
-            color: '#6B7265',
-            paddingTop: '16px',
-            borderTop: '1px solid #EAECE5',
-            flexWrap: 'wrap',
-            gap: '12px'
-          }}>
-            <span>Live estimates reflect stock, preparation and rider capacity.</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              Last synced 14:46 IST <RefreshCw size={11} style={{ cursor: 'pointer' }} />
-            </span>
-          </div>
-        </>
-      )}
-
-      {/* ==============================================================
-          TAB 2: PENDING APPROVAL (Shop & Rider KYC Verification Queue)
-          ============================================================== */}
-      {activeTab === 'pending' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#14281C', margin: 0 }}>
-              Onboarding & KYC Compliance Queue
-            </h3>
-            <button
-              onClick={fetchQueues}
-              style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E7DE',
-                padding: '6px 12px',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <RefreshCw size={13} className={isLoadingQueues ? 'animate-spin' : ''} />
-              <span>Refresh applications</span>
-            </button>
-          </div>
-
-          {pendingShops.length === 0 ? (
-            <div style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px dashed #E5E7DE',
-              borderRadius: '16px',
-              padding: '36px',
-              textAlign: 'center'
-            }}>
-              <ShieldCheck size={36} color="#1C7532" style={{ margin: '0 auto 8px' }} />
-              <div style={{ fontWeight: 800, fontSize: '15px', color: '#14281C' }}>All Merchant Applications Processed</div>
-              <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '4px' }}>
-                Currently 0 merchant queues pending verification.
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' }}>
-              {pendingShops.map((sh) => (
-                <div key={sh.id} style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #EAECE5',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between'
-                }}>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <div style={{ fontWeight: 800, fontSize: '16px', color: '#14281C' }}>{sh.shop_name}</div>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        backgroundColor: '#FFF8E6',
-                        color: '#855700',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
-                        textTransform: 'uppercase'
-                      }}>
-                        {sh.verification_status || 'Pending'}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '12px', color: '#6B7265', marginBottom: '12px' }}>
-                      Owner: <strong>{sh.owner_name}</strong> · {sh.phone}
-                    </div>
-
-                    <div style={{
-                      backgroundColor: '#F9FAF7',
-                      borderRadius: '10px',
-                      padding: '10px',
-                      fontSize: '11px',
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: '8px',
-                      marginBottom: '16px'
-                    }}>
-                      <div>
-                        <span style={{ color: '#6B7265' }}>GSTIN:</span><br />
-                        <strong style={{ color: '#14281C' }}>{sh.gstin || '—'}</strong>
-                      </div>
-                      <div>
-                        <span style={{ color: '#6B7265' }}>PAN:</span><br />
-                        <strong style={{ color: '#14281C' }}>{sh.pan_number || '—'}</strong>
-                      </div>
-                      <div>
-                        <span style={{ color: '#6B7265' }}>City:</span><br />
-                        <strong style={{ color: '#14281C' }}>{sh.city || 'Bengaluru'}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => handleDecision('shop', sh.id, 'approved')}
-                      disabled={isSubmittingDecision}
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#1E3827',
-                        color: '#C6F432',
-                        border: 'none',
-                        padding: '9px',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: 800,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Approve Shop
-                    </button>
-                    <button
-                      onClick={() => handleDecision('shop', sh.id, 'rejected')}
-                      disabled={isSubmittingDecision}
-                      style={{
-                        backgroundColor: '#FFFFFF',
-                        border: '1px solid #E5E7DE',
-                        color: '#C92A2A',
-                        padding: '9px 14px',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ==============================================================
-          TAB 3: OPERATIONS ALERTS
-          ============================================================== */}
-      {activeTab === 'alerts' && (
+        {/* Audit Compliance Disclaimer */}
         <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #EAECE5',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px'
-        }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#14281C', marginBottom: '16px' }}>
-            Active Cluster Capacity & Operations Alerts (6)
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ padding: '14px', backgroundColor: '#FFF8E6', border: '1px solid #F9E29D', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <strong style={{ color: '#855700', fontSize: '13px' }}>Koramangala 80ft Road Cluster Bottleneck</strong>
-                <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '2px' }}>High traffic congestion causing median ETAs to reach 34 mins. Dynamic delivery fee engaged (+₹15).</div>
-              </div>
-              <button onClick={() => showToast('Dispatched 6 spare riders to Koramangala')} style={{ backgroundColor: '#855700', color: '#FFFFFF', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
-                Rebalance Fleet
-              </button>
-            </div>
-
-            <div style={{ padding: '14px', backgroundColor: '#F9FAF7', border: '1px solid #EAECE5', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <strong style={{ color: '#14281C', fontSize: '13px' }}>Pocket Studio · Stock Sync Timeout</strong>
-                <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '2px' }}>Store POS API timed out 24 mins ago. 4 listings marked with cautionary stock buffer.</div>
-              </div>
-              <button onClick={() => showToast('Triggered immediate POS webhook sync')} style={{ backgroundColor: '#1E3827', color: '#FFFFFF', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
-                Retry Sync
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ==============================================================
-          TAB 4: DELIVERY PARTNERS (Riders Fleet Management)
-          ============================================================== */}
-      {activeTab === 'riders' && (
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #EAECE5',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px'
-        }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#14281C', marginBottom: '16px' }}>
-            Delivery Fleet Network (312 Active Riders)
-          </h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #EAECE5', color: '#6B7265', fontWeight: 600, backgroundColor: '#FAFBF8' }}>
-                  <th style={{ padding: '12px 16px' }}>Rider / ID</th>
-                  <th style={{ padding: '12px 16px' }}>Zone</th>
-                  <th style={{ padding: '12px 16px' }}>Rating</th>
-                  <th style={{ padding: '12px 16px' }}>Completed Today</th>
-                  <th style={{ padding: '12px 16px' }}>Duty Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: 'Ravi Kumar', id: 'DP-042', zone: 'Indiranagar', rating: '★ 4.9', completed: '14 orders', status: 'On Delivery · NV-1048' },
-                  { name: 'Aditya Rao', id: 'DP-012', zone: 'Indiranagar', rating: '★ 4.8', completed: '11 orders', status: 'Available Radar' },
-                  { name: 'Kiran Patel', id: 'DP-099', zone: 'HSR Layout', rating: '★ 4.9', completed: '16 orders', status: 'Heading to Store' },
-                  { name: 'Farhan Syed', id: 'DP-156', zone: 'Koramangala', rating: '★ 4.7', completed: '9 orders', status: 'On Delivery' }
-                ].map((r, idx) => (
-                  <tr key={r.id} style={{ borderBottom: idx === 3 ? 'none' : '1px solid #F0F2ED' }}>
-                    <td style={{ padding: '14px 16px', fontWeight: 700, color: '#14281C' }}>
-                      {r.name} <span style={{ fontSize: '11px', color: '#6B7265' }}>({r.id})</span>
-                    </td>
-                    <td style={{ padding: '14px 16px', color: '#4B5563' }}>{r.zone}</td>
-                    <td style={{ padding: '14px 16px', fontWeight: 600 }}>{r.rating}</td>
-                    <td style={{ padding: '14px 16px', color: '#14281C' }}>{r.completed}</td>
-                    <td style={{ padding: '14px 16px', color: '#1C7532', fontWeight: 700 }}>{r.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Audit Log Disclaimer */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        fontSize: '12px',
-        color: '#6B7265',
-        marginBottom: '16px',
-        padding: '0 4px'
-      }}>
-        <Shield size={14} color="#6B7265" />
-        <span>All operational changes are recorded in the audit log. Pausing a seller removes new orders, not active deliveries.</span>
-      </div>
-
-      {/* Footer Meta */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '12px',
-        color: '#848C7E',
-        padding: '0 4px',
-        flexWrap: 'wrap',
-        gap: '8px'
-      }}>
-        <span>Live estimates reflect stock, preparation and rider capacity.</span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }} onClick={() => showToast('Refreshed cluster metrics')}>
-          Last synced 14:46 IST <RefreshCw size={12} />
-        </span>
-      </div>
-
-      {/* Invite Modal */}
-      {showInviteModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '20px'
+          gap: '10px',
+          fontSize: '13px',
+          color: '#64748B',
+          padding: '4px 0'
         }}>
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '18px',
-            padding: '24px',
-            maxWidth: '440px',
-            width: '100%',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#14281C', margin: 0 }}>
-                Invite New Merchant
-              </h3>
-              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSendInvite}>
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#14281C', marginBottom: '6px' }}>
-                  Merchant / Store Name *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Blue Tokai Roasters"
-                  required
-                  value={inviteName}
-                  onChange={(e) => setInviteName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7DE',
-                    fontSize: '13px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#14281C', marginBottom: '6px' }}>
-                  Owner Mobile Number
-                </label>
-                <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={invitePhone}
-                  onChange={(e) => setInvitePhone(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7DE',
-                    fontSize: '13px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#1E3827',
-                  color: '#C6F432',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  cursor: 'pointer'
-                }}
-              >
-                Send Onboarding Invitation
-              </button>
-            </form>
-          </div>
+          <Shield size={16} color="#64748B" />
+          <span>All merchant status modifications are recorded in the immutable platform compliance audit trail.</span>
         </div>
-      )}
+
+        {/* Merchant Onboarding Invite Modal */}
+        {showInviteModal && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}>
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              padding: '32px',
+              maxWidth: '480px',
+              width: '100%',
+              boxShadow: '0 24px 48px rgba(0,0,0,0.2)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                  Register Partner Merchant
+                </h3>
+                <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+                  <X size={22} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSendInvite}>
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>
+                    Retail Store or Business Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Sole Street Sneaker Studio"
+                    required
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      color: '#0F172A',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>
+                    Owner Registered Mobile Number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98450 67890"
+                    value={invitePhone}
+                    onChange={(e) => setInvitePhone(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      color: '#0F172A',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    backgroundColor: '#0F172A',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 4px rgba(15,23,42,0.1)'
+                  }}
+                >
+                  Send Onboarding Invitation
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+      </div>
     </AdminLayout>
   );
 }
