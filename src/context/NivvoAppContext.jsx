@@ -236,11 +236,11 @@ export function NivvoAppProvider({ children }) {
 
   // Sync / Refresh Session from Backend
   useEffect(() => {
-    if (!authToken) return;
+    if (!authToken || authToken.startsWith('demo-')) return;
     fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${authToken}` }
     })
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.success && data?.user) {
           setCurrentUser(data.user);
@@ -996,8 +996,8 @@ export function NivvoAppProvider({ children }) {
 
   // Fetch wishlist from backend if available
   useEffect(() => {
-    fetch('/api/wishlist?phone=+91 9876543210')
-      .then(res => res.json())
+    fetch('/api/wishlist?phone=%2B919876543210')
+      .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data?.wishlist && Array.isArray(data.wishlist) && data.wishlist.length > 0) {
           setWishlist(prev => [...new Set([...prev, ...data.wishlist])]);
@@ -1448,7 +1448,7 @@ export function NivvoAppProvider({ children }) {
   // Sync Shop Data from Backend on Mount
   useEffect(() => {
     fetch('/api/partners/shop/profile?phone=%2B919876543210')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.shop) {
           setShopProfile(prev => ({
@@ -1463,7 +1463,7 @@ export function NivvoAppProvider({ children }) {
       .catch(() => {});
 
     fetch('/api/partners/shop/reviews?shop_id=SHP-4012')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
           setShopReviews(data.reviews);
@@ -1472,7 +1472,7 @@ export function NivvoAppProvider({ children }) {
       .catch(() => {});
 
     fetch('/api/partners/shop/campaigns?shop_id=SHP-4012')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.campaigns && Array.isArray(data.campaigns) && data.campaigns.length > 0) {
           setShopCampaigns(data.campaigns);
@@ -1481,7 +1481,7 @@ export function NivvoAppProvider({ children }) {
       .catch(() => {});
 
     fetch('/api/partners/shop/earnings?phone=%2B919876543210')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.earnings) {
           setShopEarnings(prev => ({ ...prev, ...data.earnings }));
@@ -1491,7 +1491,7 @@ export function NivvoAppProvider({ children }) {
 
     // Sync Delivery Partner Profile from Backend
     fetch('/api/partners/delivery/profile?phone=%2B919876543210')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.partner) {
           setRiderProfile(prev => ({
@@ -1506,7 +1506,7 @@ export function NivvoAppProvider({ children }) {
       .catch(() => {});
 
     fetch('/api/partners/delivery/history')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.history && Array.isArray(data.history) && data.history.length > 0) {
           // Merge with trip history

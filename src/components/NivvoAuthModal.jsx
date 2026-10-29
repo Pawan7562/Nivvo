@@ -394,13 +394,13 @@ export default function NivvoAuthModal({
         {/* Alerts */}
         {errorMessage && (
           <div className="nivvo-clean-auth-error">
-            <AlertCircle size={15} flexShrink={0} />
+            <AlertCircle size={15} style={{ flexShrink: 0 }} />
             <span>{errorMessage}</span>
           </div>
         )}
         {successMessage && (
           <div className="nivvo-clean-auth-success">
-            <CheckCircle2 size={15} flexShrink={0} />
+            <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
             <span>{successMessage}</span>
           </div>
         )}
