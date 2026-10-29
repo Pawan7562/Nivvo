@@ -350,6 +350,27 @@
   background: rgba(36,69,45,0.05);
 }
 
+.figma-nav-seller-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: #B45309;
+  background: #FFFBEB;
+  border: 1.5px solid #FDE68A;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 8px 14px;
+  transition: all 0.2s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.figma-nav-seller-btn:hover {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  transform: translateY(-1px);
+}
+
 /* Mobile Hamburger Toggle */
 .figma-nav-mobile-toggle {
   display: none;
@@ -3587,6 +3608,59 @@
   background: #F3F4F6;
   color: #374151;
   border-color: #E5E7EB;
+}
+
+/* Interactive Role Selection Tabs */
+.nivvo-auth-role-tabs {
+  display: flex;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.nivvo-auth-role-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.nivvo-auth-role-tab:hover {
+  color: #111827;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.nivvo-auth-role-tab.active {
+  background: #FFFFFF;
+  color: #24452D;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+.nivvo-auth-role-tab.active.seller {
+  color: #B45309;
+}
+
+.nivvo-auth-role-tab.active.customer {
+  color: #15803D;
+}
+
+.nivvo-auth-role-tab.active.admin {
+  color: #1F2937;
 }
 
 /* Header Text */

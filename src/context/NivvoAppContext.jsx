@@ -118,14 +118,7 @@ export function NivvoAppProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem('nivvo_user');
-      return stored ? JSON.parse(stored) : {
-        id: 1,
-        role: 'customer',
-        name: 'Aarav Shah',
-        phone: '+91 98765 43210',
-        email: 'aarav.shah@okaxis',
-        status: 'active'
-      };
+      return stored ? JSON.parse(stored) : null;
     } catch (e) {
       return null;
     }
@@ -297,58 +290,73 @@ export function NivvoAppProvider({ children }) {
       setShopProfile(prev => ({
         ...prev,
         ...authData.shop,
-        verification_status: authData.shop.verification_status || 'pending'
+        verification_status: authData.shop.verification_status || 'approved'
       }));
     }
     if (authData.rider) {
       setRiderProfile(prev => ({
         ...prev,
         ...authData.rider,
-        verification_status: authData.rider.verification_status || 'pending'
+        verification_status: authData.rider.verification_status || 'approved'
       }));
     }
 
-    // Role-specific transition: Website (Seller/Admin/Customer Web) vs Mobile App (App Store)
-    if (authData.user?.role === 'rider') {
+    const userRole = authData.user?.role || 'customer';
+
+    // ──────────────────────────────────────────
+    // DIRECT ROLE-BASED REDIRECTION
+    // ──────────────────────────────────────────
+    if (userRole === 'seller') {
+      // 1. SELLER: Directly redirect to Seller Dashboard
+      setPlatformMode('web');
+      try {
+        localStorage.setItem('nivvo_platform_mode', 'web');
+      } catch {}
+      navigateTo('seller-dash');
+      showToast(`Welcome back, ${authData.user.name || 'Merchant'}! Opening Seller Dashboard... 🏪`);
+    } else if (userRole === 'customer') {
+      // 2. CUSTOMER: Directly redirect to Customer Dashboard / Portal or Storefront
+      if (isNativeMobileApp()) {
+        setPlatformMode('app');
+        setAppMode('customer');
+        try {
+          localStorage.setItem('nivvo_platform_mode', 'app');
+          localStorage.setItem('nivvo_app_mode', 'customer');
+        } catch {}
+        navigateTo('home');
+      } else {
+        setPlatformMode('web');
+        setAppMode('customer');
+        try {
+          localStorage.setItem('nivvo_platform_mode', 'web');
+          localStorage.setItem('nivvo_app_mode', 'customer');
+        } catch {}
+        navigateTo('profile');
+      }
+      showToast(`Welcome back, ${authData.user?.name || 'Shopper'}! 🛍️`);
+    } else if (userRole === 'admin') {
+      // 3. ADMIN: Directly redirect to Admin Operations
+      setPlatformMode('web');
+      try {
+        localStorage.setItem('nivvo_platform_mode', 'web');
+      } catch {}
+      navigateTo('admin-overview');
+      showToast('Operations Console Access Granted 🛡️');
+    } else if (userRole === 'rider') {
+      // 4. RIDER: Directly redirect to Delivery Fleet Duty
       setPlatformMode('app');
       setAppMode('rider');
-      setCurrentScreen('rider-duty');
       try {
         localStorage.setItem('nivvo_platform_mode', 'app');
         localStorage.setItem('nivvo_app_mode', 'rider');
       } catch {}
-      showToast(`Signed in as Delivery Partner · Welcome, ${authData.user.name || 'Partner'}!`);
-    } else if (authData.user?.role === 'customer') {
-      if (isNativeMobileApp()) {
-        setPlatformMode('app');
-        setAppMode('customer');
-        setCurrentScreen('home');
-      } else {
-        setPlatformMode('web');
-        setCurrentScreen('profile');
-      }
-      try {
-        localStorage.setItem('nivvo_platform_mode', isNativeMobileApp() ? 'app' : 'web');
-        localStorage.setItem('nivvo_app_mode', 'customer');
-      } catch {}
-      showToast(`Signed in as Customer · Welcome, ${authData.user.name || 'Shopper'}!`);
-    } else if (authData.user?.role === 'seller') {
-      setPlatformMode('web');
-      setCurrentScreen('seller-dash');
-      try {
-        localStorage.setItem('nivvo_platform_mode', 'web');
-      } catch {}
-      showToast(`Signed in as Merchant · ${authData.shop?.shop_name || 'Store Hub'}`);
-    } else if (authData.user?.role === 'admin') {
-      setPlatformMode('web');
-      setCurrentScreen('admin-overview');
-      try {
-        localStorage.setItem('nivvo_platform_mode', 'web');
-      } catch {}
-      showToast('Signed in as Company Administrator.');
+      navigateTo('rider-duty');
+      showToast(`Delivery Fleet Ready · Welcome ${authData.user?.name || 'Partner'}! ⚡`);
     } else {
+      navigateTo('landing');
       showToast(`Signed in as ${authData.user?.name || 'User'}`);
     }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

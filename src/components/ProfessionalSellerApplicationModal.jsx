@@ -25,7 +25,7 @@ const HUBS = [
   { name: 'Jayanagar', pin: '560011' }
 ];
 
-export default function ProfessionalSellerApplicationModal({ isOpen, onClose, onRegistered }) {
+export default function ProfessionalSellerApplicationModal({ isOpen, onClose, onRegistered, onOpenLogin }) {
   if (!isOpen) return null;
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -1029,6 +1029,20 @@ Platform Benefits Assigned:
                     <Check size={16} />
                   </button>
                 )}
+              </div>
+
+              <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '13px', color: '#687163' }}>
+                Already a registered merchant partner?{' '}
+                <strong
+                  onClick={() => {
+                    playClickSound();
+                    onClose();
+                    if (onOpenLogin) onOpenLogin();
+                  }}
+                  style={{ color: '#24452D', cursor: 'pointer', textDecoration: 'underline', fontWeight: 700 }}
+                >
+                  Sign in to Seller Hub
+                </strong>
               </div>
             </form>
           )}

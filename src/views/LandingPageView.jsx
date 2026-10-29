@@ -838,8 +838,20 @@ export default function LandingPageView({
             {currentUser ? (
               <button
                 className="figma-nav-user-btn"
-                onClick={() => { playClickSound(); if (onNavigateProfile) onNavigateProfile(); }}
-                title="Your Account"
+                onClick={() => {
+                  playClickSound();
+                  if (currentUser.role === 'seller') {
+                    if (onNavigateSeller) onNavigateSeller();
+                    else navigateTo('seller-dash');
+                  } else if (currentUser.role === 'admin') {
+                    if (onNavigateAdmin) onNavigateAdmin();
+                    else navigateTo('admin-overview');
+                  } else {
+                    if (onNavigateProfile) onNavigateProfile();
+                    else navigateTo('profile');
+                  }
+                }}
+                title={`Logged in as ${currentUser.name || 'Account'} (${currentUser.role === 'seller' ? 'Seller Hub' : (currentUser.role === 'admin' ? 'Operations Admin' : 'Customer')})`}
               >
                 <div className="figma-nav-avatar">
                   {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
@@ -847,14 +859,24 @@ export default function LandingPageView({
                 <span className="figma-nav-username">{currentUser.name || 'Account'}</span>
               </button>
             ) : (
-              <button
-                className="figma-nav-signin"
-                onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
-                title="Customer Login"
-              >
-                <User size={14} />
-                <span>Customer Login</span>
-              </button>
+              <>
+                <button
+                  className="figma-nav-seller-btn"
+                  onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}
+                  title="Seller Hub & Store Owner Sign In"
+                >
+                  <Store size={13} />
+                  <span>Seller Hub</span>
+                </button>
+                <button
+                  className="figma-nav-signin"
+                  onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
+                  title="Customer Sign In"
+                >
+                  <User size={14} />
+                  <span>Sign In</span>
+                </button>
+              </>
             )}
 
             {/* Primary Action Button */}
@@ -917,7 +939,14 @@ export default function LandingPageView({
                   onClick={() => { setMobileMenuOpen(false); playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
                 >
                   <User size={16} />
-                  <span>Customer Login</span>
+                  <span>Customer Sign In</span>
+                </button>
+                <button 
+                  className="figma-mobile-link"
+                  onClick={() => { setMobileMenuOpen(false); playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}
+                >
+                  <Store size={16} />
+                  <span>Seller Hub Sign In</span>
                 </button>
                 <button 
                   className="figma-mobile-link"
@@ -2404,6 +2433,9 @@ export default function LandingPageView({
         onClose={() => setShowMerchantModal(false)}
         onRegistered={(app) => {
           showToast(`Merchant application logged for ${app.shop_name}! Reference: ${app.application_id}`);
+        }}
+        onOpenLogin={() => {
+          if (onOpenAuth) onOpenAuth('seller');
         }}
       />
 

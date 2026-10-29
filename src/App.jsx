@@ -232,20 +232,31 @@ function AppContent() {
                 {currentUser ? (
                   <>
                     <div 
-                      onClick={() => { playClickSound(); navigateTo('profile'); }}
+                      onClick={() => { 
+                        playClickSound(); 
+                        if (currentUser.role === 'seller') {
+                          navigateTo('seller-dash');
+                        } else if (currentUser.role === 'admin') {
+                          navigateTo('admin-overview');
+                        } else if (currentUser.role === 'rider') {
+                          navigateTo('rider-duty');
+                        } else {
+                          navigateTo('profile');
+                        }
+                      }}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '5px',
                         padding: '4px 8px',
                         borderRadius: '999px',
-                        backgroundColor: currentUser.role === 'rider' ? '#EEF4EC' : '#F7F8F5',
+                        backgroundColor: currentUser.role === 'seller' ? '#FFF3E0' : (currentUser.role === 'rider' ? '#EEF4EC' : (currentUser.role === 'admin' ? '#F3F4F6' : '#F7F8F5')),
                         border: '1px solid #E7EAE3',
                         cursor: 'pointer',
                         flexShrink: 0,
                         whiteSpace: 'nowrap'
                       }}
-                      title={`Logged in as ${currentUser.name || 'User'} (${currentUser.role === 'rider' ? 'Delivery Partner' : 'Customer'})`}
+                      title={`Logged in as ${currentUser.name || 'User'} (${currentUser.role === 'seller' ? 'Seller Hub' : (currentUser.role === 'admin' ? 'Operations Admin' : (currentUser.role === 'rider' ? 'Delivery Partner' : 'Customer Account'))})`}
                     >
                       <div style={{
                         width: '20px',
@@ -639,7 +650,41 @@ function AppContent() {
 
           {/* Shop Owner Screens (9 to 11) - Handled Exclusively on Desktop Website Portal */}
           {platformMode === 'web' && (currentScreen === 'seller-dash' || currentScreen === 'seller-overview') && (
-            currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
+            currentUser?.role === 'customer' ? (
+              <div style={{ maxWidth: '640px', margin: '48px auto', padding: '40px 32px', backgroundColor: '#FFFFFF', borderRadius: '20px', border: '1px solid #EAECE5', boxShadow: '0 8px 30px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '18px', backgroundColor: '#FFFBEB', color: '#B45309', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <Store size={32} />
+                </div>
+                <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 8px' }}>
+                  Merchant Access Required
+                </h3>
+                <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.5', maxWidth: '480px', margin: '0 auto 24px' }}>
+                  You are currently signed in as a customer (<strong>{currentUser.name}</strong>). To manage your store, inventory, and orders, please sign in with your Merchant credentials.
+                </p>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      setAuthModalRole('seller');
+                      setAuthModalOpen(true);
+                    }}
+                    style={{ backgroundColor: '#24452D', color: '#FFFFFF', border: 'none', borderRadius: '10px', padding: '12px 22px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <Store size={16} />
+                    <span>Sign In to Seller Hub</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      navigateTo('landing');
+                    }}
+                    style={{ backgroundColor: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '12px 20px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Return to Storefront
+                  </button>
+                </div>
+              </div>
+            ) : currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
               <ApplicationStatusView 
                 role="seller"
                 user={currentUser}

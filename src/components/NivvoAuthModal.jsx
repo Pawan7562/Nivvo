@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  X, User, Lock, Store, Shield,
+  X, User, Lock, Store, Shield, Bike,
   ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2,
   Mail, KeyRound, Sparkles
 } from 'lucide-react';
@@ -8,25 +8,27 @@ import { playClickSound, playTrialSound } from '../utils/audioEffects';
 import { useNivvo } from '../context/NivvoAppContext';
 
 /**
- * NivvoAuthModal — Clean & Professional Minimalist Authentication Card
+ * NivvoAuthModal — Clean & Professional Multi-Role Authentication Card
  * 
- * Inspired by Linear & Stripe: Focused, high-whitespace, uncluttered, and pristine.
- * When role is 'seller': Displays ONLY the Seller Login.
- * When role is 'customer': Displays ONLY the Customer Login.
- * When role is 'admin': Displays ONLY the Admin Operations Login.
+ * Offers seamless, single-click role switching between:
+ * - 🛍️ Customer / Shopper Account
+ * - 🏪 Store Owner / Seller Hub
+ * - 🛡️ Platform Operations Administrator
+ * 
+ * Provides direct, reliable authentication & role-based routing.
  */
 export default function NivvoAuthModal({
   isOpen,
-  initialRole = 'seller',
+  initialRole = 'customer',
   onClose,
   onAuthSuccess
 }) {
   const { platformMode } = useNivvo();
 
-  // Enforce strict single role
-  const role = ['seller', 'customer', 'admin', 'rider'].includes(initialRole) 
-    ? initialRole 
-    : 'seller';
+  // Active role state with sync to initialRole prop
+  const [role, setRole] = useState(() => {
+    return ['seller', 'customer', 'admin', 'rider'].includes(initialRole) ? initialRole : 'customer';
+  });
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,68 +45,54 @@ export default function NivvoAuthModal({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Setup default credentials on modal open based STRICTLY on the requested role
+  // Sync role and populate credentials whenever modal opens or initialRole changes
   useEffect(() => {
     if (isOpen) {
-      setErrorMessage('');
-      setSuccessMessage('');
-      setShowPassword(false);
-
-      if (role === 'seller') {
-        setName('Vikram Sen');
-        setShopName('Sole Street Sneaker Studio');
-        setIdentifier('9845067890');
-        setEmail('seller@solestreet.in');
-        setPassword('Seller@Nivvo2026!');
-      } else if (role === 'customer') {
-        setName('Aarav Shah');
-        setIdentifier('9876543210');
-        setEmail('aarav.shah@gmail.com');
-        setPassword('Customer@Nivvo2026!');
-      } else if (role === 'admin') {
-        setName('Nivvo Operations Administrator');
-        setIdentifier('admin@nivvo.in');
-        setEmail('admin@nivvo.in');
-        setPassword('Admin@Nivvo2026!');
-      } else if (role === 'rider') {
-        setName('Ravi Kumar');
-        setIdentifier('9845012345');
-        setEmail('ravi.fleet@nivvo.in');
-        setPassword('Rider@Nivvo2026!');
-      }
+      const targetRole = ['seller', 'customer', 'admin', 'rider'].includes(initialRole) 
+        ? initialRole 
+        : 'customer';
+      setRole(targetRole);
+      applyRoleCredentials(targetRole);
     }
-  }, [role, isOpen]);
+  }, [isOpen, initialRole]);
+
+  // Helper to prefill matching demo credentials
+  const applyRoleCredentials = (targetRole) => {
+    setErrorMessage('');
+    setSuccessMessage('');
+    setShowPassword(false);
+
+    if (targetRole === 'seller') {
+      setName('Vikram Sen');
+      setShopName('Sole Street Sneaker Studio');
+      setIdentifier('9845067890');
+      setEmail('seller@solestreet.in');
+      setPassword('Seller@Nivvo2026!');
+    } else if (targetRole === 'customer') {
+      setName('Aarav Shah');
+      setIdentifier('9876543210');
+      setEmail('aarav.shah@gmail.com');
+      setPassword('Customer@Nivvo2026!');
+    } else if (targetRole === 'admin') {
+      setName('Nivvo Operations Administrator');
+      setIdentifier('admin@nivvo.in');
+      setEmail('admin@nivvo.in');
+      setPassword('Admin@Nivvo2026!');
+    } else if (targetRole === 'rider') {
+      setName('Ravi Kumar');
+      setIdentifier('9845012345');
+      setEmail('ravi.fleet@nivvo.in');
+      setPassword('Rider@Nivvo2026!');
+    }
+  };
+
+  const handleRoleSwitch = (targetRole) => {
+    playClickSound();
+    setRole(targetRole);
+    applyRoleCredentials(targetRole);
+  };
 
   if (!isOpen) return null;
-
-  // Discreet Auto-fill handlers
-  const fillDemoSeller = () => {
-    playClickSound();
-    setIdentifier('9845067890');
-    setPassword('Seller@Nivvo2026!');
-    setName('Vikram Sen');
-    setShopName('Sole Street Sneaker Studio');
-    setEmail('seller@solestreet.in');
-    setErrorMessage('');
-  };
-
-  const fillDemoCustomer = () => {
-    playClickSound();
-    setIdentifier('9876543210');
-    setPassword('Customer@Nivvo2026!');
-    setName('Aarav Shah');
-    setEmail('aarav.shah@gmail.com');
-    setErrorMessage('');
-  };
-
-  const fillDemoAdmin = () => {
-    playClickSound();
-    setIdentifier('admin@nivvo.in');
-    setPassword('Admin@Nivvo2026!');
-    setName('Nivvo Operations Administrator');
-    setEmail('admin@nivvo.in');
-    setErrorMessage('');
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,9 +105,11 @@ export default function NivvoAuthModal({
       const cleanPhone = identifier.replace(/\D/g, '');
       const formattedPhone = cleanPhone.startsWith('91') && cleanPhone.length > 10 
         ? `+${cleanPhone}` 
-        : `+91 ${cleanPhone || '9876543210'}`;
+        : `+91 ${cleanPhone || (role === 'seller' ? '9845067890' : '9876543210')}`;
 
+      // ──────────────────────────────────────────
       // 1. SELLER AUTHENTICATION
+      // ──────────────────────────────────────────
       if (role === 'seller') {
         let authData = null;
         try {
@@ -129,13 +119,21 @@ export default function NivvoAuthModal({
             body: JSON.stringify({
               identifier: formattedPhone,
               phone: formattedPhone,
-              email: identifier.includes('@') ? identifier.trim() : email,
+              email: identifier.includes('@') ? identifier.trim() : (email || 'seller@solestreet.in'),
               password
             })
           });
           const data = await res.json();
-          if (res.ok && data.success) authData = data;
-        } catch (e) {}
+          if (res.ok && data.success) {
+            authData = data;
+          } else if (data && data.error && !identifier.includes('98450') && !identifier.includes('seller@solestreet')) {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          if (e.message && e.message !== 'Failed to fetch' && !e.message.includes('NetworkError')) {
+            throw e;
+          }
+        }
 
         if (!authData) {
           authData = {
@@ -163,13 +161,15 @@ export default function NivvoAuthModal({
           };
         }
 
-        setSuccessMessage('Welcome back, Vikram Sen · Opening Seller Dashboard...');
+        setSuccessMessage(`Welcome back, ${authData.user.name || 'Merchant'}! Opening Seller Dashboard...`);
         if (onAuthSuccess) onAuthSuccess(authData);
-        setTimeout(() => onClose(), 600);
+        setTimeout(() => onClose(), 450);
         return;
       }
 
+      // ──────────────────────────────────────────
       // 2. CUSTOMER AUTHENTICATION
+      // ──────────────────────────────────────────
       if (role === 'customer') {
         let authData = null;
         try {
@@ -179,12 +179,21 @@ export default function NivvoAuthModal({
             body: JSON.stringify({
               identifier: formattedPhone,
               phone: formattedPhone,
+              email: identifier.includes('@') ? identifier.trim() : email,
               password
             })
           });
           const data = await res.json();
-          if (res.ok && data.success) authData = data;
-        } catch (e) {}
+          if (res.ok && data.success) {
+            authData = data;
+          } else if (data && data.error && !identifier.includes('98765')) {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          if (e.message && e.message !== 'Failed to fetch' && !e.message.includes('NetworkError')) {
+            throw e;
+          }
+        }
 
         if (!authData) {
           authData = {
@@ -203,13 +212,15 @@ export default function NivvoAuthModal({
           };
         }
 
-        setSuccessMessage(`Welcome back, ${authData.user.name || 'Shopper'}!`);
+        setSuccessMessage(`Welcome back, ${authData.user.name || 'Shopper'}! Redirecting...`);
         if (onAuthSuccess) onAuthSuccess(authData);
-        setTimeout(() => onClose(), 600);
+        setTimeout(() => onClose(), 450);
         return;
       }
 
+      // ──────────────────────────────────────────
       // 3. ADMIN AUTHENTICATION
+      // ──────────────────────────────────────────
       if (role === 'admin') {
         let authData = null;
         try {
@@ -236,7 +247,8 @@ export default function NivvoAuthModal({
                 role: 'admin',
                 name: 'Nivvo Company Admin',
                 email: 'admin@nivvo.in',
-                phone: '+91 99999 00000'
+                phone: '+91 99999 00000',
+                verification_status: 'approved'
               }
             };
           } else {
@@ -246,7 +258,41 @@ export default function NivvoAuthModal({
 
         setSuccessMessage('Admin Console Verified · Launching Operations...');
         if (onAuthSuccess) onAuthSuccess(authData);
-        setTimeout(() => onClose(), 600);
+        setTimeout(() => onClose(), 450);
+        return;
+      }
+
+      // ──────────────────────────────────────────
+      // 4. DELIVERY PARTNER (RIDER) AUTHENTICATION
+      // ──────────────────────────────────────────
+      if (role === 'rider') {
+        const authData = {
+          success: true,
+          message: 'Delivery Partner signed in',
+          token: 'demo-rider-token-' + Date.now(),
+          user: {
+            id: 'usr-rider-01',
+            role: 'rider',
+            name: name || 'Ravi Kumar',
+            phone: formattedPhone,
+            email: email || 'ravi.fleet@nivvo.in',
+            verification_status: 'approved'
+          },
+          rider: {
+            partner_id: 'RDR-902',
+            name: name || 'Ravi Kumar',
+            phone: formattedPhone,
+            verification_status: 'approved',
+            vehicle_type: 'Electric Scooter (EV)',
+            vehicle_number: 'KA-01-EV-4821',
+            rating: 4.9,
+            active_shift: true
+          }
+        };
+
+        setSuccessMessage('Delivery Partner Verified · Opening Fleet Dashboard...');
+        if (onAuthSuccess) onAuthSuccess(authData);
+        setTimeout(() => onClose(), 450);
         return;
       }
 
@@ -277,18 +323,56 @@ export default function NivvoAuthModal({
             {role === 'seller' && <Store size={15} />}
             {role === 'customer' && <User size={15} />}
             {role === 'admin' && <Shield size={15} />}
+            {role === 'rider' && <Bike size={15} />}
           </div>
           <span className="nivvo-clean-auth-brandname">nivvo</span>
 
           {role === 'seller' && (
-            <span className="nivvo-clean-auth-role-pill">Seller Portal</span>
+            <span className="nivvo-clean-auth-role-pill">Seller Hub</span>
           )}
           {role === 'customer' && (
-            <span className="nivvo-clean-auth-role-pill customer">Customer Account</span>
+            <span className="nivvo-clean-auth-role-pill customer">Shopper</span>
           )}
           {role === 'admin' && (
             <span className="nivvo-clean-auth-role-pill admin">Operations</span>
           )}
+          {role === 'rider' && (
+            <span className="nivvo-clean-auth-role-pill">Delivery Fleet</span>
+          )}
+        </div>
+
+        {/* Role Switcher Tabs */}
+        <div className="nivvo-auth-role-tabs" role="tablist" aria-label="Sign In Role">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={role === 'customer'}
+            className={`nivvo-auth-role-tab ${role === 'customer' ? 'active customer' : ''}`}
+            onClick={() => handleRoleSwitch('customer')}
+          >
+            <User size={14} />
+            <span>Customer</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={role === 'seller'}
+            className={`nivvo-auth-role-tab ${role === 'seller' ? 'active seller' : ''}`}
+            onClick={() => handleRoleSwitch('seller')}
+          >
+            <Store size={14} />
+            <span>Seller Hub</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={role === 'admin'}
+            className={`nivvo-auth-role-tab ${role === 'admin' ? 'active admin' : ''}`}
+            onClick={() => handleRoleSwitch('admin')}
+          >
+            <Shield size={14} />
+            <span>Admin</span>
+          </button>
         </div>
 
         {/* Clean Header */}
@@ -297,11 +381,13 @@ export default function NivvoAuthModal({
             {role === 'seller' && 'Sign in to Seller Hub'}
             {role === 'customer' && 'Sign in to your account'}
             {role === 'admin' && 'Operations Console Sign In'}
+            {role === 'rider' && 'Delivery Partner Sign In'}
           </h2>
           <p className="nivvo-clean-auth-desc">
-            {role === 'seller' && 'Enter your store phone or email to manage your inventory and orders.'}
-            {role === 'customer' && 'Enter your mobile number or email to view orders and trial items.'}
+            {role === 'seller' && 'Directly access your merchant dashboard, manage catalog, live incoming orders & payouts.'}
+            {role === 'customer' && 'Enter your mobile number or email to view orders, saved addresses and 10-minute trials.'}
             {role === 'admin' && 'Authorized personnel only. Multi-factor authentication is active.'}
+            {role === 'rider' && 'Sign in to access your delivery shifts, order radar, and daily payouts.'}
           </p>
         </div>
 
@@ -325,7 +411,7 @@ export default function NivvoAuthModal({
           {/* Identifier Input */}
           <div className="nivvo-clean-field-group">
             <label className="nivvo-clean-field-label">
-              {role === 'admin' ? 'Administrator Email' : 'Mobile number or email'}
+              {role === 'admin' ? 'Administrator Email' : (role === 'seller' ? 'Store Mobile Number or Email' : 'Mobile number or email')}
             </label>
             <div className="nivvo-clean-input-box">
               {role !== 'admin' && !identifier.includes('@') && (
@@ -338,7 +424,7 @@ export default function NivvoAuthModal({
                 type="text"
                 className="nivvo-clean-input"
                 required
-                placeholder={role === 'admin' ? 'admin@nivvo.in' : (role === 'seller' ? '98450 67890 or seller@solestreet.in' : '98765 43210')}
+                placeholder={role === 'admin' ? 'admin@nivvo.in' : (role === 'seller' ? '98450 67890 or seller@solestreet.in' : '98765 43210 or email')}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 autoFocus
@@ -396,28 +482,34 @@ export default function NivvoAuthModal({
             className={`nivvo-clean-submit-btn ${role === 'customer' ? 'customer' : (role === 'admin' ? 'admin' : '')}`}
             disabled={isLoading}
           >
-            <span>{isLoading ? 'Signing in...' : (role === 'seller' ? 'Sign In to Seller Hub' : 'Sign In')}</span>
+            <span>
+              {isLoading 
+                ? 'Verifying...' 
+                : (role === 'seller' 
+                    ? 'Sign In to Seller Dashboard' 
+                    : (role === 'customer' ? 'Sign In to Customer Account' : (role === 'admin' ? 'Sign In to Operations' : 'Sign In')))}
+            </span>
             <ArrowRight size={15} />
           </button>
         </form>
 
         {/* Discreet Demo Autofill Helper */}
         <div className="nivvo-clean-demo-helper">
-          <span>Need demo access?</span>
+          <span>Need quick test credentials?</span>
           <button
             type="button"
             className="nivvo-clean-demo-link"
-            onClick={role === 'seller' ? fillDemoSeller : (role === 'customer' ? fillDemoCustomer : fillDemoAdmin)}
+            onClick={() => applyRoleCredentials(role)}
           >
-            Auto-fill {role === 'seller' ? 'Seller' : (role === 'customer' ? 'Customer' : 'Admin')} credentials
+            Auto-fill {role === 'seller' ? 'Seller' : (role === 'customer' ? 'Customer' : (role === 'admin' ? 'Admin' : 'Rider'))} login
           </button>
         </div>
 
         {/* Clean Contextual Footer */}
         <div className="nivvo-clean-auth-footer">
-          {role === 'seller' && (
+          {role === 'seller' ? (
             <span>
-              Want to sell on Nivvo?{' '}
+              New merchant wanting to sell on Nivvo?{' '}
               <strong 
                 onClick={() => {
                   onClose();
@@ -428,15 +520,12 @@ export default function NivvoAuthModal({
                 Apply as a merchant partner
               </strong>
             </span>
-          )}
-          {role === 'customer' && (
+          ) : (
             <span>
-              By signing in, you agree to Nivvo's Terms of Service and Privacy Policy.
-            </span>
-          )}
-          {role === 'admin' && (
-            <span>
-              Nivvo Technologies Core Operations Security System
+              Want to partner as a shop owner?{' '}
+              <strong onClick={() => handleRoleSwitch('seller')}>
+                Switch to Seller Hub
+              </strong>
             </span>
           )}
         </div>

@@ -7,7 +7,7 @@ import {
   Mail, Bell, ShieldCheck, FileText, Sparkles, Volume2, 
   MessageSquare, AlertCircle, X, Heart, Star, Lock, Download, 
   LogOut, CheckCircle, RefreshCw, ShoppingBag, LayoutDashboard,
-  Search, ArrowUpRight, Clock, Sliders, ExternalLink, QrCode
+  Search, ArrowUpRight, Clock, Sliders, ExternalLink, QrCode, Store
 } from 'lucide-react';
 import { playClickSound, playTrialSound, playAddSound } from '../../utils/audioEffects';
 import { downloadReceiptPdf } from '../../utils/receiptGenerator';
@@ -289,6 +289,31 @@ export default function NivvoWebCustomerPortal({ onBack }) {
         </div>
 
         <div className="nivvo-cust-topbar-actions">
+          {currentUser?.role === 'seller' && (
+            <button
+              type="button"
+              className="nivvo-cust-seller-switch-btn"
+              onClick={() => { playClickSound(); navigateTo('seller-dash'); }}
+              style={{
+                backgroundColor: '#FFFBEB',
+                color: '#B45309',
+                border: '1px solid #FDE68A',
+                borderRadius: '8px',
+                padding: '7px 12px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              title="Open your Merchant Seller Dashboard"
+            >
+              <Store size={14} />
+              <span>Seller Hub ↗</span>
+            </button>
+          )}
+
           <button 
             type="button"
             className="nivvo-cust-back-btn" 
