@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "Nivvo",
+    "slug": "nivvo",
+    "version": "1.0.6",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FFFFFF",
+      "translucent": false
+    },
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#24452D"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pawan75.nivvo"
+    },
+    "android": {
+      "package": "com.pawan75.nivvo",
+      "versionCode": 7,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#24452D"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e2e93d6e-00e1-4434-950e-1c233a06038d"
+      }
+    },
+    "owner": "pawan75",
+    "plugins": [
+      "expo-asset",
+      [
+        "./plugins/withAndroidAssets",
+        {
+          "src": "assets/web",
+          "dest": "web"
+        }
+      ]
+    ],
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ]
+  }
+}

@@ -14,9 +14,14 @@ build/
 .env.test.local
 .env.production.local
 
-# Android APK builds
+# Android APK builds & Expo generated files
 *.apk
-expo-apk/
+expo-apk/assets/web/
+expo-apk/node_modules/
+expo-apk/.expo/
+expo-apk/dist/
+expo-app/node_modules/
+expo-app/.expo/
 
 # Logs
 npm-debug.log*

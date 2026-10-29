@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Nivvo",
+    "slug": "nivvo",
+    "owner": "pawan75",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nivvo.app"
+    },
+    "android": {
+      "package": "com.nivvo.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#24452D",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e2e93d6e-00e1-4434-950e-1c233a06038d"
+      }
+    }
+  }
+}
