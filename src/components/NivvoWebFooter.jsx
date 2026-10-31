@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNivvo } from '../context/NivvoAppContext';
-import { 
-  Zap, RefreshCw, Sparkles, ShieldCheck, 
+import {
+  Zap, RefreshCw, Sparkles, ShieldCheck,
   Store, Lock, User, Package, ArrowRight,
   ExternalLink, Phone, Mail, MapPin, Heart
 } from 'lucide-react';
@@ -16,9 +16,9 @@ import { playClickSound } from '../utils/audioEffects';
  * - Regulatory compliance & DPDP 2023 trust badges
  */
 export default function NivvoWebFooter() {
-  const { 
-    navigateTo, 
-    currentUser, 
+  const {
+    navigateTo,
+    currentUser,
     showToast,
     setActiveModal,
     switchToAppMode
@@ -157,16 +157,16 @@ export default function NivvoWebFooter() {
       }}>
         {/* Brand & Overview Column */}
         <div>
-          <div 
+          <div
             onClick={() => { playClickSound(); navigateTo('landing'); }}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '16px' }}
           >
-            <img 
-              src="/assets/nivvo_header_logo.svg" 
-              alt="Nivvo" 
-              width="34" 
-              height="34" 
-              style={{ borderRadius: '8px' }} 
+            <img
+              src="/assets/nivvo_header_logo.svg"
+              alt="Nivvo"
+              width="34"
+              height="34"
+              style={{ borderRadius: '8px' }}
             />
             <span style={{ fontSize: '26px', fontWeight: 900, letterSpacing: '-0.04em', color: '#FFFFFF' }}>
               nivvo
@@ -321,8 +321,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'seller') navigateTo('seller-dash');
                   else navigateTo('seller-login');
                 }}
@@ -333,8 +333,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'seller') navigateTo('seller-prods');
                   else navigateTo('seller-login');
                 }}
@@ -345,8 +345,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'seller') navigateTo('seller-orders');
                   else navigateTo('seller-login');
                 }}
@@ -357,8 +357,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'seller') navigateTo('seller-payouts');
                   else navigateTo('seller-login');
                 }}
@@ -417,8 +417,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'admin') navigateTo('admin-overview');
                   else navigateTo('admin-login');
                 }}
@@ -429,8 +429,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'admin') navigateTo('admin-sellers');
                   else navigateTo('admin-login');
                 }}
@@ -441,8 +441,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   if (currentUser?.role === 'admin') navigateTo('admin-delivery');
                   else navigateTo('admin-login');
                 }}
@@ -453,8 +453,8 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { 
-                  playClickSound(); 
+                onClick={() => {
+                  playClickSound();
                   switchToAppMode('rider');
                 }}
                 style={{ background: 'none', border: 'none', color: '#A3B49E', fontSize: '13px', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -487,21 +487,21 @@ export default function NivvoWebFooter() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '12.5px', color: '#A3B49E' }}>
-            <span 
+            <span
               onClick={() => showToast('DPDP Act 2023 Compliant: User privacy, encrypted tokens, and data minimization.')}
               style={{ cursor: 'pointer' }}
             >
               Privacy Policy
             </span>
             <span>•</span>
-            <span 
+            <span
               onClick={() => showToast('Nivvo Hyperlocal Marketplace Terms of Service')}
               style={{ cursor: 'pointer' }}
             >
               Terms of Service
             </span>
             <span>•</span>
-            <span 
+            <span
               onClick={() => showToast('Merchant Fair Trade & 24h Payout Policy')}
               style={{ cursor: 'pointer' }}
             >

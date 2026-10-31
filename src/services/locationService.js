@@ -5,6 +5,131 @@
 // ============================================================================
 
 export const METRO_DELIVERY_HUBS = [
+  // ─── Delhi NCR Corridors ───
+  {
+    id: 'hub-connaught-place',
+    tag: 'Connaught Place Hub',
+    title: 'Connaught Place',
+    area: 'Connaught Place',
+    street: 'Radial Road 3, Inner Circle',
+    city: 'New Delhi',
+    state: 'Delhi',
+    pincode: '110001',
+    fullAddress: 'Inner Circle, Connaught Place, New Delhi, Delhi 110001',
+    darkStore: 'CP Central Dark Store #02 (0.3 km away)',
+    eta: '7–10 mins',
+    latitude: 28.6315,
+    longitude: 77.2167
+  },
+  {
+    id: 'hub-saket',
+    tag: 'Saket Hub',
+    title: 'Saket',
+    area: 'Saket',
+    street: 'Press Enclave Marg, District Centre',
+    city: 'New Delhi',
+    state: 'Delhi',
+    pincode: '110017',
+    fullAddress: 'District Centre, Sector 6, Saket, New Delhi 110017',
+    darkStore: 'South Delhi Express Hub #06 (0.5 km away)',
+    eta: '8–12 mins',
+    latitude: 28.5245,
+    longitude: 77.2066
+  },
+  {
+    id: 'hub-cyber-city',
+    tag: 'Cyber City Hub',
+    title: 'Cyber City & DLF Phase 2',
+    area: 'DLF Phase 2',
+    street: 'DLF Cyber Hub, Sector 24',
+    city: 'Gurugram',
+    state: 'Haryana',
+    pincode: '122002',
+    fullAddress: 'DLF Cyber Hub, DLF Phase 2, Gurugram, Haryana 122002',
+    darkStore: 'Gurugram Tech Micro-Store #09 (0.4 km away)',
+    eta: '7–11 mins',
+    latitude: 28.4950,
+    longitude: 77.0895
+  },
+  {
+    id: 'hub-noida-sec18',
+    tag: 'Sector 18 Hub',
+    title: 'Sector 18 & Atta Market',
+    area: 'Sector 18',
+    street: 'Atta Market Road, Sector 18',
+    city: 'Noida',
+    state: 'Uttar Pradesh',
+    pincode: '201301',
+    fullAddress: 'Sector 18 Commercial Hub, Noida, Uttar Pradesh 201301',
+    darkStore: 'Noida Central Hub #11 (0.5 km away)',
+    eta: '8–12 mins',
+    latitude: 28.5708,
+    longitude: 77.3261
+  },
+
+  // ─── Mumbai MMR Corridors ───
+  {
+    id: 'hub-bandra',
+    tag: 'Bandra West Hub',
+    title: 'Bandra West',
+    area: 'Bandra West',
+    street: 'Pali Hill, Off Linking Road',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    pincode: '400050',
+    fullAddress: 'Pali Hill, Bandra West, Mumbai, Maharashtra 400050',
+    darkStore: 'Bandra Fashion Fulfilment Hub #03 (0.4 km away)',
+    eta: '7–10 mins',
+    latitude: 19.0596,
+    longitude: 72.8295
+  },
+  {
+    id: 'hub-bkc',
+    tag: 'BKC Hub',
+    title: 'Bandra Kurla Complex (BKC)',
+    area: 'BKC',
+    street: 'G Block, BKC Road',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    pincode: '400051',
+    fullAddress: 'G Block, Bandra Kurla Complex, Mumbai, Maharashtra 400051',
+    darkStore: 'BKC Express Pod #07 (0.5 km away)',
+    eta: '8–11 mins',
+    latitude: 19.0688,
+    longitude: 72.8687
+  },
+  {
+    id: 'hub-lower-parel',
+    tag: 'Lower Parel Hub',
+    title: 'Lower Parel & Worli',
+    area: 'Lower Parel',
+    street: 'Senapati Bapat Marg',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    pincode: '400013',
+    fullAddress: 'Senapati Bapat Marg, Lower Parel, Mumbai, Maharashtra 400013',
+    darkStore: 'High Street Phoenix Dark Store #04 (0.4 km away)',
+    eta: '7–10 mins',
+    latitude: 18.9986,
+    longitude: 72.8311
+  },
+  {
+    id: 'hub-andheri',
+    tag: 'Andheri West Hub',
+    title: 'Andheri West & Lokhandwala',
+    area: 'Lokhandwala',
+    street: 'Lokhandwala Complex, Andheri West',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    pincode: '400053',
+    fullAddress: 'Lokhandwala Complex, Andheri West, Mumbai 400053',
+    darkStore: 'Andheri Hyper Hub #15 (0.6 km away)',
+    eta: '8–12 mins',
+    latitude: 19.1363,
+    longitude: 72.8277
+  },
+
+  // ─── Bengaluru Corridors ───
   {
     id: 'hub-indiranagar',
     tag: 'Indiranagar Hub',
@@ -94,6 +219,74 @@ export const METRO_DELIVERY_HUBS = [
     eta: '6–9 mins',
     latitude: 12.9750,
     longitude: 77.6050
+  },
+
+  // ─── Hyderabad Corridors ───
+  {
+    id: 'hub-jubilee-hills',
+    tag: 'Jubilee Hills Hub',
+    title: 'Jubilee Hills & Madhapur',
+    area: 'Jubilee Hills',
+    street: 'Road No. 36, Jubilee Hills',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    pincode: '500033',
+    fullAddress: 'Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033',
+    darkStore: 'Hyderabad Fashion Hub #12 (0.5 km away)',
+    eta: '7–11 mins',
+    latitude: 17.4326,
+    longitude: 78.4071
+  },
+
+  // ─── Pune Corridors ───
+  {
+    id: 'hub-koregaon-park',
+    tag: 'Koregaon Park Hub',
+    title: 'Koregaon Park',
+    area: 'Koregaon Park',
+    street: 'North Main Road, Lane 6',
+    city: 'Pune',
+    state: 'Maharashtra',
+    pincode: '411001',
+    fullAddress: 'North Main Road, Koregaon Park, Pune, Maharashtra 411001',
+    darkStore: 'KP Quick Pod #18 (0.4 km away)',
+    eta: '8–12 mins',
+    latitude: 18.5362,
+    longitude: 73.8940
+  },
+
+  // ─── Chennai Corridors ───
+  {
+    id: 'hub-t-nagar',
+    tag: 'T Nagar Hub',
+    title: 'T Nagar & Nungambakkam',
+    area: 'T Nagar',
+    street: 'Usman Road, T Nagar',
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pincode: '600017',
+    fullAddress: 'Usman Road, T Nagar, Chennai, Tamil Nadu 600017',
+    darkStore: 'Chennai Central Micro-Hub #10 (0.5 km away)',
+    eta: '8–12 mins',
+    latitude: 13.0418,
+    longitude: 80.2341
+  },
+
+  // ─── Kolkata Corridors ───
+  {
+    id: 'hub-park-street',
+    tag: 'Park Street Hub',
+    title: 'Park Street',
+    area: 'Park Street',
+    street: 'Park Street, Near Camac Street',
+    city: 'Kolkata',
+    state: 'West Bengal',
+    pincode: '700016',
+    fullAddress: 'Park Street, Kolkata, West Bengal 700016',
+    darkStore: 'Kolkata Heritage Pod #05 (0.4 km away)',
+    eta: '8–12 mins',
+    latitude: 22.5510,
+    longitude: 88.3530
   }
 ];
 
@@ -172,6 +365,58 @@ export async function checkLocationPermission() {
   }
 }
 
+// Query IP Geolocation for desktop or devices without GPS hardware
+export async function detectIpCoordinates() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2600);
+    const res = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en', {
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (res.ok) {
+      const d = await res.json();
+      if (d && typeof d.latitude === 'number' && typeof d.longitude === 'number' && (d.latitude !== 0 || d.longitude !== 0)) {
+        return {
+          latitude: d.latitude,
+          longitude: d.longitude,
+          city: d.city || d.principalSubdivision || 'New Delhi',
+          locality: d.locality || d.city || 'Central Metro',
+          accuracy: 1000,
+          isFallback: true,
+          fallbackReason: `IP Geolocation (${d.locality || d.city || 'Metro Hub'})`
+        };
+      }
+    }
+  } catch (e) {
+    // try fallback
+  }
+
+  try {
+    const controller2 = new AbortController();
+    const timer2 = setTimeout(() => controller2.abort(), 2000);
+    const res2 = await fetch('https://ipapi.co/json/', { signal: controller2.signal });
+    clearTimeout(timer2);
+    if (res2.ok) {
+      const d2 = await res2.json();
+      if (d2 && d2.latitude && d2.longitude) {
+        return {
+          latitude: parseFloat(d2.latitude),
+          longitude: parseFloat(d2.longitude),
+          city: d2.city || 'Delhi',
+          locality: d2.region || 'Metro',
+          accuracy: 1500,
+          isFallback: true,
+          fallbackReason: `IP Geolocation (${d2.city || 'Metro'})`
+        };
+      }
+    }
+  } catch (e) {
+    // fallback to closest corridor
+  }
+  return null;
+}
+
 // Detect User's Real Device / Browser GPS Position with Automated Resilience
 export function detectDeviceCoordinates(options = {}) {
   const {
@@ -182,13 +427,17 @@ export function detectDeviceCoordinates(options = {}) {
 
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      return resolve({
-        latitude: 12.9716,
-        longitude: 77.6412,
-        accuracy: 100,
-        isFallback: true,
-        fallbackReason: 'Geolocation API not supported'
+      detectIpCoordinates().then((ipPos) => {
+        if (ipPos) return resolve(ipPos);
+        return resolve({
+          latitude: 28.6315,
+          longitude: 77.2167,
+          accuracy: 200,
+          isFallback: true,
+          fallbackReason: 'Geolocation API not supported, default to Connaught Place Central'
+        });
       });
+      return;
     }
 
     // Tier 1: Try High-Accuracy GPS
@@ -223,20 +472,30 @@ export function detectDeviceCoordinates(options = {}) {
               isFallback: false
             });
           },
-          (secondError) => {
+          async (secondError) => {
             if (secondError.code === secondError.PERMISSION_DENIED) {
               const err = new Error('Location permission was denied. Please allow location access in your browser or device settings.');
               err.code = secondError.code;
               return reject(err);
             }
 
-            // Tier 3: Seamless Metropolitan Corridor Fallback (Indiranagar Central Hub)
+            // Tier 3: Automated IP-Based Geolocation for Desktop / Laptop devices
+            try {
+              const ipCoords = await detectIpCoordinates();
+              if (ipCoords) {
+                return resolve(ipCoords);
+              }
+            } catch (ipErr) {
+              // fallback below
+            }
+
+            // Tier 4: Seamless Metropolitan Corridor Fallback (Connaught Place Central Hub)
             resolve({
-              latitude: 12.9716,
-              longitude: 77.6412,
+              latitude: 28.6315,
+              longitude: 77.2167,
               accuracy: 500,
               isFallback: true,
-              fallbackReason: 'GPS hardware timeout, localized to central Indiranagar corridor'
+              fallbackReason: 'GPS hardware timeout, localized to central Connaught Place corridor'
             });
           },
           {
@@ -271,13 +530,54 @@ export function getClosestMetroHub(lat, lng) {
   return { hub: closest, distance: minDistance };
 }
 
-// Reverse Geocode (lat, lng) into readable address using backend or OpenStreetMap
+// Reverse Geocode (lat, lng) into readable address using BigDataCloud, backend, or OpenStreetMap
 export async function reverseGeocodeCoords(latitude, longitude, apiBase = '') {
   const nLat = parseFloat(latitude);
   const nLng = parseFloat(longitude);
   const { hub: closestHub, distance: distToHub } = getClosestMetroHub(nLat, nLng);
 
-  // 1. Try Backend API first if available
+  // 1. Try BigDataCloud instant reverse geocoder (free, instant <400ms, accurate street/locality)
+  try {
+    const bdcController = new AbortController();
+    const bdcTimer = setTimeout(() => bdcController.abort(), 2200);
+    const bdcRes = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${nLat}&longitude=${nLng}&localityLanguage=en`,
+      { signal: bdcController.signal }
+    );
+    clearTimeout(bdcTimer);
+
+    if (bdcRes.ok) {
+      const bdcData = await bdcRes.json();
+      if (bdcData && (bdcData.locality || bdcData.city || bdcData.principalSubdivision)) {
+        const area = bdcData.locality || bdcData.city || closestHub.area;
+        const city = bdcData.city || bdcData.principalSubdivision || closestHub.city;
+        const state = bdcData.principalSubdivision || closestHub.state || 'Delhi';
+        const pincode = bdcData.postcode || closestHub.pincode;
+        const street = bdcData.localityInfo?.administrative?.[3]?.name || area;
+
+        return {
+          id: `gps-${Date.now()}`,
+          tag: 'Current GPS',
+          title: area,
+          area: area,
+          street: street,
+          city: city,
+          state: state,
+          pincode: pincode,
+          fullAddress: `${street}, ${area}, ${city} ${pincode ? '- ' + pincode : ''}`,
+          darkStore: `${area} Quick Fulfillment Pod (${distToHub < 1 ? '0.4 km' : distToHub.toFixed(1) + ' km'})`,
+          eta: calculateEta(distToHub),
+          latitude: nLat,
+          longitude: nLng,
+          isLiveGps: true
+        };
+      }
+    }
+  } catch (e) {
+    // continue to backend/OSM
+  }
+
+  // 2. Try Backend API first if available
   if (apiBase) {
     try {
       const res = await fetch(`${apiBase}/location/reverse?lat=${nLat}&lng=${nLng}`);
@@ -292,7 +592,7 @@ export async function reverseGeocodeCoords(latitude, longitude, apiBase = '') {
             area: a.area || closestHub.area,
             street: a.street || closestHub.street,
             city: a.city || closestHub.city,
-            state: a.state || 'Karnataka',
+            state: a.state || closestHub.state,
             pincode: a.pincode || closestHub.pincode,
             fullAddress: a.fullAddress || `${a.street || closestHub.street}, ${a.area || closestHub.area}, ${a.city || closestHub.city}`,
             darkStore: a.nearestDarkStore || closestHub.darkStore,
@@ -308,7 +608,7 @@ export async function reverseGeocodeCoords(latitude, longitude, apiBase = '') {
     }
   }
 
-  // 2. Direct client-side Nominatim lookup with timeout
+  // 3. Direct client-side Nominatim lookup with timeout
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2500);
@@ -328,7 +628,7 @@ export async function reverseGeocodeCoords(latitude, longitude, apiBase = '') {
         const street = addr.road || addr.pedestrian || addr.suburb || closestHub.street;
         const area = addr.neighbourhood || addr.suburb || addr.residential || addr.commercial || closestHub.area;
         const city = addr.city || addr.town || addr.county || closestHub.city;
-        const state = addr.state || 'Karnataka';
+        const state = addr.state || closestHub.state;
         const pincode = addr.postcode || closestHub.pincode;
 
         return {
@@ -353,7 +653,7 @@ export async function reverseGeocodeCoords(latitude, longitude, apiBase = '') {
     // Graceful corridor fallback
   }
 
-  // 3. Fallback to closest metro corridor
+  // 4. Fallback to closest metro corridor
   return {
     id: `gps-${Date.now()}`,
     tag: 'Current GPS',

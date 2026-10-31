@@ -98,7 +98,9 @@ export default function NivvoWebHeader() {
           }}>
             10-Min Try-On
           </span>
-          <span>⚡ Hyperlocal delivery active across Indiranagar, Koramangala & HSR Layout</span>
+          <span>
+            ⚡ Hyperlocal instant delivery active across {selectedAddress?.area || selectedAddress?.city ? `${selectedAddress.area || selectedAddress.city} & nearby dark stores` : 'Delhi NCR, Bengaluru, Mumbai & major metro corridors'}
+          </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
