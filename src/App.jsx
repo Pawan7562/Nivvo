@@ -213,29 +213,104 @@ function AppContent() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Smartphone size={16} color="#B7F34A" />
-            <span>📱 Nivvo Mobile App Simulator ({appMode === 'rider' ? 'Delivery Fleet Partner Mode' : 'Customer 10-Min Try-On Mode'})</span>
+            <span>📱 Nivvo Mobile App ({appMode === 'rider' ? 'Delivery Fleet Partner Mode' : 'Customer 10-Min Try-On Mode'})</span>
           </div>
-          <button
-            onClick={() => {
-              playClickSound();
-              switchToWebMode();
-            }}
-            style={{
-              backgroundColor: '#B7F34A',
-              color: '#14281C',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '5px 14px',
-              fontSize: '11px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <span>🌐 Switch to Desktop Website</span>
-          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {appMode === 'customer' ? (
+              <button
+                onClick={() => {
+                  playClickSound();
+                  switchToRiderMode();
+                }}
+                style={{
+                  backgroundColor: '#334155',
+                  color: '#B7F34A',
+                  border: '1px solid #475569',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <Bike size={13} />
+                <span>Switch to Delivery Partner Mode</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  playClickSound();
+                  switchToCustomerMode();
+                }}
+                style={{
+                  backgroundColor: '#334155',
+                  color: '#F8FAFC',
+                  border: '1px solid #475569',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <ShoppingBag size={13} />
+                <span>Switch to Customer Mode</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                playClickSound();
+                setAuthModalRole(appMode === 'rider' ? 'rider' : 'customer');
+                setAuthModalOpen(true);
+              }}
+              style={{
+                backgroundColor: 'rgba(183, 243, 74, 0.15)',
+                color: '#B7F34A',
+                border: '1px solid rgba(183, 243, 74, 0.35)',
+                borderRadius: '6px',
+                padding: '5px 12px',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              <User size={13} />
+              <span>{currentUser ? `${currentUser.name?.split(' ')[0]} (Switch / Sign In)` : 'Sign In / Register'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                playClickSound();
+                switchToWebMode();
+              }}
+              style={{
+                backgroundColor: '#B7F34A',
+                color: '#14281C',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '5px 14px',
+                fontSize: '11px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span>🌐 Desktop Website</span>
+            </button>
+          </div>
         </div>
       )}
 
