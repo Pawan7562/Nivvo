@@ -3976,7 +3976,49 @@ export function NivvoAppProvider({ children }) {
       ...prev
     ]);
 
-    // 4. Reset customer cart
+    // 4. Immediately dispatch delivery radar job to eligible delivery partners
+    const riderPayout = Math.max(65, Math.min(120, Math.round(55 + targetShopDist * 14)));
+    const newDeliveryOffer = {
+      id: `offer-${newOrderId}`,
+      order_id: newOrderId,
+      payout: riderPayout,
+      payoutText: `₹${riderPayout}`,
+      totalDistance: `${targetShopDist} km`,
+      timeWindow: `${targetShopEtaMinutes} mins`,
+      pickupDistance: '0.4 km',
+      dropDistance: `${targetShopDist} km`,
+      dark_store: targetShopName,
+      customer: {
+        name: custRecipient,
+        phone: custPhone,
+        area: custAddr
+      },
+      shops: [
+        {
+          name: targetShopName,
+          address: nearestResolvedShop.address || `${targetShopName}, 100ft Road`,
+          item: orderItems[0]?.name || 'Apparel & Footwear',
+          pin: '4812'
+        }
+      ],
+      pickupPin: '4812',
+      customerPin: '4829'
+    };
+    setDeliveryOffers(prev => [newDeliveryOffer, ...prev]);
+
+    // Dispatch real-time alert to Rider Notifications
+    setRiderNotifications(prev => [
+      {
+        id: `rnotif-${Date.now()}`,
+        title: `⚡ New Delivery Radar Offer: ${newOrderId}`,
+        message: `Pickup at ${targetShopName} · Deliver to ${custRecipient} (Earn ₹${riderPayout})`,
+        time: 'Just now',
+        read: false
+      },
+      ...prev
+    ]);
+
+    // 5. Reset customer cart
     setCart([]);
 
     showToast(`Order ${newOrderId} placed successfully! ${targetShopName} has received your ticket.`);
@@ -4003,6 +4045,7 @@ export function NivvoAppProvider({ children }) {
     if (['login', 'customer-login', 'signin', 'auth'].includes(target)) target = 'customer-login';
     if (['seller-login', 'merchant-login', 'shop-login'].includes(target)) target = 'seller-login';
     if (['admin-login', 'admin-auth'].includes(target)) target = 'admin-login';
+    if (['rider-login', 'delivery-login', 'fleet-login'].includes(target)) target = 'rider-login';
 
     if (['seller-overview', 'seller-dash', 'seller', 'merchant'].includes(target)) target = 'seller-dash';
     if (['admin-overview', 'admin', 'admin-ops'].includes(target)) target = 'admin-overview';

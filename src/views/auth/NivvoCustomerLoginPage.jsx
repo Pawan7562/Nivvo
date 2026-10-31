@@ -9,7 +9,7 @@ import { playClickSound, playSuccessChime } from '../../utils/audioEffects';
 import { loginCustomerApi, registerCustomerApi, sendOtpApi } from '../../services/api';
 
 export default function NivvoCustomerLoginPage() {
-  const { navigateTo, handleLoginSuccess, showToast } = useNivvo();
+  const { navigateTo, handleLoginSuccess, showToast, platformMode } = useNivvo();
 
   // Mode: 'signin' | 'signup'
   const [mode, setMode] = useState('signin');
@@ -110,7 +110,7 @@ export default function NivvoCustomerLoginPage() {
         };
         setTimeout(() => {
           handleLoginSuccess(authData);
-          navigateTo('landing');
+          navigateTo(platformMode === 'app' ? 'home' : 'landing');
         }, 600);
       } else {
         setErrorMessage(res.error || res.message || 'Invalid customer credentials. Please check details.');

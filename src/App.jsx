@@ -45,6 +45,7 @@ import NivvoWebFooter from './components/NivvoWebFooter';
 import NivvoCustomerLoginPage from './views/auth/NivvoCustomerLoginPage';
 import NivvoSellerLoginPage from './views/auth/NivvoSellerLoginPage';
 import NivvoAdminLoginPage from './views/auth/NivvoAdminLoginPage';
+import NivvoRiderLoginPage from './views/auth/NivvoRiderLoginPage';
 
 import { NIVVO_PRODUCTS, NIVVO_SHOPS } from './data/nivvoData';
 import { ShoppingBag, ChevronDown, Search, Home, Store, Package, User, Smartphone, Tablet, Monitor, Bell, Heart, Bike, Zap, TrendingUp, RotateCcw, HelpCircle, Menu, LayoutGrid, Wifi, Battery, MapPin, X, Mic, Loader2, Navigation } from 'lucide-react';
@@ -996,6 +997,10 @@ function AppContent() {
 
           {currentScreen === 'admin-login' && (
             <NivvoAdminLoginPage />
+          )}
+
+          {(currentScreen === 'rider-login' || currentScreen === 'delivery-login') && (
+            <NivvoRiderLoginPage />
           )}
 
           {/* Universal Website Platform Footer */}

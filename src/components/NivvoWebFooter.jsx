@@ -455,6 +455,21 @@ export default function NivvoWebFooter() {
               <button
                 onClick={() => {
                   playClickSound();
+                  if (currentUser?.role === 'rider') {
+                    switchToAppMode('rider');
+                  } else {
+                    navigateTo('rider-login');
+                  }
+                }}
+                style={{ background: 'none', border: 'none', color: '#B7F34A', fontSize: '14px', cursor: 'pointer', padding: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <span>⚡ Delivery Partner Login</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => {
+                  playClickSound();
                   switchToAppMode('rider');
                 }}
                 style={{ background: 'none', border: 'none', color: '#A3B49E', fontSize: '13px', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}
