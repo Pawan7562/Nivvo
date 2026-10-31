@@ -62,7 +62,7 @@ export const WEB_SCREENS = [
 export const APP_SCREENS = [
   'home', 'categories', 'shops', 'shop-detail', 'sneakers', 
   'product-detail', 'bag', 'checkout', 'tracking', 'profile', 
-  'grocery', 'food', 'brand'
+  'grocery', 'food', 'brand', 'customer-login', 'seller-login', 'admin-login', 'login'
 ];
 
 export const LANDING_ANCHORS = [
@@ -99,6 +99,17 @@ export const resolveUrlRoute = () => {
       const u = JSON.parse(localStorage.getItem('nivvo_user') || '{}');
       if (u && u.role) storedUserRole = u.role;
     } catch {}
+
+    // Direct Login Routes
+    if (['customer-login', 'login', 'auth', 'signin'].includes(target)) {
+      return { screen: 'customer-login', mode: 'web' };
+    }
+    if (['seller-login', 'merchant-login', 'shop-login'].includes(target)) {
+      return { screen: 'seller-login', mode: 'web' };
+    }
+    if (['admin-login', 'admin-auth'].includes(target)) {
+      return { screen: 'admin-login', mode: 'web' };
+    }
 
     // Aliases normalization
     if (['seller-overview', 'seller-dash', 'seller', 'merchant'].includes(target)) {
@@ -3954,6 +3965,11 @@ export function NivvoAppProvider({ children }) {
 
     // Normalize aliases
     let target = screenId;
+    // Direct Login Aliases
+    if (['login', 'customer-login', 'signin', 'auth'].includes(target)) target = 'customer-login';
+    if (['seller-login', 'merchant-login', 'shop-login'].includes(target)) target = 'seller-login';
+    if (['admin-login', 'admin-auth'].includes(target)) target = 'admin-login';
+
     if (['seller-overview', 'seller-dash', 'seller', 'merchant'].includes(target)) target = 'seller-dash';
     if (['admin-overview', 'admin', 'admin-ops'].includes(target)) target = 'admin-overview';
     if (['admin-sellers', 'merchant-ops'].includes(target)) target = 'admin-sellers';

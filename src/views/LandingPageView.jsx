@@ -38,7 +38,8 @@ export default function LandingPageView({
     setSelectedAddress,
     submitSellerApplication,
     detectUserLocation,
-    isDetectingLocation
+    isDetectingLocation,
+    navigateTo
   } = useNivvo();
 
   // Active Micro-hub & Location Search
@@ -884,7 +885,7 @@ export default function LandingPageView({
             ) : (
               <button
                 className="figma-nav-signin"
-                onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
+                onClick={() => { playClickSound(); if (navigateTo) navigateTo('customer-login'); else if (onOpenAuth) onOpenAuth('customer'); }}
                 title="Customer Sign In & Account Portal"
               >
                 <User size={14} />
@@ -2079,7 +2080,7 @@ export default function LandingPageView({
                 <a className="figma-footer-link" onClick={() => { playClickSound(); document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }); }}>
                   Fashion &amp; 2-Size Trial
                 </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (navigateTo) navigateTo('customer-login'); else if (onOpenAuth) onOpenAuth('customer'); }}>
                   Customer Login
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); if (onNavigateTracking) onNavigateTracking(); }}>
@@ -2099,7 +2100,7 @@ export default function LandingPageView({
                   Partner with Nivvo (For Shops)
                   <span className="figma-footer-link-badge">APPLY</span>
                 </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (navigateTo) navigateTo('seller-login'); else if (onOpenAuth) onOpenAuth('seller'); }}>
                   Seller Portal Login
                   <span className="figma-footer-link-badge">→</span>
                 </a>
@@ -2125,7 +2126,7 @@ export default function LandingPageView({
             <div className="figma-footer-group">
               <h4 className="figma-footer-group-title">Operations &amp; Admin</h4>
               <div className="figma-footer-links">
-                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('admin'); }}>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (navigateTo) navigateTo('admin-login'); else if (onOpenAuth) onOpenAuth('admin'); }}>
                   Admin Console Login
                   <span className="figma-footer-link-badge">INTERNAL</span>
                 </a>
@@ -2200,7 +2201,7 @@ export default function LandingPageView({
               <span className="figma-footer-legal-sep">·</span>
               <span onClick={() => showToast('Cookie Policy — We only use essential cookies')}>Cookie Policy</span>
               <span className="figma-footer-legal-sep">·</span>
-              <span onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('admin'); }} style={{ cursor: 'pointer', opacity: 0.85 }} title="Internal Administration">Admin Console</span>
+              <span onClick={() => { playClickSound(); if (navigateTo) navigateTo('admin-login'); else if (onOpenAuth) onOpenAuth('admin'); }} style={{ cursor: 'pointer', opacity: 0.85 }} title="Internal Administration">Admin Console</span>
             </div>
 
             <div className="figma-footer-compliance-badges">

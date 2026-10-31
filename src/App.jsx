@@ -41,6 +41,10 @@ import NivvoBrandSystemView from './views/nivvo/NivvoBrandSystemView';
 import NivvoProfileView from './views/nivvo/NivvoProfileView';
 import NivvoWebCustomerPortal from './views/nivvo/NivvoWebCustomerPortal';
 import NivvoWebHeader from './components/NivvoWebHeader';
+import NivvoWebFooter from './components/NivvoWebFooter';
+import NivvoCustomerLoginPage from './views/auth/NivvoCustomerLoginPage';
+import NivvoSellerLoginPage from './views/auth/NivvoSellerLoginPage';
+import NivvoAdminLoginPage from './views/auth/NivvoAdminLoginPage';
 
 import { NIVVO_PRODUCTS, NIVVO_SHOPS } from './data/nivvoData';
 import { ShoppingBag, ChevronDown, Search, Home, Store, Package, User, Smartphone, Tablet, Monitor, Bell, Heart, Bike, Zap, TrendingUp, RotateCcw, HelpCircle, Menu, LayoutGrid, Wifi, Battery, MapPin, X, Mic, Loader2, Navigation } from 'lucide-react';
@@ -538,8 +542,9 @@ function AppContent() {
                 navigateTo('admin-overview');
               }}
               onOpenAuth={(role) => {
-                setAuthModalRole(role === 'admin' ? 'admin' : (role === 'customer' ? 'customer' : 'seller'));
-                setAuthModalOpen(true);
+                if (role === 'seller') navigateTo('seller-login');
+                else if (role === 'admin') navigateTo('admin-login');
+                else navigateTo('customer-login');
               }}
               onLaunchMobileSimulator={() => {
                 switchToAppMode('customer');
@@ -978,6 +983,27 @@ function AppContent() {
                 onBack={() => navigateTo('home')}
               />
             )
+          )}
+
+          {/* Dedicated Role-Based Login Pages (Website & Mobile Web) */}
+          {(currentScreen === 'customer-login' || currentScreen === 'login') && (
+            <NivvoCustomerLoginPage />
+          )}
+
+          {currentScreen === 'seller-login' && (
+            <NivvoSellerLoginPage />
+          )}
+
+          {currentScreen === 'admin-login' && (
+            <NivvoAdminLoginPage />
+          )}
+
+          {/* Universal Website Platform Footer */}
+          {platformMode === 'web' && [
+            'home', 'categories', 'sneakers', 'shops', 'shop-detail', 
+            'grocery', 'food', 'brand', 'tracking', 'profile'
+          ].includes(currentScreen) && (
+            <NivvoWebFooter />
           )}
         </div>
 

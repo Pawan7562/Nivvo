@@ -105,7 +105,11 @@ export default function NivvoWebHeader() {
           <button
             onClick={() => {
               playClickSound();
-              navigateTo('seller-dash');
+              if (currentUser?.role === 'seller') {
+                navigateTo('seller-dash');
+              } else {
+                navigateTo('seller-login');
+              }
             }}
             style={{
               background: 'none',
@@ -133,7 +137,11 @@ export default function NivvoWebHeader() {
           <button
             onClick={() => {
               playClickSound();
-              navigateTo('admin-overview');
+              if (currentUser?.role === 'admin') {
+                navigateTo('admin-overview');
+              } else {
+                navigateTo('admin-login');
+              }
             }}
             style={{
               background: 'none',
@@ -618,8 +626,7 @@ export default function NivvoWebHeader() {
               <button
                 onClick={() => {
                   playClickSound();
-                  setAuthModalRole('customer');
-                  setAuthModalOpen(true);
+                  navigateTo('customer-login');
                 }}
                 style={{
                   backgroundColor: '#FFFFFF',
