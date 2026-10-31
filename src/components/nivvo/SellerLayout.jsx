@@ -751,7 +751,7 @@ export default function SellerLayout({
                       onClick={() => {
                         playClickSound();
                         setUserMenuOpen(false);
-                        navigateTo('home');
+                        navigateTo('landing');
                       }}
                       style={{
                         width: '100%',

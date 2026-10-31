@@ -110,7 +110,7 @@ export default function NivvoCustomerLoginPage() {
         };
         setTimeout(() => {
           handleLoginSuccess(authData);
-          navigateTo('home');
+          navigateTo('landing');
         }, 600);
       } else {
         setErrorMessage(res.error || res.message || 'Invalid customer credentials. Please check details.');
@@ -162,7 +162,7 @@ export default function NivvoCustomerLoginPage() {
         };
         setTimeout(() => {
           handleLoginSuccess(authData);
-          navigateTo('home');
+          navigateTo('landing');
         }, 700);
       } else {
         setErrorMessage(res.error || res.message || 'Registration failed. Phone or email may already be registered.');
@@ -193,7 +193,7 @@ export default function NivvoCustomerLoginPage() {
         boxShadow: '0 1px 6px rgba(0,0,0,0.03)'
       }}>
         <div 
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <img 
@@ -221,7 +221,7 @@ export default function NivvoCustomerLoginPage() {
         </div>
 
         <button
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{
             backgroundColor: 'transparent',
             border: '1px solid #E7EAE3',

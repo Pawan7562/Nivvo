@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../context/NivvoAppContext';
-import { 
+import {
   ShoppingBag, Search, MapPin, User, LogOut, ArrowRight,
-  Sparkles, Bell, Bike, Store, ShieldCheck, ChevronDown, 
+  Sparkles, Bell, Bike, Store, ShieldCheck, ChevronDown,
   X, Mic, Loader2, Navigation, Heart, ExternalLink, Package,
   Layers, Check
 } from 'lucide-react';
@@ -205,23 +205,23 @@ export default function NivvoWebHeader() {
         {/* Left: Brand Logo + Location Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
           {/* Logo */}
-          <div 
-            onClick={() => { playClickSound(); navigateTo('home'); }}
+          <div
+            onClick={() => { playClickSound(); navigateTo('landing'); }}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
             title="Nivvo - Home"
           >
-            <img 
-              src="/assets/nivvo_header_logo.svg" 
-              alt="Nivvo" 
-              width="32" 
-              height="32" 
-              style={{ display: 'block', borderRadius: '8px' }} 
+            <img
+              src="/assets/nivvo_header_logo.svg"
+              alt="Nivvo"
+              width="32"
+              height="32"
+              style={{ display: 'block', borderRadius: '8px' }}
             />
-            <span style={{ 
-              fontSize: '24px', 
-              fontWeight: 900, 
-              letterSpacing: '-0.04em', 
-              color: '#24452D' 
+            <span style={{
+              fontSize: '24px',
+              fontWeight: 900,
+              letterSpacing: '-0.04em',
+              color: '#24452D'
             }}>
               nivvo
             </span>
@@ -230,7 +230,7 @@ export default function NivvoWebHeader() {
           <div style={{ width: '1px', height: '28px', backgroundColor: '#E7EAE3' }} />
 
           {/* Location Selector */}
-          <div 
+          <div
             onClick={() => { playClickSound(); setActiveModal('location'); }}
             style={{
               display: 'flex',
@@ -263,8 +263,8 @@ export default function NivvoWebHeader() {
         </div>
 
         {/* Center: Universal Live Search Bar */}
-        <form 
-          onSubmit={handleSearchSubmit} 
+        <form
+          onSubmit={handleSearchSubmit}
           style={{
             flex: 1,
             maxWidth: '620px',
@@ -286,11 +286,11 @@ export default function NivvoWebHeader() {
             transition: 'all 0.2s ease',
             boxSizing: 'border-box'
           }}
-          className="nivvo-web-search-box"
+            className="nivvo-web-search-box"
           >
             <Search size={18} color="#73796F" style={{ flexShrink: 0 }} />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={searchPlaceholders[placeholderIndex]}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -308,7 +308,7 @@ export default function NivvoWebHeader() {
               }}
             />
             {searchQuery ? (
-              <button 
+              <button
                 type="button"
                 onClick={() => setSearchQuery('')}
                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#73796F' }}
@@ -317,7 +317,7 @@ export default function NivvoWebHeader() {
                 <X size={16} />
               </button>
             ) : (
-              <button 
+              <button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
@@ -471,7 +471,7 @@ export default function NivvoWebHeader() {
                 </button>
 
                 {accountMenuOpen && (
-                  <div 
+                  <div
                     style={{
                       position: 'absolute',
                       right: 0,
@@ -677,7 +677,7 @@ export default function NivvoWebHeader() {
           padding: '8px 0'
         }}>
           {categoriesRail.map((cat) => {
-            const isSelected = 
+            const isSelected =
               (cat.route && currentScreen === cat.route) ||
               (cat.id === 'all' && currentScreen === 'categories') ||
               (cat.id === 'footwear' && currentScreen === 'sneakers');

@@ -98,7 +98,7 @@ export default function NivvoAdminLoginPage() {
         boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
       }}>
         <div 
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <img 
@@ -126,7 +126,7 @@ export default function NivvoAdminLoginPage() {
         </div>
 
         <button
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{
             backgroundColor: 'transparent',
             border: '1px solid #334155',

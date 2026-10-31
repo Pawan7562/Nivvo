@@ -158,7 +158,7 @@ export default function NivvoWebFooter() {
         {/* Brand & Overview Column */}
         <div>
           <div 
-            onClick={() => { playClickSound(); navigateTo('home'); }}
+            onClick={() => { playClickSound(); navigateTo('landing'); }}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '16px' }}
           >
             <img 
@@ -241,7 +241,7 @@ export default function NivvoWebFooter() {
             </li>
             <li>
               <button
-                onClick={() => { playClickSound(); navigateTo('home'); }}
+                onClick={() => { playClickSound(); navigateTo('landing'); }}
                 style={{ background: 'none', border: 'none', color: '#C5D4BF', fontSize: '14px', cursor: 'pointer', padding: 0 }}
               >
                 Storefront & Collections
@@ -528,3 +528,4 @@ export default function NivvoWebFooter() {
     </footer>
   );
 }
+

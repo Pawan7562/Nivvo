@@ -505,8 +505,8 @@ function AppContent() {
 
         {/* Scrollable Screen Body */}
         <div className="nivvo-screen-scroll">
-          {/* Platform Landing Page (Full Responsive Web & Mobile Showcase) */}
-          {currentScreen === 'landing' && (
+          {/* Platform Landing Page (Full Responsive Web Showcase - Website Homepage) */}
+          {(platformMode === 'web' ? (currentScreen === 'landing' || currentScreen === 'home') : currentScreen === 'landing') && (
             <LandingPageView 
               onNavigateHome={() => {
                 const el = document.getElementById('collections');
@@ -638,8 +638,8 @@ function AppContent() {
             </div>
           )}
 
-          {/* Customer Screens (1 to 8) - Accessible on BOTH Website & Mobile App */}
-          {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'home' && (
+          {/* Mobile App Home Screen — Rendered Exclusively inside Mobile App Mode */}
+          {platformMode === 'app' && currentScreen === 'home' && (
             <NivvoHomeView 
               onSelectCategory={(catId) => {
                 setSelectedCategory(catId);
@@ -686,7 +686,7 @@ function AppContent() {
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'shops' && (
             <NivvoShopsView 
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
               onOpenCart={() => navigateTo('bag')}
               onSelectShop={(shop) => navigateTo('shop-detail')}
             />
@@ -706,7 +706,7 @@ function AppContent() {
           {(platformMode === 'app' || platformMode === 'web') && (currentScreen === 'categories' || currentScreen === 'sneakers') && (
             <NivvoCategoryView 
               initialCategory={currentScreen === 'sneakers' ? 'footwear' : (selectedCategory || 'all')}
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
               onOpenCart={() => navigateTo('bag')}
               onSelectProduct={(prod) => {
                 setSelectedProduct(prod);
@@ -718,14 +718,14 @@ function AppContent() {
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'product-detail' && (
             <NivvoProductDetailView 
               product={selectedProduct}
-              onBack={() => navigateTo('categories')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'categories')}
               onOpenCart={() => navigateTo('bag')}
             />
           )}
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'bag' && (
             <NivvoBagView 
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
               onProceedToCheckout={() => navigateTo('checkout')}
             />
           )}
@@ -739,7 +739,7 @@ function AppContent() {
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'tracking' && (
             <NivvoLiveTrackingView 
-              onBack={() => navigateTo('home')}
+              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
             />
           )}
 

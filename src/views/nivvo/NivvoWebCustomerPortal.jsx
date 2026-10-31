@@ -499,7 +499,7 @@ export default function NivvoWebCustomerPortal({ onBack }) {
                 <button 
                   type="button"
                   className="nivvo-cust-btn-primary" 
-                  onClick={() => { playClickSound(); navigateTo('home'); }}
+                  onClick={() => { playClickSound(); navigateTo('landing'); }}
                 >
                   <ShoppingBag size={15} />
                   <span>Explore Neighbourhood Stores</span>

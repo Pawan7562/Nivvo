@@ -181,7 +181,7 @@ export default function NivvoLiveTrackingView({
       {/* Header */}
       <div className="nivvo-nav-header">
         <div className="nivvo-nav-header-left">
-          <button className="nivvo-back-btn" onClick={onBack || (() => navigateTo('home'))} aria-label="Go Back">
+          <button className="nivvo-back-btn" onClick={onBack || (() => navigateTo('landing'))} aria-label="Go Back">
             <ArrowLeft size={20} />
           </button>
           <div>

@@ -204,7 +204,7 @@ export default function NivvoSellerLoginPage() {
         boxShadow: '0 1px 6px rgba(0,0,0,0.03)'
       }}>
         <div 
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <img 
@@ -232,7 +232,7 @@ export default function NivvoSellerLoginPage() {
         </div>
 
         <button
-          onClick={() => { playClickSound(); navigateTo('home'); }}
+          onClick={() => { playClickSound(); navigateTo('landing'); }}
           style={{
             backgroundColor: 'transparent',
             border: '1px solid #EAE3D9',

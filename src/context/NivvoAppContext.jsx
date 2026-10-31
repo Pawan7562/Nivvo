@@ -78,6 +78,19 @@ export const resolveUrlRoute = () => {
     const rawHash = (window.location.hash || '').replace(/^#\/?/, '').split('?')[0].trim().toLowerCase();
     const rawPath = (window.location.pathname || '').replace(/^\//, '').split('?')[0].trim().toLowerCase();
     
+    // Strict Platform Partitioning:
+    // Native mobile app wrapper => strictly 'app' mode.
+    // Web browser => strictly 'web' mode (unless user manually engaged simulator).
+    const isApp = isNativeMobileApp();
+    let currentSavedMode = 'web';
+    try {
+      if (isApp) {
+        currentSavedMode = 'app';
+      } else {
+        currentSavedMode = localStorage.getItem('nivvo_platform_mode') || 'web';
+      }
+    } catch {}
+
     // In-page anchor on landing page
     if (LANDING_ANCHORS.includes(rawHash)) {
       return { screen: 'landing', mode: 'web', anchor: rawHash };
@@ -90,7 +103,16 @@ export const resolveUrlRoute = () => {
     } else if (rawPath && rawPath !== '/' && rawPath !== 'index.html') {
       target = rawPath;
     } else {
+      target = currentSavedMode === 'app' ? 'home' : 'landing';
+    }
+
+    // Normalization: In web mode, home ALWAYS maps to landing (desktop storefront)
+    if (currentSavedMode === 'web' && (target === 'home' || !target)) {
       target = 'landing';
+    }
+    // In mobile app mode, landing maps to home
+    if (currentSavedMode === 'app' && target === 'landing') {
+      target = 'home';
     }
 
     // Read stored user role if available for role-aware routing
@@ -156,30 +178,30 @@ export const resolveUrlRoute = () => {
     if (['orders', 'order', 'dispatch'].includes(target)) {
       if (storedUserRole === 'admin') return { screen: 'admin-orders', mode: 'web' };
       if (storedUserRole === 'seller') return { screen: 'seller-orders', mode: 'web' };
-      return { screen: isNativeMobileApp() ? 'tracking' : 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
+      return { screen: currentSavedMode === 'app' ? 'tracking' : 'profile', mode: currentSavedMode };
     }
     if (['finance', 'payouts', 'settlement', 'settlements'].includes(target)) {
       if (storedUserRole === 'admin') return { screen: 'admin-finance', mode: 'web' };
       if (storedUserRole === 'seller') return { screen: 'seller-payouts', mode: 'web' };
-      return { screen: 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
+      return { screen: 'profile', mode: currentSavedMode };
     }
     if (['delivery', 'fleet'].includes(target)) {
       if (storedUserRole === 'admin') return { screen: 'admin-delivery', mode: 'web' };
       if (storedUserRole === 'rider') return { screen: 'rider-duty', mode: 'app' };
-      return { screen: 'tracking', mode: isNativeMobileApp() ? 'app' : 'web' };
+      return { screen: 'tracking', mode: currentSavedMode };
     }
     if (['customer', 'customers', 'customer-portal', 'profile', 'account'].includes(target)) {
       if (storedUserRole === 'admin' && target === 'customers') return { screen: 'admin-customers', mode: 'web' };
-      return { screen: 'profile', mode: isNativeMobileApp() ? 'app' : 'web' };
+      return { screen: 'profile', mode: currentSavedMode };
     }
     if (target.startsWith('rider-')) {
       return { screen: target, mode: 'app' };
     }
     if (APP_SCREENS.includes(target)) {
-      return { screen: target, mode: isNativeMobileApp() ? 'app' : 'web' };
+      return { screen: target, mode: currentSavedMode };
     }
     
-    return { screen: 'landing', mode: isNativeMobileApp() ? 'app' : 'web' };
+    return { screen: currentSavedMode === 'app' ? 'home' : 'landing', mode: currentSavedMode };
   } catch {
     return { screen: 'landing', mode: 'web' };
   }
@@ -598,7 +620,10 @@ export function NivvoAppProvider({ children }) {
     const handleUrlChange = () => {
       try {
         const route = resolveUrlRoute();
-        setCurrentScreen(route.screen);
+        const screenToSet = (!isNativeMobileApp() && route.mode === 'web' && route.screen === 'home') 
+          ? 'landing' 
+          : route.screen;
+        setCurrentScreen(screenToSet);
         if (!isNativeMobileApp()) {
           setPlatformMode(route.mode);
         }
@@ -3965,6 +3990,15 @@ export function NivvoAppProvider({ children }) {
 
     // Normalize aliases
     let target = screenId;
+    
+    // Website vs Mobile App Platform Separation
+    if (platformMode === 'web' && target === 'home') {
+      target = 'landing';
+    }
+    if (platformMode === 'app' && target === 'landing') {
+      target = 'home';
+    }
+
     // Direct Login Aliases
     if (['login', 'customer-login', 'signin', 'auth'].includes(target)) target = 'customer-login';
     if (['seller-login', 'merchant-login', 'shop-login'].includes(target)) target = 'seller-login';
