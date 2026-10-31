@@ -80,339 +80,386 @@ export default function NivvoCheckoutView({
         </div>
       </div>
 
-      <div style={{ padding: '16px', maxWidth: '520px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="nivvo-checkout-layout-grid" style={{ padding: '20px 24px', maxWidth: '1120px', margin: '0 auto', display: 'grid', gap: '24px' }}>
         
-        {/* ─── 1. Delivery Address ─── */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E5E7DE',
-          borderRadius: '16px',
-          padding: '16px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <MapPin size={15} color="#1F4230" />
-              <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>
-                Delivery Address
-              </span>
-              {selectedAddress?.title && (
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  backgroundColor: '#EEF2E8',
-                  color: '#1F4230',
-                  padding: '2px 6px',
-                  borderRadius: '4px'
-                }}>
-                  {selectedAddress.title}
-                </span>
-              )}
-            </div>
-            <button 
-              onClick={() => { playClickSound(); setActiveModal('location'); }}
-              style={{ background: 'none', border: 'none', fontSize: '12px', fontWeight: 700, color: '#1F4230', cursor: 'pointer', padding: 0 }}
-            >
-              Change
-            </button>
-          </div>
-
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#14281C', marginBottom: '2px' }}>
-            {currentUser?.name || selectedAddress?.recipient || 'Aarav Shah'} · {currentUser?.phone || selectedAddress?.phone || '+91 98765 43210'}
-          </div>
-          
-          <div style={{ fontSize: '12px', color: '#687163', lineHeight: 1.4 }}>
-            {selectedAddress?.street || '12th Main Road, HAL 2nd Stage'}, {selectedAddress?.city || 'Bengaluru'}
-          </div>
-
-          {selectedAddress?.note && (
-            <div style={{ fontSize: '11px', color: '#687163', backgroundColor: '#F4F5EE', padding: '6px 10px', borderRadius: '8px', marginTop: '8px' }}>
-              Note: {selectedAddress.note}
-            </div>
-          )}
-        </div>
-
-        {/* ─── 2. Delivery ETA ─── */}
-        <div style={{
-          backgroundColor: '#F0F4EE',
-          border: '1px solid #DCE6D5',
-          borderRadius: '14px',
-          padding: '12px 14px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: '#1F4230',
-              color: '#C6F432',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Clock size={16} />
-            </div>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#1F4230' }}>
-              Delivery in 20–30 mins
-            </span>
-          </div>
-          <span style={{
-            fontSize: '10px',
-            fontWeight: 800,
-            color: '#15803D',
-            backgroundColor: '#DCFCE7',
-            padding: '3px 8px',
-            borderRadius: '999px'
+        {/* Left Column: Address, ETA & Payment Method */}
+        <div className="nivvo-checkout-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* ─── 1. Delivery Address ─── */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7DE',
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
           }}>
-            Fast Dispatch
-          </span>
-        </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MapPin size={15} color="#1F4230" />
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>
+                  Delivery Address
+                </span>
+                {selectedAddress?.title && (
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    backgroundColor: '#EEF2E8',
+                    color: '#1F4230',
+                    padding: '2px 6px',
+                    borderRadius: '4px'
+                  }}>
+                    {selectedAddress.title}
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={() => { playClickSound(); setActiveModal('location'); }}
+                style={{ background: 'none', border: 'none', fontSize: '12px', fontWeight: 700, color: '#1F4230', cursor: 'pointer', padding: 0 }}
+              >
+                Change
+              </button>
+            </div>
 
-        {/* ─── 3. Order Items ─── */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E5E7DE',
-          borderRadius: '16px',
-          padding: '16px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>
-              Items ({totalCartCount})
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#14281C', marginBottom: '2px' }}>
+              {currentUser?.name || selectedAddress?.recipient || 'Aarav Shah'} · {currentUser?.phone || selectedAddress?.phone || '+91 98765 43210'}
+            </div>
+            
+            <div style={{ fontSize: '12px', color: '#687163', lineHeight: 1.4 }}>
+              {selectedAddress?.street || '12th Main Road, HAL 2nd Stage'}, {selectedAddress?.city || 'Bengaluru'}
+            </div>
+
+            {selectedAddress?.note && (
+              <div style={{ fontSize: '11px', color: '#687163', backgroundColor: '#F4F5EE', padding: '6px 10px', borderRadius: '8px', marginTop: '8px' }}>
+                Note: {selectedAddress.note}
+              </div>
+            )}
+          </div>
+
+          {/* ─── 2. Delivery ETA ─── */}
+          <div style={{
+            backgroundColor: '#F0F4EE',
+            border: '1px solid #DCE6D5',
+            borderRadius: '14px',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: '#1F4230',
+                color: '#C6F432',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Clock size={16} />
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#1F4230' }}>
+                Delivery in 20–30 mins
+              </span>
+            </div>
+            <span style={{
+              fontSize: '10px',
+              fontWeight: 800,
+              color: '#15803D',
+              backgroundColor: '#DCFCE7',
+              padding: '3px 8px',
+              borderRadius: '999px'
+            }}>
+              Fast Dispatch
             </span>
-            <button 
-              onClick={() => { playClickSound(); navigateTo('bag'); }}
-              style={{ background: 'none', border: 'none', fontSize: '12px', fontWeight: 700, color: '#1F4230', cursor: 'pointer', padding: 0 }}
-            >
-              Edit
-            </button>
           </div>
 
-          {cart.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '12px', color: '#687163' }}>
-              Bag is empty
+          {/* ─── 3. Payment Method ─── */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7DE',
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', marginBottom: '10px' }}>
+              Payment Method
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {cart.map((item) => (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                    {(item.image || item.images?.[0]) ? (
-                      <img 
-                        src={item.image || item.images[0]} 
-                        alt={item.name}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '8px',
-                          objectFit: 'cover',
-                          backgroundColor: '#F4F5EE',
-                          border: '1px solid #E5E7DE',
-                          flexShrink: 0
-                        }} 
-                      />
-                    ) : (
-                      <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '8px',
-                        backgroundColor: '#F4F5EE',
-                        border: '1px solid #E5E7DE',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#687163',
-                        flexShrink: 0
-                      }}>
-                        {item.size || 'M'}
-                      </div>
-                    )}
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#14281C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#687163', marginTop: '1px' }}>
-                        Size: {item.size} · Qty: {item.quantity}
-                      </div>
-                    </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* UPI */}
+              <div 
+                onClick={() => { playClickSound(); setPaymentMethod('upi'); }}
+                style={{
+                  border: paymentMethod === 'upi' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
+                  borderRadius: '12px',
+                  padding: '12px 14px',
+                  backgroundColor: paymentMethod === 'upi' ? '#F7F8F5' : '#FFFFFF',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '50%',
+                      border: paymentMethod === 'upi' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
+                      backgroundColor: '#FFFFFF',
+                      flexShrink: 0
+                    }} />
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>UPI</span>
                   </div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', flexShrink: 0 }}>
-                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
-                  </div>
+                  <span style={{ fontSize: '11px', color: '#687163' }}>Google Pay, PhonePe, Paytm</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* ─── 4. Payment Method ─── */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E5E7DE',
-          borderRadius: '16px',
-          padding: '16px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-        }}>
-          <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', marginBottom: '10px' }}>
-            Payment Method
-          </div>
+                {paymentMethod === 'upi' && (
+                  <div style={{ paddingLeft: '26px', marginTop: '8px' }}>
+                    <input 
+                      type="text"
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="Enter UPI ID"
+                      style={{
+                        border: '1px solid #E5E7DE',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        fontSize: '12px',
+                        color: '#14281C',
+                        width: '100%',
+                        maxWidth: '240px',
+                        backgroundColor: '#FFFFFF',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* UPI */}
-            <div 
-              onClick={() => { playClickSound(); setPaymentMethod('upi'); }}
-              style={{
-                border: paymentMethod === 'upi' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                backgroundColor: paymentMethod === 'upi' ? '#F7F8F5' : '#FFFFFF',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {/* Credit / Debit Card */}
+              <div 
+                onClick={() => { playClickSound(); setPaymentMethod('card'); }}
+                style={{
+                  border: paymentMethod === 'card' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
+                  borderRadius: '12px',
+                  padding: '12px 14px',
+                  backgroundColor: paymentMethod === 'card' ? '#F7F8F5' : '#FFFFFF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{
                     width: '16px',
                     height: '16px',
                     borderRadius: '50%',
-                    border: paymentMethod === 'upi' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
+                    border: paymentMethod === 'card' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
                     backgroundColor: '#FFFFFF',
                     flexShrink: 0
                   }} />
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>UPI</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>Card</span>
                 </div>
-                <span style={{ fontSize: '11px', color: '#687163' }}>Google Pay, PhonePe, Paytm</span>
+                <CreditCard size={16} color="#687163" />
               </div>
 
-              {paymentMethod === 'upi' && (
-                <div style={{ paddingLeft: '26px', marginTop: '8px' }}>
-                  <input 
-                    type="text"
-                    value={upiId}
-                    onChange={(e) => setUpiId(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Enter UPI ID"
-                    style={{
-                      border: '1px solid #E5E7DE',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      fontSize: '12px',
-                      color: '#14281C',
-                      width: '100%',
-                      maxWidth: '240px',
-                      backgroundColor: '#FFFFFF',
-                      outline: 'none'
-                    }}
-                  />
+              {/* Cash on Delivery */}
+              <div 
+                onClick={() => { playClickSound(); setPaymentMethod('cod'); }}
+                style={{
+                  border: paymentMethod === 'cod' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
+                  borderRadius: '12px',
+                  padding: '12px 14px',
+                  backgroundColor: paymentMethod === 'cod' ? '#F7F8F5' : '#FFFFFF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: paymentMethod === 'cod' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
+                    backgroundColor: '#FFFFFF',
+                    flexShrink: 0
+                  }} />
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>Cash on Delivery</span>
                 </div>
-              )}
-            </div>
-
-            {/* Credit / Debit Card */}
-            <div 
-              onClick={() => { playClickSound(); setPaymentMethod('card'); }}
-              style={{
-                border: paymentMethod === 'card' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                backgroundColor: paymentMethod === 'card' ? '#F7F8F5' : '#FFFFFF',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: paymentMethod === 'card' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
-                  backgroundColor: '#FFFFFF',
-                  flexShrink: 0
-                }} />
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>Card</span>
+                <Banknote size={16} color="#687163" />
               </div>
-              <CreditCard size={16} color="#687163" />
-            </div>
-
-            {/* Cash on Delivery */}
-            <div 
-              onClick={() => { playClickSound(); setPaymentMethod('cod'); }}
-              style={{
-                border: paymentMethod === 'cod' ? '1.5px solid #1F4230' : '1px solid #E5E7DE',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                backgroundColor: paymentMethod === 'cod' ? '#F7F8F5' : '#FFFFFF',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: paymentMethod === 'cod' ? '5px solid #1F4230' : '1.5px solid #CBD5E1',
-                  backgroundColor: '#FFFFFF',
-                  flexShrink: 0
-                }} />
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#14281C' }}>Cash on Delivery</span>
-              </div>
-              <Banknote size={16} color="#687163" />
             </div>
           </div>
         </div>
 
-        {/* ─── 5. Bill Details ─── */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E5E7DE',
-          borderRadius: '16px',
-          padding: '16px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-        }}>
-          <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', marginBottom: '10px' }}>
-            Bill Details
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
-            <span>Item total</span>
-            <span style={{ color: '#14281C', fontWeight: 600 }}>₹{safeNum(cartSubtotal, 0).toLocaleString('en-IN')}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
-            <span>Delivery fee</span>
-            <span style={{ color: cartDeliveryFee === 0 ? '#15803D' : '#14281C', fontWeight: 600 }}>
-              {cartDeliveryFee === 0 ? 'FREE' : `₹${safeNum(cartDeliveryFee, 0)}`}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
-            <span>Platform fee</span>
-            <span style={{ color: '#14281C', fontWeight: 600 }}>₹{safeNum(cartPlatformFee, 9)}</span>
-          </div>
-
-          {discountAmount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#15803D' }}>
-              <span>Discount</span>
-              <span style={{ fontWeight: 700 }}>-₹{safeNum(discountAmount, 0)}</span>
+        {/* Right Column: Order Items & Price Summary */}
+        <div className="nivvo-checkout-right-col" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* ─── 4. Order Items Recap ─── */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7DE',
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>
+                Items ({totalCartCount})
+              </span>
+              <button 
+                onClick={() => { playClickSound(); navigateTo('bag'); }}
+                style={{ background: 'none', border: 'none', fontSize: '12px', fontWeight: 700, color: '#1F4230', cursor: 'pointer', padding: 0 }}
+              >
+                Edit
+              </button>
             </div>
-          )}
 
-          <div style={{ borderTop: '1px solid #E5E7DE', paddingTop: '10px', marginTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>To Pay</span>
-            <span style={{ fontSize: '17px', fontWeight: 900, color: '#14281C' }}>
-              ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}
-            </span>
+            {cart.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '12px', color: '#687163' }}>
+                Bag is empty
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {cart.map((item) => (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                      {(item.image || item.images?.[0]) ? (
+                        <img 
+                          src={item.image || item.images[0]} 
+                          alt={item.name}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '8px',
+                            objectFit: 'cover',
+                            backgroundColor: '#F4F5EE',
+                            border: '1px solid #E5E7DE',
+                            flexShrink: 0
+                          }} 
+                        />
+                      ) : (
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '8px',
+                          backgroundColor: '#F4F5EE',
+                          border: '1px solid #E5E7DE',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: '#687163',
+                          flexShrink: 0
+                        }}>
+                          {item.size || 'M'}
+                        </div>
+                      )}
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#14281C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#687163', marginTop: '1px' }}>
+                          Size: {item.size} · Qty: {item.quantity}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', flexShrink: 0 }}>
+                      ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ─── 5. Bill Details ─── */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7DE',
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', marginBottom: '10px' }}>
+              Bill Details
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
+              <span>Item total</span>
+              <span style={{ color: '#14281C', fontWeight: 600 }}>₹{safeNum(cartSubtotal, 0).toLocaleString('en-IN')}</span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
+              <span>Delivery fee</span>
+              <span style={{ color: cartDeliveryFee === 0 ? '#15803D' : '#14281C', fontWeight: 600 }}>
+                {cartDeliveryFee === 0 ? 'FREE' : `₹${safeNum(cartDeliveryFee, 0)}`}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#687163' }}>
+              <span>Platform fee</span>
+              <span style={{ color: '#14281C', fontWeight: 600 }}>₹{safeNum(cartPlatformFee, 9)}</span>
+            </div>
+
+            {discountAmount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', color: '#15803D' }}>
+                <span>Discount</span>
+                <span style={{ fontWeight: 700 }}>-₹{safeNum(discountAmount, 0)}</span>
+              </div>
+            )}
+
+            <div style={{ borderTop: '1px solid #E5E7DE', paddingTop: '10px', marginTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#14281C' }}>To Pay</span>
+              <span style={{ fontSize: '18px', fontWeight: 900, color: '#24452D' }}>
+                ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+
+            {/* Direct Desktop Pay CTA in Card */}
+            <button 
+              className="nivvo-desktop-pay-btn"
+              onClick={handlePay}
+              disabled={isProcessing}
+              style={{
+                width: '100%',
+                backgroundColor: '#24452D',
+                color: '#B7F34A',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '14px',
+                fontSize: '15px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 16px rgba(36, 69, 45, 0.25)',
+                marginTop: '16px',
+                opacity: isProcessing ? 0.8 : 1
+              }}
+            >
+              {isProcessing ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="nivvo-spinner" style={{ width: '16px', height: '16px', border: '2px solid #B7F34A', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.6s linear infinite' }} />
+                  <span>Processing Payment...</span>
+                </div>
+              ) : (
+                <>
+                  <span>Pay ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}</span>
+                  <Lock size={15} />
+                </>
+              )}
+            </button>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#687163', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <ShieldCheck size={13} color="#15803D" />
+              <span>100% Secure SSL Payment · 10-Min Doorstep Guarantee</span>
+            </div>
           </div>
         </div>
 

@@ -230,390 +230,433 @@ export default function NivvoBagView({
             </div>
           </div>
         ) : (
-          <>
-            {/* 1. Free Delivery Milestone Card */}
-            <div style={{
-              backgroundColor: isFreeDelivery ? '#EEF4EC' : '#F7F8F5',
-              border: isFreeDelivery ? '1px solid #C4D9BC' : '1px solid #E7EAE3',
-              borderRadius: '14px',
-              padding: '12px 14px',
-              marginBottom: '14px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#20251F' }}>
-                  {isFreeDelivery ? (
-                    <span style={{ color: '#238636', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <CheckCircle2 size={14} />
-                      FREE Delivery Unlocked
-                    </span>
-                  ) : (
-                    <span>Add ₹{amountNeeded.toLocaleString('en-IN')} more for <strong>FREE Delivery</strong></span>
-                  )}
-                </span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#73796F' }}>
-                  Threshold: ₹{FREE_DELIVERY_THRESHOLD}
-                </span>
-              </div>
-
-              {/* Progress Bar */}
+          <div className="nivvo-bag-layout-grid">
+            {/* Left Column: Cart items & instructions */}
+            <div className="nivvo-bag-left-col">
+              {/* 1. Free Delivery Milestone Card */}
               <div style={{
-                width: '100%',
-                height: '5px',
-                backgroundColor: 'rgba(0,0,0,0.06)',
-                borderRadius: '3px',
-                overflow: 'hidden'
+                backgroundColor: isFreeDelivery ? '#EEF4EC' : '#F7F8F5',
+                border: isFreeDelivery ? '1px solid #C4D9BC' : '1px solid #E7EAE3',
+                borderRadius: '14px',
+                padding: '12px 14px',
+                marginBottom: '14px'
               }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#20251F' }}>
+                    {isFreeDelivery ? (
+                      <span style={{ color: '#238636', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <CheckCircle2 size={14} />
+                        FREE Delivery Unlocked
+                      </span>
+                    ) : (
+                      <span>Add ₹{amountNeeded.toLocaleString('en-IN')} more for <strong>FREE Delivery</strong></span>
+                    )}
+                  </span>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#73796F' }}>
+                    Threshold: ₹{FREE_DELIVERY_THRESHOLD}
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
                 <div style={{
-                  width: `${deliveryProgress}%`,
-                  height: '100%',
-                  backgroundColor: isFreeDelivery ? '#238636' : '#24452D',
-                  transition: 'width 0.3s ease'
-                }} />
+                  width: '100%',
+                  height: '5px',
+                  backgroundColor: 'rgba(0,0,0,0.06)',
+                  borderRadius: '3px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${deliveryProgress}%`,
+                    height: '100%',
+                    backgroundColor: isFreeDelivery ? '#238636' : '#24452D',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
               </div>
-            </div>
 
-            {/* 2. Cart Items */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '14px' }}>
-              {cart.map((item) => (
-                <div 
-                  key={item.id}
-                  style={{
-                    border: '1px solid #E7EAE3',
-                    borderRadius: '14px',
-                    padding: '14px',
-                    backgroundColor: '#FFFFFF'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#20251F' }}>{item.shopName}</span>
-                    <span style={{
-                      backgroundColor: '#F0F3ED',
-                      padding: '3px 7px',
-                      borderRadius: '5px',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      color: '#24452D',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}>
-                      <Clock size={10} />
-                      <span>{item.eta || '12–18 min'}</span>
-                    </span>
-                  </div>
+              {/* 2. Cart Items */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '14px' }}>
+                {cart.map((item) => (
+                  <div 
+                    key={item.id}
+                    style={{
+                      border: '1px solid #E7EAE3',
+                      borderRadius: '14px',
+                      padding: '14px',
+                      backgroundColor: '#FFFFFF'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#20251F' }}>{item.shopName}</span>
+                      <span style={{
+                        backgroundColor: '#F0F3ED',
+                        padding: '3px 7px',
+                        borderRadius: '5px',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        color: '#24452D',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <Clock size={10} />
+                        <span>{item.eta || '12–18 min'}</span>
+                      </span>
+                    </div>
 
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      style={{ width: '64px', height: '64px', borderRadius: '10px', objectFit: 'cover', backgroundColor: '#EAECE6' }}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#20251F', lineHeight: 1.3 }}>{item.name}</div>
-                      <div style={{ fontSize: '11px', color: '#73796F', margin: '2px 0 6px 0' }}>
-                        {item.variant} · Qty {item.quantity}
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-                          <span style={{ fontSize: '15px', fontWeight: 800, color: '#20251F' }}>
-                            ₹{(safeNum(item.price, 1299) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
-                          </span>
-                          {item.originalPrice && (
-                            <span style={{ fontSize: '11px', color: '#73796F', textDecoration: 'line-through' }}>
-                              ₹{(safeNum(item.originalPrice, Math.round(safeNum(item.price, 1299) * 1.25)) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
-                            </span>
-                          )}
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <img 
+                        src={item.image} 
+                        alt={item.name}
+                        style={{ width: '64px', height: '64px', borderRadius: '10px', objectFit: 'cover', backgroundColor: '#EAECE6' }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#20251F', lineHeight: 1.3 }}>{item.name}</div>
+                        <div style={{ fontSize: '11px', color: '#73796F', margin: '2px 0 6px 0' }}>
+                          {item.variant} · Qty {item.quantity}
                         </div>
-                        
-                        {/* Quantity Counter */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700 }}>
-                          <button 
-                            onClick={() => updateCartQuantity(item.id, -1)}
-                            style={{
-                              width: '26px',
-                              height: '26px',
-                              borderRadius: '7px',
-                              border: '1px solid #E7EAE3',
-                              backgroundColor: '#F7F8F5',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer'
-                            }}
-                            aria-label="Decrease quantity"
-                          >
-                            {item.quantity === 1 ? <Trash2 size={12} color="#BD3838" /> : <Minus size={12} />}
-                          </button>
-                          <span style={{ minWidth: '16px', textAlign: 'center' }}>{item.quantity}</span>
-                          <button 
-                            onClick={() => updateCartQuantity(item.id, 1)}
-                            style={{
-                              width: '26px',
-                              height: '26px',
-                              borderRadius: '7px',
-                              border: '1px solid #E7EAE3',
-                              backgroundColor: '#F7F8F5',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer'
-                            }}
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={12} />
-                          </button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ fontSize: '15px', fontWeight: 800, color: '#20251F' }}>
+                              ₹{(safeNum(item.price, 1299) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
+                            </span>
+                            {item.originalPrice && (
+                              <span style={{ fontSize: '11px', color: '#73796F', textDecoration: 'line-through' }}>
+                                ₹{(safeNum(item.originalPrice, Math.round(safeNum(item.price, 1299) * 1.25)) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Quantity Counter */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700 }}>
+                            <button 
+                              onClick={() => updateCartQuantity(item.id, -1)}
+                              style={{
+                                width: '26px',
+                                height: '26px',
+                                borderRadius: '7px',
+                                border: '1px solid #E7EAE3',
+                                backgroundColor: '#F7F8F5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyCenter: 'center',
+                                cursor: 'pointer'
+                              }}
+                              aria-label="Decrease quantity"
+                            >
+                              {item.quantity === 1 ? <Trash2 size={12} color="#BD3838" /> : <Minus size={12} />}
+                            </button>
+                            <span style={{ minWidth: '16px', textAlign: 'center' }}>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateCartQuantity(item.id, 1)}
+                              style={{
+                                width: '26px',
+                                height: '26px',
+                                borderRadius: '7px',
+                                border: '1px solid #E7EAE3',
+                                backgroundColor: '#F7F8F5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer'
+                              }}
+                              aria-label="Increase quantity"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 3. Doorstep Trial Opt-In Switch */}
-            <div style={{
-              backgroundColor: '#EEF4EC',
-              border: '1px solid #C4D9BC',
-              borderRadius: '14px',
-              padding: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '14px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '9px',
-                  backgroundColor: '#24452D',
-                  color: '#B7F34A',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Sparkles size={16} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#24452D' }}>
-                    10-Minute Doorstep Trial (Free)
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#5B6858', lineHeight: 1.4, marginTop: '2px' }}>
-                    Partner waits 10 minutes at your door. Keep what fits, return the rest on the spot.
-                  </div>
-                </div>
+                ))}
               </div>
 
-              <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '22px', flexShrink: 0, cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  checked={doorstepTrialEnabled}
-                  onChange={(e) => {
-                    playTrialSound();
-                    setDoorstepTrialEnabled(e.target.checked);
-                    showToast(e.target.checked ? 'Doorstep Trial enabled' : 'Doorstep Trial disabled');
-                  }}
-                  style={{ opacity: 0, width: 0, height: 0 }}
-                />
-                <span style={{
-                  position: 'absolute',
-                  cursor: 'pointer',
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: doorstepTrialEnabled ? '#24452D' : '#D1D5DB',
-                  borderRadius: '22px',
-                  transition: '0.2s'
-                }}>
+              {/* 3. Doorstep Trial Opt-In Switch */}
+              <div style={{
+                backgroundColor: '#EEF4EC',
+                border: '1px solid #C4D9BC',
+                borderRadius: '14px',
+                padding: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '14px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '9px',
+                    backgroundColor: '#24452D',
+                    color: '#B7F34A',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={16} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#24452D' }}>
+                      10-Minute Doorstep Trial (Free)
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#5B6858', lineHeight: 1.4, marginTop: '2px' }}>
+                      Partner waits 10 minutes at your door. Keep what fits, return the rest on the spot.
+                    </div>
+                  </div>
+                </div>
+
+                <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '22px', flexShrink: 0, cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={doorstepTrialEnabled}
+                    onChange={(e) => {
+                      playTrialSound();
+                      setDoorstepTrialEnabled(e.target.checked);
+                      showToast(e.target.checked ? 'Doorstep Trial enabled' : 'Doorstep Trial disabled');
+                    }}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
                   <span style={{
                     position: 'absolute',
-                    content: '',
-                    height: '16px',
-                    width: '16px',
-                    left: doorstepTrialEnabled ? '21px' : '3px',
-                    bottom: '3px',
-                    backgroundColor: doorstepTrialEnabled ? '#B7F34A' : '#FFFFFF',
-                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: doorstepTrialEnabled ? '#24452D' : '#D1D5DB',
+                    borderRadius: '22px',
                     transition: '0.2s'
-                  }} />
-                </span>
-              </label>
-            </div>
-
-            {/* 4. Delivery Instructions */}
-            <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: '#20251F', marginBottom: '8px' }}>
-                Delivery Instructions
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                {deliveryInstructions.map((inst) => {
-                  const InstIcon = inst.icon;
-                  const isSelected = selectedInstruction === inst.id;
-                  return (
-                    <button
-                      key={inst.id}
-                      onClick={() => {
-                        playClickSound();
-                        setSelectedInstruction(inst.id);
-                        showToast(`Instruction saved: ${inst.label}`);
-                      }}
-                      style={{
-                        border: isSelected ? '1.5px solid #24452D' : '1px solid #E7EAE3',
-                        backgroundColor: isSelected ? '#F0F3ED' : '#FFFFFF',
-                        color: isSelected ? '#24452D' : '#20251F',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: isSelected ? 800 : 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <InstIcon size={13} color={isSelected ? '#24452D' : '#73796F'} />
-                      <span>{inst.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 5. Coupon Voucher Row */}
-            <div 
-              style={{
-                border: '1px dashed #D4DEC8',
-                borderRadius: '12px',
-                padding: '11px 14px',
-                backgroundColor: appliedCoupon ? '#EEF4EC' : '#FFFFFF',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '14px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Tag size={15} color={appliedCoupon ? '#24452D' : '#73796F'} />
-                {appliedCoupon ? (
-                  <div>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#24452D' }}>
-                      {appliedCoupon.code} applied
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#687163', marginLeft: '6px' }}>
-                      (-₹{discountAmount})
-                    </span>
-                  </div>
-                ) : (
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#20251F' }}>
-                    Have a coupon code?
+                  }}>
+                    <span style={{
+                      position: 'absolute',
+                      content: '',
+                      height: '16px',
+                      width: '16px',
+                      left: doorstepTrialEnabled ? '21px' : '3px',
+                      bottom: '3px',
+                      backgroundColor: doorstepTrialEnabled ? '#B7F34A' : '#FFFFFF',
+                      borderRadius: '50%',
+                      transition: '0.2s'
+                    }} />
                   </span>
+                </label>
+              </div>
+
+              {/* 4. Delivery Instructions */}
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#20251F', marginBottom: '8px' }}>
+                  Delivery Instructions
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                  {deliveryInstructions.map((inst) => {
+                    const InstIcon = inst.icon;
+                    const isSelected = selectedInstruction === inst.id;
+                    return (
+                      <button
+                        key={inst.id}
+                        onClick={() => {
+                          playClickSound();
+                          setSelectedInstruction(inst.id);
+                          showToast(`Instruction saved: ${inst.label}`);
+                        }}
+                        style={{
+                          border: isSelected ? '1.5px solid #24452D' : '1px solid #E7EAE3',
+                          backgroundColor: isSelected ? '#F0F3ED' : '#FFFFFF',
+                          color: isSelected ? '#24452D' : '#20251F',
+                          padding: '8px 12px',
+                          borderRadius: '10px',
+                          fontSize: '11px',
+                          fontWeight: isSelected ? 800 : 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <InstIcon size={13} color={isSelected ? '#24452D' : '#73796F'} />
+                        <span>{inst.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Checkout Summary & Promos */}
+            <div className="nivvo-bag-right-col">
+              {/* 5. Coupon Voucher Row */}
+              <div 
+                style={{
+                  border: '1px dashed #D4DEC8',
+                  borderRadius: '12px',
+                  padding: '11px 14px',
+                  backgroundColor: appliedCoupon ? '#EEF4EC' : '#FFFFFF',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '14px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Tag size={15} color={appliedCoupon ? '#24452D' : '#73796F'} />
+                  {appliedCoupon ? (
+                    <div>
+                      <span style={{ fontSize: '12px', fontWeight: 800, color: '#24452D' }}>
+                        {appliedCoupon.code} applied
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#687163', marginLeft: '6px' }}>
+                        (-₹{discountAmount})
+                      </span>
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#20251F' }}>
+                      Have a coupon code?
+                    </span>
+                  )}
+                </div>
+
+                {appliedCoupon ? (
+                  <button
+                    onClick={removeCoupon}
+                    style={{ background: 'none', border: 'none', color: '#BD3838', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setActiveModal('coupon')}
+                    style={{ background: 'none', border: 'none', color: '#24452D', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    Apply Code +
+                  </button>
                 )}
               </div>
 
-              {appliedCoupon ? (
-                <button
-                  onClick={removeCoupon}
-                  style={{ background: 'none', border: 'none', color: '#BD3838', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
-                >
-                  Remove
-                </button>
-              ) : (
-                <button
-                  onClick={() => setActiveModal('coupon')}
-                  style={{ background: 'none', border: 'none', color: '#24452D', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}
-                >
-                  Apply Code +
-                </button>
-              )}
-            </div>
+              {/* 6. Price Details Card */}
+              <div style={{
+                border: '1px solid #E7EAE3',
+                borderRadius: '14px',
+                padding: '16px 18px',
+                backgroundColor: '#FFFFFF',
+                marginBottom: '14px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+              }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#20251F', margin: '0 0 14px 0' }}>
+                  Order Summary
+                </h3>
 
-            {/* 6. Price Details Card */}
-            <div style={{
-              border: '1px solid #E7EAE3',
-              borderRadius: '14px',
-              padding: '14px 16px',
-              backgroundColor: '#FFFFFF',
-              marginBottom: '14px'
-            }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#20251F', margin: '0 0 12px 0' }}>
-                Price Details
-              </h3>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
-                <span>Item Total ({totalCartCount} item{totalCartCount > 1 ? 's' : ''})</span>
-                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartSubtotal, 0).toLocaleString('en-IN')}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
-                <span>Delivery ({uniqueShops.length} pickup{uniqueShops.length > 1 ? 's' : ''})</span>
-                <span style={{ color: '#20251F', fontWeight: 600 }}>
-                  {isFreeDelivery ? <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span> : `₹${safeNum(cartDeliveryFee, 0)}`}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#73796F' }}>
-                <span>Platform Fee</span>
-                <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartPlatformFee, 9)}</span>
-              </div>
-
-              {discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px', color: '#238636' }}>
-                  <span>Coupon Discount ({appliedCoupon?.code})</span>
-                  <span style={{ fontWeight: 800 }}>-₹{safeNum(discountAmount, 0)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px', color: '#73796F' }}>
+                  <span>Item Total ({totalCartCount} item{totalCartCount > 1 ? 's' : ''})</span>
+                  <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartSubtotal, 0).toLocaleString('en-IN')}</span>
                 </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '12px', color: '#73796F' }}>
-                <span>10-Min Doorstep Trial</span>
-                <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span>
-              </div>
-
-              <div style={{ borderTop: '1px solid #E7EAE3', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#20251F', display: 'block' }}>Total Payable</span>
-                  <span style={{ fontSize: '11px', color: '#73796F' }}>Inclusive of all taxes</span>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px', color: '#73796F' }}>
+                  <span>Delivery ({uniqueShops.length} pickup{uniqueShops.length > 1 ? 's' : ''})</span>
+                  <span style={{ color: '#20251F', fontWeight: 600 }}>
+                    {isFreeDelivery ? <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span> : `₹${safeNum(cartDeliveryFee, 0)}`}
+                  </span>
                 </div>
-                <span style={{ fontSize: '18px', fontWeight: 900, color: '#20251F' }}>
-                  ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}
-                </span>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px', color: '#73796F' }}>
+                  <span>Platform Fee</span>
+                  <span style={{ color: '#20251F', fontWeight: 600 }}>₹{safeNum(cartPlatformFee, 9)}</span>
+                </div>
+
+                {discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px', color: '#238636' }}>
+                    <span>Coupon Discount ({appliedCoupon?.code})</span>
+                    <span style={{ fontWeight: 800 }}>-₹{safeNum(discountAmount, 0)}</span>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '14px', color: '#73796F' }}>
+                  <span>10-Min Doorstep Trial</span>
+                  <span style={{ color: '#238636', fontWeight: 800 }}>FREE</span>
+                </div>
+
+                <div style={{ borderTop: '1px solid #E7EAE3', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div>
+                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#20251F', display: 'block' }}>Total Payable</span>
+                    <span style={{ fontSize: '11px', color: '#73796F' }}>Inclusive of all taxes</span>
+                  </div>
+                  <span style={{ fontSize: '20px', fontWeight: 900, color: '#24452D' }}>
+                    ₹{safeNum(cartTotal, 0).toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                {/* Direct Desktop Checkout Button inside Sidebar */}
+                <button 
+                  className="nivvo-desktop-bag-checkout-btn"
+                  onClick={() => {
+                    playClickSound();
+                    if (!currentUser) {
+                      setAuthModalRole('customer');
+                      setAuthModalOpen(true);
+                      showToast('Please sign in to proceed to checkout');
+                      return;
+                    }
+                    if (onProceedToCheckout) onProceedToCheckout();
+                    else navigateTo('checkout');
+                  }}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#24452D',
+                    color: '#B7F34A',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '14px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 16px rgba(36, 69, 45, 0.25)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight size={17} />
+                </button>
+              </div>
+
+              {/* Quick Link to Add More Items */}
+              <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+                <button
+                  onClick={() => { playClickSound(); navigateTo('categories'); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#24452D',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span>+ Add more items from Indiranagar</span>
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+
+              {/* Trust Reassurance Note */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '6px', 
+                fontSize: '11px', 
+                color: '#73796F',
+                textAlign: 'center' 
+              }}>
+                <ShieldCheck size={14} color="#24452D" />
+                <span>Verified local shelf stock · Official tax invoices provided</span>
               </div>
             </div>
-
-            {/* Quick Link to Add More Items */}
-            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-              <button
-                onClick={() => { playClickSound(); navigateTo('categories'); }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#24452D',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <span>+ Add more items from Indiranagar</span>
-                <ChevronRight size={13} />
-              </button>
-            </div>
-
-            {/* Trust Reassurance Note */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '6px', 
-              fontSize: '11px', 
-              color: '#73796F',
-              textAlign: 'center' 
-            }}>
-              <ShieldCheck size={14} color="#24452D" />
-              <span>Verified local shelf stock · Official tax invoices provided</span>
-            </div>
-          </>
+          </div>
         )}
       </div>
 

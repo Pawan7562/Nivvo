@@ -1760,19 +1760,26 @@ body {
 .mode-web-portal .nivvo-profile-screen,
 .mode-web-portal .nivvo-grocery-screen,
 .mode-web-portal .nivvo-food-screen {
-  max-width: 1240px !important;
+  max-width: 1360px !important;
   margin: 0 auto !important;
-  padding: 24px 24px 80px 24px !important;
+  padding: 24px 32px 80px 32px !important;
   box-sizing: border-box !important;
   background-color: transparent !important;
 }
 
 .mode-web-portal .nivvo-product-detail-screen {
-  max-width: 1100px !important;
+  max-width: 1240px !important;
   margin: 0 auto !important;
-  padding: 24px 24px 80px 24px !important;
+  padding: 24px 32px 80px 32px !important;
   box-sizing: border-box !important;
   background-color: transparent !important;
+}
+
+.mode-web-portal .nivvo-tracking-screen {
+  max-width: 1360px !important;
+  margin: 0 auto !important;
+  padding: 24px 32px 80px 32px !important;
+  box-sizing: border-box !important;
 }
 
 .mode-web-portal .nivvo-nav-header {
@@ -1784,10 +1791,40 @@ body {
   background-color: #FFFFFF !important;
 }
 
+/* Category & Product Cards Desktop Multi-Column Grid */
+.mode-web-portal .nivvo-product-card-grid,
 .mode-web-portal .nivvo-product-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
   gap: 20px !important;
+}
+
+/* Shops Directory Desktop Multi-Column Grid */
+.mode-web-portal .nivvo-shops-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+  gap: 24px !important;
+}
+
+/* Bag 2-Column Desktop Grid */
+@media (min-width: 880px) {
+  .mode-web-portal .nivvo-bag-layout-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 380px !important;
+    gap: 32px !important;
+    align-items: start !important;
+  }
+
+  .mode-web-portal .nivvo-checkout-layout-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 380px !important;
+    gap: 32px !important;
+    align-items: start !important;
+  }
+
+  .mode-web-portal .nivvo-sticky-footer-bar {
+    display: none !important;
+  }
 }
 
 /* Seller and Admin Desktop Optimization: Information-Dense, Structured */
@@ -1795,7 +1832,7 @@ body {
 .mode-web-portal .nivvo-admin-dash,
 .mode-web-portal .nivvo-admin-screen,
 .mode-web-portal .nivvo-seller-screen {
-  max-width: 1360px !important;
+  max-width: 1440px !important;
   margin: 0 auto !important;
   padding: 24px 32px 80px 32px !important;
 }

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   BackHandler,
   Platform,
+  PermissionsAndroid,
   StatusBar as RNStatusBar
 } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,6 +33,23 @@ function MainApp() {
     insets.top,
     Platform.OS === 'android' ? (RNStatusBar.currentHeight || 28) : 0
   );
+
+  // Request Android Runtime Location Permissions
+  useEffect(() => {
+    async function requestLocationPermissions() {
+      if (Platform.OS === 'android') {
+        try {
+          await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+          ]);
+        } catch (err) {
+          console.warn('[Nivvo] Android location permission request error:', err);
+        }
+      }
+    }
+    requestLocationPermissions();
+  }, []);
 
   // Auto-dismiss loading overlay after 2.5s maximum so user is never stuck
   useEffect(() => {
@@ -96,9 +114,13 @@ function MainApp() {
             allowUniversalAccessFromFileURLs={true}
             javaScriptEnabled={true}
             domStorageEnabled={true}
+            geolocationEnabled={true}
             mixedContentMode="always"
             cacheEnabled={true}
             injectedJavaScriptBeforeContentLoaded="window.__IS_MOBILE_APP__ = true; true;"
+            onGeolocationPermissionsShowPrompt={(request) => {
+              request.prompt(request.origin, true, false);
+            }}
             allowsBackForwardNavigationGestures={true}
             onNavigationStateChange={(navState) => setCanGoBack(navState.canGoBack)}
             onLoadStart={() => {}}

@@ -12,6 +12,7 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
   const { 
     riderProfile, 
     toggleRiderDuty, 
+    refreshRiderLocation,
     deliveryOffers, 
     acceptRiderJob, 
     declineRiderJob, 
@@ -220,12 +221,86 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
         {/* ─── Incoming Orders Section (When Online) ─── */}
         {riderProfile.is_online ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Live GPS & Operating Zone Card */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '14px',
+              padding: '12px 14px',
+              border: '1px solid #E2E4DC',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '10px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#E8F5E9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#15803D',
+                  flexShrink: 0
+                }}>
+                  <MapPin size={17} strokeWidth={2.4} />
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#14281C', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {riderProfile.current_area || 'Indiranagar Hub'}
+                    </span>
+                    <span style={{
+                      backgroundColor: '#E8F5E9',
+                      color: '#15803D',
+                      fontSize: '9px',
+                      fontWeight: 800,
+                      padding: '1px 5px',
+                      borderRadius: '4px',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase'
+                    }}>
+                      GPS Live
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6B7265', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
+                    {riderProfile.current_address || '100ft Road, Indiranagar, Bengaluru'}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => refreshRiderLocation(true)}
+                disabled={riderProfile.is_locating}
+                style={{
+                  backgroundColor: '#F4F5EE',
+                  border: '1px solid #D5D8CF',
+                  color: '#1F4230',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+                title="Detect & refresh live GPS coordinates"
+              >
+                <Radio size={13} color="#15803D" />
+                <span>{riderProfile.is_locating ? 'Locating...' : 'Sync GPS'}</span>
+              </button>
+            </div>
+
             {/* Header: Status & Auto-refresh */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#15803D' }} />
                 <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#14281C', margin: 0 }}>
-                  Available Orders ({deliveryOffers.length})
+                  Nearby Delivery Orders ({deliveryOffers.length})
                 </h3>
               </div>
               {deliveryOffers.length > 0 && (
@@ -275,10 +350,10 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
 
                 <div>
                   <div style={{ fontSize: '15px', fontWeight: 800, color: '#14281C' }}>
-                    Looking for nearby orders
+                    Scanning nearby orders around you
                   </div>
                   <div style={{ fontSize: '12px', color: '#6B7265', marginTop: '2px' }}>
-                    Indiranagar Hub #14 · Online
+                    {riderProfile.current_area || 'Indiranagar'} Hub · Real-time GPS Radar Active
                   </div>
                 </div>
 
@@ -306,7 +381,7 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
                   <div
                     key={offer.id}
                     style={{
-                      border: '1px solid #E5E7DE',
+                      border: offer.is_assigned_to_me ? '2px solid #15803D' : '1px solid #E5E7DE',
                       borderRadius: '16px',
                       padding: '16px',
                       backgroundColor: '#FFFFFF',
@@ -316,6 +391,25 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
                       gap: '12px'
                     }}
                   >
+                    {/* Priority Assignment Banner */}
+                    {offer.is_assigned_to_me && (
+                      <div style={{
+                        backgroundColor: '#E8F5E9',
+                        color: '#15803D',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        width: 'fit-content'
+                      }}>
+                        <Zap size={13} color="#15803D" />
+                        <span>Directly Dispatched to Your Proximity</span>
+                      </div>
+                    )}
+
                     {/* Top Row: Payout & Fast Stats */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
@@ -378,7 +472,7 @@ export default function NivvoRiderDutyView({ onBack, onAcceptJob }) {
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div style={{ fontSize: '13px', fontWeight: 700, color: '#14281C', display: 'flex', justifyContent: 'space-between' }}>
                             <span>{offer.shops?.[0]?.name || 'Store Pickup'}</span>
-                            <span style={{ fontSize: '11px', color: '#6B7265', fontWeight: 500 }}>{offer.shops?.[0]?.distance || '0.4 km'}</span>
+                            <span style={{ fontSize: '11px', color: '#15803D', fontWeight: 700 }}>{offer.rider_to_shop_text || offer.shops?.[0]?.distance || '0.6 km away'}</span>
                           </div>
                           <div style={{ fontSize: '11px', color: '#6B7265', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {offer.shops?.[0]?.item || '1 item ready'}

@@ -3,21 +3,41 @@ import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   X, Check, MapPin, Tag, Phone, PhoneOff, Mic, MicOff, Volume2, 
   Send, Sparkles, AlertCircle, Plus, Copy, ShieldCheck, ArrowRight,
-  UploadCloud, Image as ImageIcon, Trash2, Star, CheckCircle2
+  UploadCloud, Image as ImageIcon, Trash2, Star, CheckCircle2,
+  Navigation, Loader2
 } from 'lucide-react';
 import { playClickSound, playTrialSound, playAddSound } from '../../utils/audioEffects';
+import { METRO_DELIVERY_HUBS } from '../../services/locationService';
 import RiderThreeDotMenuModal from './RiderThreeDotMenuModal';
 import CustomerThreeDotMenuModal from './CustomerThreeDotMenuModal';
 
 
 // ============================================================================
-// 1. LOCATION PICKER MODAL
+// 1. LOCATION PICKER MODAL WITH LIVE GPS DETECTION & HYPERLOCAL HUBS
 // ============================================================================
 export function LocationPickerModal() {
-  const { activeModal, setActiveModal, savedAddresses, selectedAddress, setSelectedAddress, showToast } = useNivvo();
+  const { 
+    activeModal, 
+    setActiveModal, 
+    savedAddresses, 
+    selectedAddress, 
+    setSelectedAddress, 
+    showToast,
+    detectUserLocation,
+    isDetectingLocation,
+    locationPermissionStatus
+  } = useNivvo();
   const [customAddress, setCustomAddress] = useState('');
 
   if (activeModal !== 'location') return null;
+
+  const handleUseGps = async () => {
+    playClickSound();
+    const res = await detectUserLocation();
+    if (res && res.success) {
+      setActiveModal(null);
+    }
+  };
 
   const handleSelect = (addr) => {
     playClickSound();
@@ -29,16 +49,23 @@ export function LocationPickerModal() {
   const handleCustomAdd = (e) => {
     e.preventDefault();
     if (!customAddress.trim()) return;
+    const text = customAddress.trim();
+    const parts = text.split(',');
+    const area = parts[0].trim();
+    const street = parts.length > 1 ? parts.slice(1).join(',').trim() : text;
+
     const newAddr = {
       id: `addr-${Date.now()}`,
-      tag: 'Other',
-      title: customAddress.trim().split(',')[0] || 'Custom Location',
-      area: customAddress.trim().split(',')[1] || 'Bengaluru',
-      street: customAddress.trim(),
+      tag: 'Custom Pin',
+      title: area || 'Delivery Point',
+      area: area || 'Bengaluru',
+      street: street,
       city: 'Bengaluru',
       phone: '+91 98765 43210',
       recipient: 'Aarav Shah',
       note: 'Deliver at door',
+      latitude: 12.9716,
+      longitude: 77.6412,
       etaModifier: 5
     };
     setSelectedAddress(newAddr);
@@ -48,11 +75,11 @@ export function LocationPickerModal() {
 
   return (
     <div className="nivvo-modal-overlay" onClick={() => setActiveModal(null)}>
-      <div className="nivvo-modal-sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="nivvo-modal-sheet" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="nivvo-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <MapPin size={20} color="#24452D" />
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#20251F' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#20251F' }}>
               Choose delivery location
             </h3>
           </div>
@@ -61,11 +88,110 @@ export function LocationPickerModal() {
           </button>
         </div>
 
-        <p style={{ fontSize: '13px', color: '#73796F', margin: '4px 0 16px 0' }}>
-          Select a saved neighbourhood to update local shop listings and precise delivery times.
+        <p style={{ fontSize: '13px', color: '#73796F', margin: '4px 0 14px 0' }}>
+          Select a verified hub or use live GPS to discover independent shops and 10-minute arrival times.
         </p>
 
-        {/* Saved Addresses List */}
+        {/* 1. Primary Live GPS Detection Button */}
+        <button
+          onClick={handleUseGps}
+          disabled={isDetectingLocation}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '13px 16px',
+            borderRadius: '14px',
+            border: '1.5px solid #24452D',
+            background: '#F0FDF4',
+            color: '#15803D',
+            fontWeight: 800,
+            fontSize: '13.5px',
+            marginBottom: '16px',
+            cursor: isDetectingLocation ? 'wait' : 'pointer',
+            boxShadow: '0 2px 8px rgba(36, 69, 45, 0.08)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {isDetectingLocation ? (
+              <Loader2 size={18} className="nivvo-spin" color="#15803D" />
+            ) : (
+              <Navigation size={18} color="#15803D" style={{ fill: '#DCFCE7' }} />
+            )}
+            <span>{isDetectingLocation ? 'Detecting Precise GPS Location...' : 'Use Current Live GPS Location'}</span>
+          </div>
+          <span style={{
+            fontSize: '10.5px',
+            background: '#24452D',
+            color: '#B7F34A',
+            padding: '3px 8px',
+            borderRadius: '6px',
+            fontWeight: 800,
+            letterSpacing: '0.04em'
+          }}>
+            10 MINS
+          </span>
+        </button>
+
+        {locationPermissionStatus === 'denied' && (
+          <div style={{
+            padding: '10px 12px',
+            backgroundColor: '#FEF2F2',
+            border: '1px solid #FCA5A5',
+            borderRadius: '10px',
+            color: '#991B1B',
+            fontSize: '12px',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <AlertCircle size={16} />
+            <span>Browser location permission blocked. Select a hub below or enable GPS in site settings.</span>
+          </div>
+        )}
+
+        {/* 2. Popular Verified Delivery Hubs */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Popular Neighbourhood Hubs
+          </div>
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+            {METRO_DELIVERY_HUBS.map(hub => {
+              const isSelected = selectedAddress.area === hub.area || selectedAddress.title?.includes(hub.title);
+              return (
+                <button
+                  key={hub.id}
+                  onClick={() => handleSelect(hub)}
+                  style={{
+                    flexShrink: 0,
+                    padding: '8px 12px',
+                    borderRadius: '999px',
+                    border: isSelected ? '1.5px solid #24452D' : '1px solid #E5E7EB',
+                    backgroundColor: isSelected ? '#24452D' : '#F9FAFB',
+                    color: isSelected ? '#FFFFFF' : '#374151',
+                    fontSize: '12px',
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <MapPin size={11} color={isSelected ? '#B7F34A' : '#6B7280'} />
+                  <span>{hub.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. Saved Addresses List */}
+        <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+          Saved Delivery Addresses
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
           {savedAddresses.map((addr) => {
             const isSelected = selectedAddress.id === addr.id;
@@ -76,7 +202,7 @@ export function LocationPickerModal() {
                 style={{
                   border: isSelected ? '2px solid #20251F' : '1px solid #E7EAE3',
                   borderRadius: '14px',
-                  padding: '14px 16px',
+                  padding: '13px 15px',
                   backgroundColor: isSelected ? '#F7F8F5' : '#FFFFFF',
                   cursor: 'pointer',
                   display: 'flex',
@@ -115,15 +241,15 @@ export function LocationPickerModal() {
           })}
         </div>
 
-        {/* Enter new address */}
+        {/* 4. Enter new address */}
         <form onSubmit={handleCustomAdd} style={{ marginTop: '8px' }}>
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#20251F', marginBottom: '6px' }}>
-            Add another location
+          <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#20251F', marginBottom: '6px' }}>
+            Add another address or landmark
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <input
               type="text"
-              placeholder="e.g. 100 Feet Road, Indiranagar, Bengaluru"
+              placeholder="e.g. 100ft Road, Indiranagar, Bengaluru"
               value={customAddress}
               onChange={(e) => setCustomAddress(e.target.value)}
               style={{
@@ -1397,17 +1523,35 @@ export function ShopWithdrawModal() {
 // 6C. STORE SETTINGS & BUSINESS HOURS MODAL
 // ============================================================================
 export function ShopSettingsModal() {
-  const { activeModal, setActiveModal, shopProfile, updateShopProfileData } = useNivvo();
+  const { activeModal, setActiveModal, shopProfile, updateShopProfileData, detectSellerShopLocation } = useNivvo();
   const [shopName, setShopName] = useState(shopProfile.shop_name || 'Sole Street Originals');
   const [ownerName, setOwnerName] = useState(shopProfile.owner_name || 'Rohan Sharma');
   const [operatingHours, setOperatingHours] = useState(shopProfile.operating_hours || '08:00 AM - 11:30 PM');
-  const [address, setAddress] = useState(shopProfile.address || 'Plot 42, 100ft Road, Indiranagar, Bengaluru');
+  const [address, setAddress] = useState(shopProfile.address || '');
+  const [latitude, setLatitude] = useState(shopProfile.latitude || 12.9716);
+  const [longitude, setLongitude] = useState(shopProfile.longitude || 77.6412);
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
   const [gstin, setGstin] = useState(shopProfile.gstin || '29AABCU9603R1ZM');
   const [pan, setPan] = useState(shopProfile.pan_number || 'AABCU9603R');
   const [bankAccount, setBankAccount] = useState(shopProfile.bank_account || 'ICICI-992104812');
   const [upiId, setUpiId] = useState(shopProfile.upi_id || 'solestreet@icici');
 
   if (activeModal !== 'shopSettings') return null;
+
+  const handleDetectGps = async () => {
+    playClickSound();
+    setIsDetectingGps(true);
+    try {
+      const res = await detectSellerShopLocation();
+      if (res && res.success && res.location) {
+        setAddress(res.location.address || address);
+        if (res.location.latitude) setLatitude(res.location.latitude);
+        if (res.location.longitude) setLongitude(res.location.longitude);
+      }
+    } finally {
+      setIsDetectingGps(false);
+    }
+  };
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -1416,6 +1560,8 @@ export function ShopSettingsModal() {
       owner_name: ownerName,
       operating_hours: operatingHours,
       address,
+      latitude,
+      longitude,
       gstin,
       pan_number: pan,
       bank_account: bankAccount,
@@ -1480,15 +1626,55 @@ export function ShopSettingsModal() {
           </div>
 
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#20251F', display: 'block', marginBottom: '4px' }}>
-              Store / Dark Store Hub Address
-            </label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #E7EAE3', borderRadius: '10px', padding: '10px 12px', fontSize: '13px' }}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#20251F', margin: 0 }}>
+                Store / Dark Store Hub Address *
+              </label>
+              <button
+                type="button"
+                onClick={handleDetectGps}
+                disabled={isDetectingGps}
+                style={{
+                  background: '#EBF4EC',
+                  border: '1px solid #C5D7C0',
+                  color: '#24452D',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: isDetectingGps ? 'wait' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  borderRadius: '6px'
+                }}
+              >
+                {isDetectingGps ? (
+                  <>
+                    <Loader2 size={11} className="nivvo-spin" />
+                    <span>Detecting GPS...</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation size={11} />
+                    <span>📍 Auto-Detect Store GPS</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                value={address}
+                placeholder="e.g. 100ft Road, Indiranagar, Bengaluru"
+                onChange={(e) => setAddress(e.target.value)}
+                style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #E7EAE3', borderRadius: '10px', padding: '10px 12px', fontSize: '13px' }}
+              />
+            </div>
+            {latitude && longitude && (
+              <span style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+                ✓ GPS Coordinates: {Number(latitude).toFixed(4)}°N, {Number(longitude).toFixed(4)}°E (Hyperlocal Hub Active)
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>

@@ -1,13 +1,26 @@
 const getApiBase = () => {
+  if (typeof window !== 'undefined') {
+    // Check if user or environment specified a custom API host in localStorage
+    try {
+      const customHost = window.localStorage.getItem('NIVVO_API_BASE');
+      if (customHost) return customHost.replace(/\/$/, '');
+    } catch (e) {}
+
+    // Check if global window variable was injected (e.g., in APK or test harnesses)
+    if (window.__NIVVO_API_BASE__) {
+      return window.__NIVVO_API_BASE__.replace(/\/$/, '');
+    }
+  }
+
   if (import.meta.env && import.meta.env.VITE_API_BASE) {
     return import.meta.env.VITE_API_BASE.replace(/\/$/, '');
   }
-  // If in browser and on standard web host (e.g. Vercel), use relative /api path
-  // which will be handled by Vite proxy in dev and vercel.json rewrites in production
+
+  // If in browser on normal web host (e.g. Vercel, Vite dev), use relative /api path
   if (typeof window !== 'undefined') {
-    // If running directly on a file:// protocol or standalone APK WebView, allow custom config
     if (window.location.protocol === 'file:') {
-      return 'https://nivvo-backend.onrender.com/api';
+      // In offline/standalone APK bundle
+      return 'http://127.0.0.1:5001/api';
     }
     return '/api';
   }
@@ -148,6 +161,36 @@ export async function exchangeOrderApi(orderId, newSize, reason) {
   }
 }
 
+export async function fetchOrderTrackingApi(orderId) {
+  try {
+    const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/track`);
+    if (res.ok) {
+      return await res.json();
+    }
+    return null;
+  } catch (err) {
+    console.warn('Failed to fetch live order tracking from server:', err);
+    return null;
+  }
+}
+
+export async function advanceOrderStepApi(orderId, stepIndex) {
+  try {
+    const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/step`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step_index: stepIndex })
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    return null;
+  } catch (err) {
+    console.warn('Failed to update order tracking milestone:', err);
+    return null;
+  }
+}
+
 // ==================== SAVED ADDRESSES ====================
 export async function fetchAddressesApi(phone = '+91 9876543210') {
   try {
@@ -260,12 +303,19 @@ export async function registerDeliveryPartnerApi(partnerData) {
   }
 }
 
-export async function toggleDeliveryPartnerOnlineApi(phone, is_online) {
+export async function toggleDeliveryPartnerOnlineApi(phone, is_online, locationData = {}) {
   try {
     const res = await fetch(`${API_BASE}/partners/delivery/toggle-online`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, is_online })
+      body: JSON.stringify({
+        phone,
+        is_online,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        current_address: locationData.current_address || locationData.address,
+        accuracy: locationData.accuracy
+      })
     });
     return await res.json();
   } catch (err) {
@@ -274,13 +324,39 @@ export async function toggleDeliveryPartnerOnlineApi(phone, is_online) {
   }
 }
 
-export async function fetchDeliveryOrdersApi() {
+export async function updateDeliveryPartnerLocationApi({ phone, latitude, longitude, address, accuracy }) {
   try {
-    const res = await fetch(`${API_BASE}/partners/delivery/orders`);
+    const res = await fetch(`${API_BASE}/partners/delivery/location`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone,
+        latitude,
+        longitude,
+        current_address: address,
+        accuracy
+      })
+    });
+    return await res.json();
+  } catch (err) {
+    console.warn('Failed to update rider location:', err);
+    return null;
+  }
+}
+
+export async function fetchDeliveryOrdersApi(params = {}) {
+  try {
+    const query = new URLSearchParams();
+    if (params.rider_phone) query.append('rider_phone', params.rider_phone);
+    if (params.lat !== undefined && params.lat !== null) query.append('lat', params.lat);
+    if (params.lng !== undefined && params.lng !== null) query.append('lng', params.lng);
+    const queryString = query.toString();
+    const url = `${API_BASE}/partners/delivery/orders${queryString ? `?${queryString}` : ''}`;
+    const res = await fetch(url);
     return await res.json();
   } catch (err) {
     console.warn('Failed to fetch delivery orders:', err);
-    return { orders: [] };
+    return { orders: [], offers: [] };
   }
 }
 
@@ -403,12 +479,64 @@ export async function dispatchShopOrderApi(orderId) {
   }
 }
 
+// ==================== SHOPS & LOCATION APIS ====================
+
+export async function fetchShopsApi(options = {}) {
+  const { lat, lng, radius, category, search, sort } = options;
+  try {
+    const params = new URLSearchParams();
+    if (lat !== undefined && lat !== null) params.set('lat', lat);
+    if (lng !== undefined && lng !== null) params.set('lng', lng);
+    if (radius) params.set('radius', radius);
+    if (category && category !== 'All shops') params.set('category', category);
+    if (search) params.set('search', search);
+    if (sort) params.set('sort', sort);
+
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/shops${queryStr}`);
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+    return { success: false, shops: [] };
+  } catch (err) {
+    console.warn('Failed to fetch shops from server:', err);
+    return { success: false, shops: [] };
+  }
+}
+
+export async function fetchShopDetailApi(shopId, lat, lng) {
+  try {
+    let url = `${API_BASE}/shops/${encodeURIComponent(shopId)}`;
+    if (lat && lng) url += `?lat=${lat}&lng=${lng}`;
+    const res = await fetch(url);
+    if (res.ok) return await res.json();
+    return null;
+  } catch (err) {
+    console.warn(`Failed to fetch shop ${shopId}:`, err);
+    return null;
+  }
+}
+
+export async function reverseGeocodeLocationApi(lat, lng) {
+  try {
+    const res = await fetch(`${API_BASE}/location/reverse?lat=${lat}&lng=${lng}`);
+    if (res.ok) return await res.json();
+    return null;
+  } catch (err) {
+    console.warn('Failed to reverse geocode location:', err);
+    return null;
+  }
+}
+
 // ==================== PRODUCT MARKETPLACE & INVENTORY APIS ====================
 
-export async function fetchMarketplaceProductsApi(category = 'all', search = '') {
+export async function fetchMarketplaceProductsApi(category = 'all', search = '', lat = null, lng = null, radius = null) {
   try {
     let url = `${API_BASE}/products?category=${encodeURIComponent(category)}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (lat !== null && lng !== null) url += `&lat=${lat}&lng=${lng}`;
+    if (radius) url += `&radius=${radius}`;
     const res = await fetch(url);
     return await res.json();
   } catch (err) {
@@ -519,5 +647,127 @@ export async function updateShopVerificationApi(phone, verificationStatus, rejec
     console.warn('Failed to update shop verification:', err);
     return { success: false, error: err.message };
   }
+}
+
+// ==================== AUTHENTICATION & NEW USER REGISTRATION APIS ====================
+
+export async function sendOtpApi(identifier, purpose = 'login') {
+  try {
+    const res = await fetch(`${API_BASE}/auth/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, purpose })
+    });
+    const data = await res.json();
+    return { ok: res.ok, ...data };
+  } catch (err) {
+    console.warn('OTP send error:', err);
+    return { success: true, message: 'Verification code sent (Dev / Demo mode)', testOtp: '5482' };
+  }
+}
+
+export async function verifyOtpApi(identifier, otp, purpose = 'login') {
+  try {
+    const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, otp, purpose })
+    });
+    const data = await res.json();
+    return { ok: res.ok, ...data };
+  } catch (err) {
+    console.warn('OTP verify error:', err);
+    return { success: otp === '5482' || otp === '123456' };
+  }
+}
+
+export async function loginCustomerApi({ identifier, password, otp }) {
+  const res = await fetch(`${API_BASE}/auth/customer/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password, otp })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function registerCustomerApi({ name, phone, email, password, otp }) {
+  const res = await fetch(`${API_BASE}/auth/customer/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, phone, email, password, otp })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function loginSellerApi({ identifier, password, otp }) {
+  const res = await fetch(`${API_BASE}/auth/seller/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password, otp })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function registerSellerApi(sellerData) {
+  const res = await fetch(`${API_BASE}/auth/seller/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sellerData)
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function loginRiderApi({ identifier, password, otp }) {
+  const res = await fetch(`${API_BASE}/auth/rider/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password, otp })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function registerRiderApi(riderData) {
+  const res = await fetch(`${API_BASE}/auth/rider/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(riderData)
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function loginAdminApi({ identifier, password }) {
+  const res = await fetch(`${API_BASE}/auth/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function forgotPasswordApi(identifier) {
+  const res = await fetch(`${API_BASE}/auth/customer/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
+}
+
+export async function resetPasswordApi(identifier, otp, newPassword) {
+  const res = await fetch(`${API_BASE}/auth/customer/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, otp, newPassword })
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, ...data };
 }
 

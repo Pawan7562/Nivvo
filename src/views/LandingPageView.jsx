@@ -36,13 +36,15 @@ export default function LandingPageView({
     currentUser,
     selectedAddress,
     setSelectedAddress,
-    submitSellerApplication
+    submitSellerApplication,
+    detectUserLocation,
+    isDetectingLocation
   } = useNivvo();
 
   // Active Micro-hub & Location Search
   const [heroLocationInput, setHeroLocationInput] = useState('');
   const [closingLocationInput, setClosingLocationInput] = useState('');
-  const [activeLocationLabel, setActiveLocationLabel] = useState('Indiranagar, Bengaluru');
+  const [activeLocationLabel, setActiveLocationLabel] = useState(selectedAddress?.area ? `${selectedAddress.area}, Bengaluru` : 'Indiranagar, Bengaluru');
 
   // Pillar Switcher: 'fashion' | 'grocery' | 'food'
   const [activePillar, setActivePillar] = useState('fashion');
@@ -147,6 +149,18 @@ export default function LandingPageView({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Synchronize landing inputs when selectedAddress updates from automatic GPS detection
+  useEffect(() => {
+    if (selectedAddress?.area || selectedAddress?.title) {
+      const area = selectedAddress.area || selectedAddress.title;
+      const city = selectedAddress.city || 'Bengaluru';
+      setActiveLocationLabel(`${area}, ${city}`);
+      if (selectedAddress.fullAddress) {
+        setHeroLocationInput(selectedAddress.fullAddress);
+      }
+    }
+  }, [selectedAddress?.area, selectedAddress?.title, selectedAddress?.fullAddress]);
+
   // Merchant Application Form
   const [merchantForm, setMerchantForm] = useState({
     shopName: '',
@@ -158,8 +172,22 @@ export default function LandingPageView({
   const [merchantSubmitted, setMerchantSubmitted] = useState(false);
 
   // Location Handlers
-  const handleUseCurrentLocation = () => {
+  const handleUseCurrentLocation = async () => {
     playClickSound();
+    if (detectUserLocation) {
+      showToast('Detecting your live GPS location...');
+      const res = await detectUserLocation();
+      if (res && res.success && res.address) {
+        const addr = res.address;
+        const formatted = addr.fullAddress || `${addr.area}, ${addr.city}`;
+        setHeroLocationInput(formatted);
+        setActiveLocationLabel(`${addr.area}, ${addr.city}`);
+        showToast(`📍 Found: ${addr.area} (${addr.eta} delivery)`);
+        const el = document.getElementById('nearby-shopping');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
     setHeroLocationInput('100ft Road, Indiranagar, Bengaluru (560038)');
     setActiveLocationLabel('Indiranagar, Bengaluru');
     if (setSelectedAddress) {
@@ -167,7 +195,9 @@ export default function LandingPageView({
         id: 'current-hub',
         title: 'Current Location',
         area: 'Indiranagar',
-        pincode: '560038'
+        pincode: '560038',
+        latitude: 12.9716,
+        longitude: 77.6412
       });
     }
     showToast('Location set to Indiranagar, Bengaluru (Verified Hub)');
@@ -811,16 +841,9 @@ export default function LandingPageView({
             >
               <span>Reviews</span>
             </button>
-            <button
-              className="figma-nav-link figma-nav-link-merchant"
-              onClick={() => { playClickSound(); setShowMerchantModal(true); }}
-            >
-              <Store size={13} />
-              <span>For Shops</span>
-            </button>
           </nav>
 
-          {/* Right: Actions — Note: Seller Login is placed in the footer, NOT here */}
+          {/* Right: Actions (Customer Login & Neighbourhood Finder) */}
           <div className="figma-nav-actions">
             {/* Bag trigger if items in cart */}
             {totalCartCount > 0 && (
@@ -859,24 +882,14 @@ export default function LandingPageView({
                 <span className="figma-nav-username">{currentUser.name || 'Account'}</span>
               </button>
             ) : (
-              <>
-                <button
-                  className="figma-nav-seller-btn"
-                  onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}
-                  title="Seller Hub & Store Owner Sign In"
-                >
-                  <Store size={13} />
-                  <span>Seller Hub</span>
-                </button>
-                <button
-                  className="figma-nav-signin"
-                  onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
-                  title="Customer Sign In"
-                >
-                  <User size={14} />
-                  <span>Sign In</span>
-                </button>
-              </>
+              <button
+                className="figma-nav-signin"
+                onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
+                title="Customer Sign In & Account Portal"
+              >
+                <User size={14} />
+                <span>Customer Login</span>
+              </button>
             )}
 
             {/* Primary Action Button */}
@@ -939,14 +952,7 @@ export default function LandingPageView({
                   onClick={() => { setMobileMenuOpen(false); playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}
                 >
                   <User size={16} />
-                  <span>Customer Sign In</span>
-                </button>
-                <button 
-                  className="figma-mobile-link"
-                  onClick={() => { setMobileMenuOpen(false); playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}
-                >
-                  <Store size={16} />
-                  <span>Seller Hub Sign In</span>
+                  <span>Customer Login</span>
                 </button>
                 <button 
                   className="figma-mobile-link"
@@ -2056,80 +2062,119 @@ export default function LandingPageView({
               </div>
             </div>
 
-            {/* Discover Column */}
+            {/* 1. Customer Column */}
             <div className="figma-footer-group">
-              <h4 className="figma-footer-group-title">Discover</h4>
+              <h4 className="figma-footer-group-title">Shop Hyperlocal</h4>
               <div className="figma-footer-links">
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setActivePillar('fashion'); document.getElementById('nearby-shopping')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  Shop nearby
+                  Shop Nearby Stores
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setActivePillar('grocery'); document.getElementById('nearby-shopping')?.scrollIntoView({ behavior: 'smooth' }); }}>
                   Fresh Grocery
                   <span className="figma-footer-link-badge">10 min</span>
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setActivePillar('food'); document.getElementById('nearby-shopping')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  Neighbourhood Food
+                  Neighbourhood Food &amp; Cafes
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  Explore categories
+                  Fashion &amp; 2-Size Trial
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('customer'); }}>
                   Customer Login
                 </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  How Nivvo works
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onNavigateTracking) onNavigateTracking(); }}>
+                  Track Live Order
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  Customer Reviews
+                  Verified Reviews
                 </a>
               </div>
             </div>
 
-            {/* Grow Column */}
+            {/* 2. Seller / Merchant Column */}
             <div className="figma-footer-group">
-              <h4 className="figma-footer-group-title">Grow with us</h4>
+              <h4 className="figma-footer-group-title">Merchant Partner Portal</h4>
               <div className="figma-footer-links">
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setShowMerchantModal(true); }}>
-                  For shop owners
-                  <span className="figma-footer-link-badge">NEW</span>
-                </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); setShowDeliveryPartnerModal(true); }}>
-                  For delivery partners
+                  Partner with Nivvo (For Shops)
+                  <span className="figma-footer-link-badge">APPLY</span>
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('seller'); }}>
-                  Seller Login
+                  Seller Portal Login
                   <span className="figma-footer-link-badge">→</span>
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); if (onNavigateSeller) onNavigateSeller(); }}>
-                  Seller dashboard
+                  Merchant Operations Dashboard
                 </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Nivvo Franchise & White-Label Programme — Contact partnerships@nivvo.in'); }}>
-                  Franchise / Expand
+                <a className="figma-footer-link" onClick={() => { playClickSound(); window.location.hash = '#/seller-prods'; }}>
+                  Catalog &amp; Inventory Manager
                 </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Careers at Nivvo — careers@nivvo.in'); }}>
-                  Careers at Nivvo
+                <a className="figma-footer-link" onClick={() => { playClickSound(); window.location.hash = '#/seller-orders'; }}>
+                  Live Orders &amp; Dispatch
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); window.location.hash = '#/seller-payouts'; }}>
+                  Instant Bank Settlements
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Nivvo Merchant Terms & Fair Trade Policy'); }}>
+                  Seller Guidelines &amp; Policies
                 </a>
               </div>
             </div>
 
-            {/* Help Column */}
+            {/* 3. Platform Admin Column */}
             <div className="figma-footer-group">
-              <h4 className="figma-footer-group-title">Here to help</h4>
+              <h4 className="figma-footer-group-title">Operations &amp; Admin</h4>
               <div className="figma-footer-links">
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onOpenAuth) onOpenAuth('admin'); }}>
+                  Admin Console Login
+                  <span className="figma-footer-link-badge">INTERNAL</span>
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); if (onNavigateAdmin) onNavigateAdmin(); }}>
+                  Platform Operations Center
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); window.location.hash = '#/admin-sellers'; }}>
+                  Merchant Verification &amp; KYC
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); window.location.hash = '#/admin-delivery'; }}>
+                  Delivery Fleet Monitoring
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('FSSAI & Regulatory Compliance Center'); }}>
+                  Compliance &amp; Food Safety
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('DPDP 2023 Encrypted Vault Architecture'); }}>
+                  DPDP 2023 Security Audit
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Careers at Nivvo — careers@nivvo.in'); }}>
+                  Careers &amp; Engineering
+                </a>
+              </div>
+            </div>
+
+            {/* 4. Mobile Apps & Support Column */}
+            <div className="figma-footer-group">
+              <h4 className="figma-footer-group-title">Apps &amp; Support</h4>
+              <div className="figma-footer-links">
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Opening Play Store — Nivvo Shopper App'); }}>
+                  Nivvo Shopper App (Play Store)
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); setShowDeliveryPartnerModal(true); }}>
+                  Rider Companion App (APK)
+                  <span className="figma-footer-link-badge">FLEET</span>
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); setShowDeliveryPartnerModal(true); }}>
+                  Join Delivery Fleet (Mobile Only)
+                </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setHelpCenterTab('contact'); setShowHelpCenterModal(true); }}>
-                  Help centre
+                  Help Centre &amp; FAQs
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); setHelpCenterTab('ticket'); setShowHelpCenterModal(true); }}>
-                  Raise a ticket
+                  Raise Support Ticket
+                </a>
+                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('WhatsApp Support: +91 90 1234 5678'); }}>
+                  WhatsApp Care Helpline
                 </a>
                 <a className="figma-footer-link" onClick={() => { playClickSound(); document.getElementById('honest-trust')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                  Delivery &amp; returns
-                </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); setHelpCenterTab('contact'); setShowHelpCenterModal(true); }}>
-                  Contact us
-                </a>
-                <a className="figma-footer-link" onClick={() => { playClickSound(); showToast('Nivvo Safety Guidelines — FSSAI compliant &amp; hygienic packaging guaranteed'); }}>
-                  Safety &amp; hygiene
+                  Hygienic Packaging Standards
                 </a>
               </div>
             </div>
@@ -2210,6 +2255,40 @@ export default function LandingPageView({
                 <X size={20} />
               </button>
             </div>
+
+            {/* Primary Live GPS Auto-Detection Button */}
+            <button
+              type="button"
+              onClick={async () => {
+                setShowLocationModal(false);
+                await handleUseCurrentLocation();
+              }}
+              disabled={isDetectingLocation}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '13px 16px',
+                borderRadius: '14px',
+                border: '1.5px solid #24452D',
+                background: '#F0FDF4',
+                color: '#15803D',
+                fontWeight: 800,
+                fontSize: '13.5px',
+                marginBottom: '16px',
+                cursor: isDetectingLocation ? 'wait' : 'pointer',
+                boxShadow: '0 2px 8px rgba(36, 69, 45, 0.08)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Navigation size={18} color="#15803D" />
+                <span>{isDetectingLocation ? 'Detecting Precise GPS Location...' : 'Use Current Live GPS Location'}</span>
+              </div>
+              <span style={{ fontSize: '11px', background: '#24452D', color: '#B7F34A', padding: '3px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                10 MINS
+              </span>
+            </button>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[

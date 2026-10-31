@@ -1,6 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { NIVVO_PRODUCTS, NIVVO_SHOPS } from '../data/nivvoData';
 import { playClickSound, playAddSound, playTrialSound } from '../utils/audioEffects';
+import { 
+  createOrder, 
+  fetchOrders, 
+  fetchShopOrdersApi, 
+  acceptShopOrderApi, 
+  rejectShopOrderApi, 
+  dispatchShopOrderApi, 
+  fetchDeliveryOrdersApi, 
+  updateDeliveryOrderApi,
+  toggleDeliveryPartnerOnlineApi,
+  updateDeliveryPartnerLocationApi,
+  fetchOrderTrackingApi 
+} from '../services/api';
+import { 
+  detectDeviceCoordinates, 
+  reverseGeocodeCoords, 
+  checkLocationPermission, 
+  calculateDistance, 
+  calculateEta,
+  calculateEtaMinutes,
+  formatDistanceText,
+  METRO_DELIVERY_HUBS 
+} from '../services/locationService';
 
 const NivvoAppContext = createContext();
 
@@ -287,21 +310,41 @@ export function NivvoAppProvider({ children }) {
           } catch {}
 
           if (data.user.role === 'seller') {
+            const sellerStatus = data.shop?.verification_status || data.user.verification_status || data.verification_status || 'approved';
             setShopProfile(prev => ({
               ...prev,
-              shop_name: data.user.shop_name || prev.shop_name,
-              verification_status: data.user.verification_status || prev.verification_status,
-              rejection_reason: data.user.rejection_reason || null,
-              admin_notes: data.user.admin_notes || null
+              ...(data.shop || {}),
+              shop_name: data.shop?.shop_name || data.user.shop_name || prev.shop_name,
+              verification_status: sellerStatus,
+              rejection_reason: data.shop?.rejection_reason || data.user.rejection_reason || null,
+              admin_notes: data.shop?.admin_notes || data.user.admin_notes || null
             }));
+            const updatedUser = {
+              ...data.user,
+              verification_status: sellerStatus
+            };
+            setCurrentUser(updatedUser);
+            try {
+              localStorage.setItem('nivvo_user', JSON.stringify(updatedUser));
+            } catch {}
           } else if (data.user.role === 'rider') {
+            const riderStatus = data.rider?.verification_status || data.user.verification_status || data.verification_status || 'approved';
             setRiderProfile(prev => ({
               ...prev,
-              name: data.user.name || prev.name,
-              verification_status: data.user.verification_status || prev.verification_status,
-              rejection_reason: data.user.rejection_reason || null,
-              admin_notes: data.user.admin_notes || null
+              ...(data.rider || {}),
+              name: data.rider?.name || data.user.name || prev.name,
+              verification_status: riderStatus,
+              rejection_reason: data.rider?.rejection_reason || data.user.rejection_reason || null,
+              admin_notes: data.rider?.admin_notes || data.user.admin_notes || null
             }));
+            const updatedUser = {
+              ...data.user,
+              verification_status: riderStatus
+            };
+            setCurrentUser(updatedUser);
+            try {
+              localStorage.setItem('nivvo_user', JSON.stringify(updatedUser));
+            } catch {}
           }
         } else if (data?.error?.includes('expired') || data?.error?.includes('Invalid')) {
           logoutUser();
@@ -312,10 +355,21 @@ export function NivvoAppProvider({ children }) {
 
   const handleLoginSuccess = (authData) => {
     playTrialSound();
+    const effectiveStatus = 
+      authData.verification_status || 
+      authData.shop?.verification_status || 
+      authData.user?.verification_status || 
+      'approved';
+
     if (authData.user) {
-      setCurrentUser(authData.user);
+      const updatedUser = {
+        ...authData.user,
+        role: authData.user.role || (authData.shop ? 'seller' : 'customer'),
+        verification_status: effectiveStatus
+      };
+      setCurrentUser(updatedUser);
       try {
-        localStorage.setItem('nivvo_user', JSON.stringify(authData.user));
+        localStorage.setItem('nivvo_user', JSON.stringify(updatedUser));
       } catch {}
     }
     if (authData.token) {
@@ -328,14 +382,17 @@ export function NivvoAppProvider({ children }) {
       setShopProfile(prev => ({
         ...prev,
         ...authData.shop,
-        verification_status: authData.shop.verification_status || 'approved'
+        verification_status: effectiveStatus,
+        status: 'ACTIVE',
+        is_open: true
       }));
     }
     if (authData.rider) {
       setRiderProfile(prev => ({
         ...prev,
         ...authData.rider,
-        verification_status: authData.rider.verification_status || 'approved'
+        verification_status: effectiveStatus,
+        is_online: true
       }));
     }
 
@@ -552,7 +609,7 @@ export function NivvoAppProvider({ children }) {
       window.removeEventListener('hashchange', handleUrlChange);
       window.removeEventListener('popstate', handleUrlChange);
     };
-  }, []);
+  }, [currentUser?.phone, currentUser?.role]);
 
   // Synchronize appMode when screen changes
   useEffect(() => {
@@ -733,20 +790,63 @@ export function NivvoAppProvider({ children }) {
       return exists ? prev : [newShopObj, ...prev];
     });
 
-    // Update current shop profile if it matches
+    // Update current shop profile to approved
     setShopProfile(prev => ({
       ...prev,
-      verification_status: 'APPROVED',
-      is_open: true,
-      shop_name: app.shop_name
+      shop_name: app.shop_name,
+      owner_name: app.owner_name,
+      phone: app.phone,
+      email: app.email,
+      verification_status: 'approved',
+      status: 'ACTIVE',
+      is_open: true
     }));
+
+    // Update currentUser if matching
+    setCurrentUser(prev => {
+      if (!prev) return prev;
+      const isMatch = (prev.phone && app.phone && prev.phone.replace(/\D/g, '') === app.phone.replace(/\D/g, '')) ||
+                      (prev.email && app.email && prev.email.toLowerCase() === app.email.toLowerCase()) ||
+                      prev.role === 'seller';
+      if (isMatch) {
+        const u = {
+          ...prev,
+          role: 'seller',
+          verification_status: 'approved',
+          shop_name: app.shop_name
+        };
+        try { localStorage.setItem('nivvo_user', JSON.stringify(u)); } catch {}
+        return u;
+      }
+      return prev;
+    });
+
+    // Persist approved phone into localStorage
+    try {
+      const approvedList = JSON.parse(localStorage.getItem('nivvo_approved_sellers') || '[]');
+      if (!approvedList.includes(app.phone)) {
+        approvedList.push(app.phone);
+        localStorage.setItem('nivvo_approved_sellers', JSON.stringify(approvedList));
+      }
+    } catch {}
 
     showToast(`Shop "${app.shop_name}" APPROVED! Storefront is live for customer discovery. 🟢`);
 
-    fetch(`/api/admin/verifications/shops/${appId}/decision`, {
+    fetch(`/api/admin/verifications/shops/${app.shop_id || app.id || appId}/decision`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'approved', notes })
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+      },
+      body: JSON.stringify({ 
+        decision: 'approved',
+        status: 'approved',
+        phone: app.phone,
+        email: app.email,
+        owner_name: app.owner_name,
+        shop_name: app.shop_name,
+        notes 
+      })
     }).catch(() => {});
   };
 
@@ -923,7 +1023,7 @@ export function NivvoAppProvider({ children }) {
       });
     }, 2500);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentUser?.phone, currentUser?.role]);
 
   // 2. Cart State (starts empty by default; only appears when customer adds items)
   const [cart, setCart] = useState([]);
@@ -931,8 +1031,8 @@ export function NivvoAppProvider({ children }) {
   // 3. Coupons State
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  // 4. Address State
-  const savedAddresses = [
+  // 4. Address & Geolocation State
+  const INITIAL_ADDRESSES = [
     {
       id: 'addr-home',
       tag: 'Home',
@@ -943,7 +1043,9 @@ export function NivvoAppProvider({ children }) {
       phone: '+91 98765 43210',
       recipient: 'Aarav Shah',
       note: 'Please ring the doorbell.',
-      etaModifier: 0
+      etaModifier: 0,
+      latitude: 12.9716,
+      longitude: 77.6412
     },
     {
       id: 'addr-work',
@@ -955,7 +1057,9 @@ export function NivvoAppProvider({ children }) {
       phone: '+91 98765 43210',
       recipient: 'Aarav Shah',
       note: 'Leave with reception desk.',
-      etaModifier: 10
+      etaModifier: 10,
+      latitude: 12.9340,
+      longitude: 77.6250
     },
     {
       id: 'addr-studio',
@@ -967,10 +1071,227 @@ export function NivvoAppProvider({ children }) {
       phone: '+91 98765 43210',
       recipient: 'Aarav Shah',
       note: 'Call on arrival.',
-      etaModifier: 15
+      etaModifier: 15,
+      latitude: 12.9120,
+      longitude: 77.6510
     }
   ];
-  const [selectedAddress, setSelectedAddress] = useState(savedAddresses[0]);
+
+  const [savedAddresses, setSavedAddresses] = useState(INITIAL_ADDRESSES);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState('prompt');
+
+  const [selectedAddress, setSelectedAddress] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nivvo_selected_address');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_ADDRESSES[0];
+  });
+
+  // Customer Precise Live GPS Location Detection
+  const detectUserLocation = async (options = {}) => {
+    const { isAutoDetect = false, silent = false } = options;
+    setIsDetectingLocation(true);
+    try {
+      const perm = await checkLocationPermission();
+      setLocationPermissionStatus(perm);
+
+      // Multi-tier GPS detection (high accuracy -> low accuracy WiFi -> corridor fallback)
+      const coords = await detectDeviceCoordinates({ timeout: 9000, enableHighAccuracy: true });
+      const address = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+
+      const detectedAddr = {
+        id: `addr-gps-${Date.now()}`,
+        tag: coords.isFallback ? 'Corridor Pin' : 'Current GPS',
+        title: address.title || address.area || 'Current Location',
+        area: address.area || 'Bengaluru',
+        street: address.street || 'Indiranagar 100ft Road',
+        city: address.city || 'Bengaluru',
+        state: address.state || 'Karnataka',
+        pincode: address.pincode || '560038',
+        phone: currentUser?.phone || '+91 98765 43210',
+        recipient: currentUser?.name || 'Customer',
+        note: coords.isFallback ? 'Nearby corridor estimate' : 'Accurate device GPS',
+        darkStore: address.darkStore || 'Indiranagar Central Hub #14 (0.4 km away)',
+        eta: address.eta || '7–10 mins',
+        etaModifier: 0,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        isLiveGps: !coords.isFallback
+      };
+
+      setSelectedAddress(detectedAddr);
+      setSavedAddresses(prev => {
+        const filtered = prev.filter(a => a.id !== detectedAddr.id && a.tag !== 'Current GPS');
+        return [detectedAddr, ...filtered];
+      });
+
+      try {
+        localStorage.setItem('nivvo_selected_address', JSON.stringify(detectedAddr));
+      } catch {}
+
+      // Dynamically calculate distance and ETAs for all shops
+      setAllShops(prev => prev.map(shop => {
+        const sLat = parseFloat(shop.latitude) || 12.9716;
+        const sLng = parseFloat(shop.longitude) || 77.6412;
+        const distKm = calculateDistance(detectedAddr.latitude, detectedAddr.longitude, sLat, sLng);
+        return {
+          ...shop,
+          distance_km: distKm,
+          distance: distKm !== null ? `${distKm} km away` : shop.distance,
+          eta: calculateEta(distKm)
+        };
+      }));
+
+      if (!silent) {
+        if (!isAutoDetect) {
+          playAddSound();
+          showToast(coords.isFallback ? `📍 Corridor set: ${detectedAddr.title}` : `📍 Live GPS detected: ${detectedAddr.title}`);
+        } else {
+          showToast(`📍 Located: ${detectedAddr.title} (${detectedAddr.eta || '10 mins'})`);
+        }
+      }
+      return { success: true, address: detectedAddr };
+    } catch (err) {
+      console.warn('GPS location detection failed:', err);
+      if (err.code === 1 || err.message?.includes('denied')) {
+        setLocationPermissionStatus('denied');
+        if (!isAutoDetect && !silent) {
+          showToast('Location permission denied. Please allow location access or choose a hub.');
+        }
+      } else {
+        const defaultHub = METRO_DELIVERY_HUBS[0];
+        const hubAddr = {
+          id: 'addr-fallback-hub',
+          tag: 'Default Hub',
+          title: defaultHub.title,
+          area: defaultHub.area,
+          street: defaultHub.street,
+          city: defaultHub.city,
+          state: defaultHub.state,
+          pincode: defaultHub.pincode,
+          phone: currentUser?.phone || '+91 98765 43210',
+          recipient: currentUser?.name || 'Customer',
+          note: 'Central delivery corridor',
+          darkStore: defaultHub.darkStore,
+          eta: defaultHub.eta,
+          etaModifier: 0,
+          latitude: defaultHub.latitude,
+          longitude: defaultHub.longitude,
+          isLiveGps: false
+        };
+        setSelectedAddress(hubAddr);
+        if (!isAutoDetect && !silent) {
+          showToast('GPS unavailable. Set to Indiranagar Hub.');
+        }
+      }
+      return { success: false, error: err.message };
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
+
+  // Automatically detect and fetch user's current location on app open
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function initUserLocation() {
+      try {
+        const perm = await checkLocationPermission();
+        if (!isCancelled) {
+          setLocationPermissionStatus(perm);
+        }
+
+        // In browser or Android WebView:
+        // When perm === 'granted': automatically fetches fresh coordinates on open
+        // When perm === 'prompt': prompts the native browser/device permission modal on launch
+        if (perm !== 'denied') {
+          await detectUserLocation({ isAutoDetect: true, silent: false });
+        }
+      } catch (err) {
+        console.warn('[Nivvo] Initial location detection error:', err);
+      }
+    }
+
+    // Short timeout to let UI mount smoothly before triggering permission
+    const timer = setTimeout(() => {
+      initUserLocation();
+    }, 500);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, []);
+
+  // Synchronize all shops with calculated route distance and ETA whenever delivery address changes
+  useEffect(() => {
+    const lat = selectedAddress?.latitude || 12.9716;
+    const lng = selectedAddress?.longitude || 77.6412;
+
+    fetch(`/api/shops?lat=${lat}&lng=${lng}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.success && Array.isArray(data.shops) && data.shops.length > 0) {
+          setAllShops(data.shops);
+        }
+      })
+      .catch(() => {});
+  }, [selectedAddress?.latitude, selectedAddress?.longitude]);
+
+  // Seller Storefront GPS Detection
+  const detectSellerShopLocation = async () => {
+    playClickSound();
+    try {
+      const coords = await detectDeviceCoordinates({ timeout: 8000, enableHighAccuracy: true });
+      const address = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+
+      const updated = {
+        ...shopProfile,
+        address: address.fullAddress || `${address.street}, ${address.area}`,
+        city: address.city || 'Bengaluru',
+        state: address.state || 'Karnataka',
+        pincode: address.pincode || '560038',
+        landmark: address.area ? `Near ${address.area} Junction` : 'Indiranagar 100ft Road',
+        hub_name: address.area ? `${address.area} Cluster Hub` : 'Indiranagar Cluster Hub #14',
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        delivery_radius: shopProfile.delivery_radius || 3.5
+      };
+
+      setShopProfile(updated);
+      updateShopProfileData(updated);
+      showToast(`📍 Storefront GPS detected: ${address.area || address.city}`);
+      return { success: true, location: updated };
+    } catch (err) {
+      showToast('Could not detect store GPS. Please verify manual address.');
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Fetch Seller Shop Location & Profile from Backend
+  const fetchSellerShopLocation = async (phoneOrId) => {
+    const query = phoneOrId || shopProfile?.phone || currentUser?.phone || '+91 98450 67890';
+    try {
+      const res = await fetch(`/api/partners/shop/profile?phone=${encodeURIComponent(query)}&shop_id=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.shop) {
+          setShopProfile(prev => ({
+            ...prev,
+            ...data.shop,
+            latitude: parseFloat(data.shop.latitude) || prev.latitude || 12.9716,
+            longitude: parseFloat(data.shop.longitude) || prev.longitude || 77.6412
+          }));
+          return { success: true, shop: data.shop };
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch seller shop location:', err);
+    }
+    return { success: false };
+  };
 
   // 5. Orders & Live Tracking State
   const [orders, setOrders] = useState([
@@ -1029,6 +1350,51 @@ export function NivvoAppProvider({ children }) {
     }
   ]);
 
+  // Sync Orders with Server on mount & periodically
+  useEffect(() => {
+    let isMounted = true;
+    async function loadServerOrders() {
+      try {
+        const phone = currentUser?.phone || '+91 9876543210';
+        const data = await fetchOrders(phone);
+        if (isMounted && data && Array.isArray(data.orders) && data.orders.length > 0) {
+          const serverMapped = data.orders.map(o => ({
+            id: o.order_id || o.id,
+            placedAt: o.created_at ? new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
+            itemsCount: Array.isArray(o.items) ? o.items.length : (typeof o.items === 'string' ? JSON.parse(o.items || '[]').length : 1),
+            subtotal: o.grand_total ? Math.max(0, o.grand_total - 49) : 1429,
+            delivery: 39,
+            platformFee: 10,
+            total: o.grand_total || 1429,
+            paymentMethod: o.payment_method || 'UPI',
+            status: (o.status || '').toLowerCase().includes('deliver') ? 'delivered' : ((o.status || '').toLowerCase().includes('cancel') ? 'cancelled' : 'out_for_delivery'),
+            statusLabel: o.status || 'Out for 10-Min Delivery',
+            etaText: o.eta_minutes ? `In ${o.eta_minutes} mins` : 'Arrived',
+            etaMinutes: o.eta_minutes || 7,
+            pin: o.rider_otp || '4829',
+            pickupPin: o.pickup_pin || '4812',
+            customerPin: o.rider_otp || '4829',
+            rider: {
+              name: o.rider_name || 'Ravi Kumar',
+              phone: o.rider_phone || '+91 98450 12345',
+              rating: 4.9,
+              vehicle: 'Ather 450X (Electric)',
+              badge: 'Top Rated Partner'
+            },
+            items: Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? JSON.parse(o.items || '[]') : [])
+          }));
+          setOrders(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newFromDb = serverMapped.filter(m => !existingIds.has(m.id));
+            return [...prev, ...newFromDb];
+          });
+        }
+      } catch (err) {}
+    }
+    loadServerOrders();
+    return () => { isMounted = false; };
+  }, [currentUser?.phone]);
+
   // 6. Wishlist State
   const [wishlist, setWishlist] = useState(['nv-prod-1', 'nv-prod-6']);
 
@@ -1042,7 +1408,7 @@ export function NivvoAppProvider({ children }) {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [currentUser?.phone, currentUser?.role]);
 
   const toggleWishlist = (productId) => {
     playTrialSound();
@@ -1483,9 +1849,13 @@ export function NivvoAppProvider({ children }) {
     }
   ]);
 
-  // Sync Shop Data from Backend on Mount
+  // Sync Shop Data from Backend on Mount & upon seller change
   useEffect(() => {
-    fetch('/api/partners/shop/profile?phone=%2B919876543210')
+    const activeShopPhone = (currentUser?.role === 'seller' ? currentUser?.phone : null) || shopProfile?.phone || '+91 98450 67890';
+    const activeShopEmail = currentUser?.role === 'seller' ? currentUser?.email : (shopProfile?.email || '');
+    const activeShopId = shopProfile?.shop_id || 'SHP-4012';
+
+    fetch(`/api/partners/shop/profile?phone=${encodeURIComponent(activeShopPhone)}&email=${encodeURIComponent(activeShopEmail)}&shop_id=${encodeURIComponent(activeShopId)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.shop) {
@@ -1494,7 +1864,9 @@ export function NivvoAppProvider({ children }) {
             ...data.shop,
             shop_name: data.shop.shop_name || prev.shop_name,
             is_open: data.shop.is_open !== undefined ? data.shop.is_open : prev.is_open,
-            today_revenue: Number(data.shop.today_revenue) || prev.today_revenue
+            today_revenue: Number(data.shop.today_revenue) || prev.today_revenue,
+            latitude: parseFloat(data.shop.latitude) || prev.latitude || 12.9716,
+            longitude: parseFloat(data.shop.longitude) || prev.longitude || 77.6412
           }));
         }
       })
@@ -1518,7 +1890,7 @@ export function NivvoAppProvider({ children }) {
       })
       .catch(() => {});
 
-    fetch('/api/partners/shop/earnings?phone=%2B919876543210')
+    fetch('/api/partners/shop/earnings?phone=' + encodeURIComponent(activeShopPhone))
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.earnings) {
@@ -1528,7 +1900,8 @@ export function NivvoAppProvider({ children }) {
       .catch(() => {});
 
     // Sync Delivery Partner Profile from Backend
-    fetch('/api/partners/delivery/profile?phone=%2B919876543210')
+    const activeRiderPhone = (currentUser?.role === 'rider' ? currentUser?.phone : null) || '+91 98450 12345';
+    fetch('/api/partners/delivery/profile?phone=' + encodeURIComponent(activeRiderPhone))
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.partner) {
@@ -1551,19 +1924,26 @@ export function NivvoAppProvider({ children }) {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [currentUser?.phone, currentUser?.role]);
 
   // 6B. Delivery Partner (Rider) Management State
   const [riderProfile, setRiderProfile] = useState({
     partner_id: 'RDR-1082',
     name: 'Ravi Kumar',
-    phone: '+91 9876543210',
+    phone: '+91 98450 12345',
     email: 'ravi.fleet@nivvo.in',
     city: 'Bengaluru',
     hub_id: 'Indiranagar Dark Store Hub #14',
     vehicle_type: 'Electric Scooter (EV)',
     vehicle_number: 'KA-03-EV-4421',
     battery_level: 84,
+    latitude: 12.9716,
+    longitude: 77.6412,
+    current_address: '100ft Road, Indiranagar, Bengaluru',
+    current_area: 'Indiranagar',
+    accuracy: 25,
+    is_locating: false,
+    last_location_updated: null,
     license_number: 'DL-04202100892',
     aadhaar_number: 'XXXX-XXXX-4819',
     bank_name: 'HDFC Bank',
@@ -1584,6 +1964,260 @@ export function NivvoAppProvider({ children }) {
   const [activeDeliveryJob, setActiveDeliveryJob] = useState(null);
 
   const [deliveryOffers, setDeliveryOffers] = useState([]);
+
+  // 6B. Real-Time Seller Orders Synchronizer
+  useEffect(() => {
+    let timer = null;
+    let isCancelled = false;
+
+    async function syncShopOrders() {
+      if (currentUser?.role !== 'seller' && !currentScreen?.startsWith('seller')) return;
+      try {
+        const sId = shopProfile?.shop_id || 'SHP-4012';
+        const res = await fetchShopOrdersApi(sId);
+        if (!isCancelled && res && res.success && Array.isArray(res.orders)) {
+          setShopIncomingOrders(prev => {
+            const mapped = res.orders.map(o => {
+              let items = [];
+              try {
+                items = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]');
+              } catch {
+                items = [];
+              }
+              const firstItem = items[0] || {};
+              const st = (o.status || '').toLowerCase();
+              let statusKey = 'new';
+              if (st.includes('deliver') || st.includes('completed')) statusKey = 'completed';
+              else if (st.includes('picked') || st.includes('out for')) statusKey = 'picked_up';
+              else if (st.includes('pack') || st.includes('ready')) statusKey = 'ready';
+              else if (st.includes('prepar')) statusKey = 'preparing';
+
+              return {
+                id: o.order_id || o.id,
+                customer_name: o.customer_name || 'Customer',
+                customer_phone: o.user_phone,
+                customer_address: o.address,
+                shopName: o.shop_name || 'Sole Street Sneaker Studio',
+                item_name: firstItem.name || 'Apparel Item',
+                variant: firstItem.variant || 'Standard',
+                fullItems: items,
+                sku: firstItem.sku || 'BW-ITEM-01',
+                amount: `₹${(o.grand_total || 1299).toLocaleString('en-IN')}`,
+                rawAmount: Number(o.grand_total || 1299),
+                sellerPayout: Number(o.grand_total || 1299),
+                customerPaid: Number(o.grand_total || 1299),
+                paymentMethod: `${o.payment_method || 'UPI'} Paid`,
+                status: statusKey,
+                statusLabel: o.status || 'New Order',
+                secondsRemaining: 120,
+                time: o.created_at ? new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
+                image: firstItem.image || '/assets/figma/product_court_sneaker.png',
+                trial_active: o.doorstep_trial_active !== false,
+                pin: o.pickup_pin || '4812',
+                pickup_pin: o.pickup_pin || '4812',
+                customer_pin: o.customer_pin || o.rider_otp || '4829',
+                rider: {
+                  name: o.rider_name || 'Ravi Kumar',
+                  phone: o.rider_phone || '+91 98450 12345',
+                  vehicle: 'Ather 450X · EV 🚲'
+                }
+              };
+            });
+            const remoteIds = new Set(mapped.map(m => m.id));
+            const retainedLocal = prev.filter(p => !remoteIds.has(p.id));
+            return [...mapped, ...retainedLocal];
+          });
+        }
+      } catch (err) {}
+    }
+
+    syncShopOrders();
+    timer = setInterval(syncShopOrders, 5000);
+    return () => {
+      isCancelled = true;
+      if (timer) clearInterval(timer);
+    };
+  }, [currentUser?.role, currentScreen, shopProfile?.shop_id]);
+
+  // 6C. Real-Time Delivery Partner Fleet Offers Synchronizer
+  useEffect(() => {
+    let timer = null;
+    let isCancelled = false;
+
+    async function syncDeliveryOffers() {
+      if (appMode !== 'rider' && currentUser?.role !== 'rider' && !currentScreen?.startsWith('rider')) return;
+      if (!riderProfile.is_online) {
+        setDeliveryOffers([]);
+        return;
+      }
+
+      const activePhone = (currentUser?.role === 'rider' ? currentUser?.phone : null) || riderProfile?.phone || '+91 98450 12345';
+      const lat = riderProfile.latitude;
+      const lng = riderProfile.longitude;
+
+      try {
+        const res = await fetchDeliveryOrdersApi({
+          rider_phone: activePhone,
+          lat,
+          lng
+        });
+        if (!isCancelled && res && res.success && Array.isArray(res.offers)) {
+          setDeliveryOffers(prev => {
+            const mappedOffers = res.offers.map(o => ({
+              id: o.id || `OFFER-${o.order_id}`,
+              order_id: o.order_id,
+              payout: o.payout || o.total_payout || 58,
+              pickupsCount: o.pickupsCount || 1,
+              dropoffsCount: o.dropoffsCount || 1,
+              totalDistance: o.totalDistance || `${o.distance_km || 1.8} km`,
+              distance_km: o.distance_km,
+              rider_to_shop_km: o.rider_to_shop_km,
+              rider_to_shop_text: o.rider_to_shop_text || `${o.rider_to_shop_km || 0.6} km to pickup`,
+              shop_to_customer_km: o.shop_to_customer_km,
+              estTime: o.estTime || '12–16 min',
+              is_assigned_to_me: o.is_assigned_to_me,
+              shops: [
+                {
+                  name: o.shop?.name || 'Partner Shop',
+                  address: o.shop?.address || 'Indiranagar 100ft Road',
+                  readyIn: 'Ready for pickup',
+                  distance: o.rider_to_shop_text || `${o.rider_to_shop_km || 0.6} km from your location`,
+                  item: o.items?.[0]?.name || 'Fashion Order'
+                }
+              ],
+              customer: {
+                name: o.customer?.name || 'Customer',
+                area: o.customer?.address || 'Indiranagar',
+                distance: `${o.shop_to_customer_km || 1.4} km from shop`
+              },
+              pickupPin: o.pickup_pin || '4812',
+              customerPin: o.customer_pin || '4829',
+              secondsRemaining: 30
+            }));
+            return mappedOffers;
+          });
+        }
+      } catch (err) {}
+    }
+
+    if (riderProfile.is_online) {
+      syncDeliveryOffers();
+      timer = setInterval(syncDeliveryOffers, 3500);
+    } else {
+      setDeliveryOffers([]);
+    }
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearInterval(timer);
+    };
+  }, [appMode, currentUser?.role, currentScreen, riderProfile.is_online, riderProfile.latitude, riderProfile.longitude]);
+
+  // 6C-2. Continuous Location Tracking while Rider is Online
+  useEffect(() => {
+    if (!riderProfile.is_online) return;
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
+
+    let watchId = null;
+    try {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const acc = pos.coords.accuracy;
+
+          setRiderProfile(prev => {
+            const distMoved = calculateDistance(prev.latitude, prev.longitude, lat, lng);
+            if (distMoved !== null && distMoved < 0.03) return prev; // Ignore jitter < 30m
+            return {
+              ...prev,
+              latitude: lat,
+              longitude: lng,
+              accuracy: acc,
+              last_location_updated: Date.now()
+            };
+          });
+
+          const activePhone = (currentUser?.role === 'rider' ? currentUser?.phone : null) || riderProfile?.phone || '+91 98450 12345';
+          updateDeliveryPartnerLocationApi({
+            phone: activePhone,
+            latitude: lat,
+            longitude: lng,
+            accuracy: acc
+          });
+        },
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 15000, timeout: 10000 }
+      );
+    } catch (e) {}
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [riderProfile.is_online]);
+
+  // 6D. Real-Time Customer Live GPS Order Tracking Synchronizer
+  useEffect(() => {
+    if (!liveLocationTracking?.isActive || !liveLocationTracking?.orderId) return;
+    let isCancelled = false;
+
+    async function pollOrderTracking() {
+      try {
+        const data = await fetchOrderTrackingApi(liveLocationTracking.orderId);
+        if (!isCancelled && data && data.success && data.tracking) {
+          const t = data.tracking;
+          setLiveLocationTracking(prev => ({
+            ...prev,
+            stepIndex: typeof t.stepIndex === 'number' ? t.stepIndex : prev.stepIndex,
+            stepLabel: t.stepLabel || prev.stepLabel,
+            subText: t.subText || prev.subText,
+            progress: typeof t.progress === 'number' ? t.progress : prev.progress,
+            distanceKm: typeof t.distanceKm === 'number' ? t.distanceKm : prev.distanceKm,
+            etaMinutes: typeof t.etaMinutes === 'number' ? t.etaMinutes : prev.etaMinutes,
+            speedKmph: typeof t.speedKmph === 'number' ? t.speedKmph : prev.speedKmph,
+            riderName: t.rider?.name || prev.riderName,
+            riderPhone: t.rider?.phone || prev.riderPhone,
+            riderVehicle: t.rider?.vehicle || prev.riderVehicle,
+            origin: t.origin || prev.origin,
+            destination: t.destination || prev.destination
+          }));
+
+          setOrders(prev => prev.map(o => {
+            if (o.id === liveLocationTracking.orderId) {
+              const st = (t.status || '').toLowerCase();
+              let clientStatus = o.status;
+              if (st.includes('deliver')) clientStatus = 'delivered';
+              else if (st.includes('cancel')) clientStatus = 'cancelled';
+              else if (st.includes('out for')) clientStatus = 'out_for_delivery';
+              else if (st.includes('ready')) clientStatus = 'ready';
+              else if (st.includes('prepar')) clientStatus = 'preparing';
+
+              return {
+                ...o,
+                status: clientStatus,
+                statusLabel: t.stepLabel || o.statusLabel,
+                etaMinutes: t.etaMinutes ?? o.etaMinutes,
+                rider: {
+                  ...o.rider,
+                  name: t.rider?.name || o.rider?.name,
+                  phone: t.rider?.phone || o.rider?.phone
+                }
+              };
+            }
+            return o;
+          }));
+        }
+      } catch (e) {}
+    }
+
+    const timer = setInterval(pollOrderTracking, 3500);
+    return () => {
+      isCancelled = true;
+      clearInterval(timer);
+    };
+  }, [liveLocationTracking?.isActive, liveLocationTracking?.orderId]);
 
   const [riderTripsHistory, setRiderTripsHistory] = useState([
     { id: 'NV-1044', time: '2:14 pm', fee: 58, tip: 10, distance: '1.8 km', desc: 'Sole Street ➔ Rohit M. (UK 9)', status: 'Delivered ✓' },
@@ -1857,54 +2491,118 @@ export function NivvoAppProvider({ children }) {
   };
 
   // Delivery Partner Actions
-  const toggleRiderDuty = () => {
+  const refreshRiderLocation = async (showToastAlert = false) => {
+    try {
+      setRiderProfile(prev => ({ ...prev, is_locating: true }));
+      const coords = await detectDeviceCoordinates({ timeout: 8000, enableHighAccuracy: true });
+      const geocoded = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+
+      const fullAddr = geocoded?.fullAddress || geocoded?.area || '100ft Road, Indiranagar, Bengaluru';
+      const areaTitle = geocoded?.area || geocoded?.city || 'Indiranagar';
+
+      setRiderProfile(prev => ({
+        ...prev,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        current_address: fullAddr,
+        current_area: areaTitle,
+        accuracy: coords.accuracy || 20,
+        is_locating: false,
+        last_location_updated: Date.now()
+      }));
+
+      const activePhone = (currentUser?.role === 'rider' ? currentUser?.phone : null) || riderProfile?.phone || '+91 98450 12345';
+      updateDeliveryPartnerLocationApi({
+        phone: activePhone,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        address: fullAddr,
+        accuracy: coords.accuracy || 20
+      });
+
+      if (showToastAlert) {
+        showToast(`GPS location synced: ${areaTitle} (±${Math.round(coords.accuracy || 20)}m) 🛰️`);
+      }
+      return { coords, geocoded };
+    } catch (err) {
+      setRiderProfile(prev => ({ ...prev, is_locating: false }));
+      if (showToastAlert) {
+        showToast('Using nearest fulfillment corridor location.');
+      }
+      return null;
+    }
+  };
+
+  const toggleRiderDuty = async () => {
     playClickSound();
     const nextState = !riderProfile.is_online;
-    setRiderProfile(prev => ({ ...prev, is_online: nextState }));
+    const activePhone = (currentUser?.role === 'rider' ? currentUser?.phone : null) || riderProfile?.phone || '+91 98450 12345';
 
     if (nextState) {
-      // Going ONLINE: Start receiving Indiranagar orders
-      setDeliveryOffers([
-        {
-          id: 'OFFER-1052',
-          order_id: 'NV-1052',
-          payout: 68,
-          pickupsCount: 1,
-          dropoffsCount: 1,
-          totalDistance: '2.1 km',
-          estTime: '18–22 min',
-          shops: [{ name: 'Sole Street', readyIn: 'Ready now', distance: '0.4 km', item: 'Two-strap sandal (UK 7)' }],
-          customer: { name: 'Meera N.', area: '12th Main, Indiranagar', distance: '1.7 km from shop' },
-          secondsRemaining: 28
-        },
-        {
-          id: 'OFFER-1051',
-          order_id: 'NV-1051',
-          payout: 76,
-          pickupsCount: 2,
-          dropoffsCount: 1,
-          totalDistance: '2.8 km',
-          estTime: '24–28 min',
-          shops: [
-            { name: 'Sole Street', readyIn: '2 min left', distance: '0.4 km', item: 'Canvas sneaker (UK 9)' },
-            { name: 'Urban Trendz', readyIn: 'Ready now', distance: '0.6 km', item: 'Heavyweight Tee (L)' }
-          ],
-          customer: { name: 'Aditya K.', area: 'HAL 2nd Stage', distance: '1.8 km from hub' },
-          secondsRemaining: 45
+      // Going ONLINE: Automatically detect & fetch real-time device GPS location
+      setRiderProfile(prev => ({ ...prev, is_online: true, is_locating: true }));
+      showToast('Acquiring real-time GPS location... 🛰️');
+
+      let detectedCoords = null;
+      let detectedAddr = riderProfile.current_address || '100ft Road, Indiranagar, Bengaluru';
+      let areaTitle = riderProfile.current_area || 'Indiranagar';
+
+      try {
+        const coords = await detectDeviceCoordinates({ timeout: 8000, enableHighAccuracy: true });
+        const geocoded = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+        detectedCoords = coords;
+        detectedAddr = geocoded?.fullAddress || geocoded?.area || detectedAddr;
+        areaTitle = geocoded?.area || geocoded?.city || areaTitle;
+
+        setRiderProfile(prev => ({
+          ...prev,
+          is_online: true,
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          current_address: detectedAddr,
+          current_area: areaTitle,
+          accuracy: coords.accuracy || 20,
+          is_locating: false,
+          last_location_updated: Date.now()
+        }));
+
+        showToast(`You are now Online in ${areaTitle}! Receiving nearby orders. ⚡`);
+      } catch (e) {
+        setRiderProfile(prev => ({ ...prev, is_online: true, is_locating: false }));
+        showToast("You are now Online and accepting orders.");
+      }
+
+      // Sync online state and GPS location with backend
+      const rLat = detectedCoords ? detectedCoords.latitude : (riderProfile.latitude || 12.9716);
+      const rLng = detectedCoords ? detectedCoords.longitude : (riderProfile.longitude || 77.6412);
+
+      toggleDeliveryPartnerOnlineApi(activePhone, true, {
+        latitude: rLat,
+        longitude: rLng,
+        current_address: detectedAddr,
+        accuracy: detectedCoords?.accuracy || 20
+      });
+
+      // Immediately fetch real nearby orders based on live GPS position
+      try {
+        const ordersRes = await fetchDeliveryOrdersApi({
+          rider_phone: activePhone,
+          lat: rLat,
+          lng: rLng
+        });
+        if (ordersRes && ordersRes.success && Array.isArray(ordersRes.offers)) {
+          setDeliveryOffers(ordersRes.offers);
         }
-      ]);
-      showToast("You are now Online and accepting orders.");
+      } catch (err) {}
+
     } else {
-      // Going OFFLINE: Clear all incoming offers (offline riders cannot receive orders)
+      // Going OFFLINE: Stop offers & pause duty
+      setRiderProfile(prev => ({ ...prev, is_online: false, is_locating: false }));
       setDeliveryOffers([]);
       showToast("Duty paused. You are now Offline.");
-    }
 
-    fetch('/api/partners/delivery/toggle-online', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: '+91 9876543210', is_online: nextState })
-    }).catch(() => {});
+      toggleDeliveryPartnerOnlineApi(activePhone, false, {});
+    }
   };
 
   const acceptRiderJob = (offerId) => {
@@ -1990,7 +2688,13 @@ export function NivvoAppProvider({ children }) {
       fetch('/api/partners/delivery/update-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: offer.order_id, action: 'accept', rider_phone: '+91 9876543210' })
+        body: JSON.stringify({
+          order_id: offer.order_id,
+          action: 'accept',
+          rider_phone: riderPhone,
+          rider_name: riderName,
+          rider_id: riderProfile?.partner_id || 'RDR-1082'
+        })
       }).catch(() => {});
     }
   };
@@ -2121,7 +2825,12 @@ export function NivvoAppProvider({ children }) {
     fetch('/api/partners/delivery/update-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order_id: currOrderId, action: newStage === 'arrived_dropoff' ? 'reached_shop' : newStage, rider_phone: '+91 9876543210' })
+      body: JSON.stringify({
+        order_id: currOrderId,
+        action: newStage === 'arrived_dropoff' ? 'arrived' : newStage,
+        rider_phone: riderProfile?.phone || '+91 98450 12345',
+        rider_name: riderProfile?.name || 'Ravi Kumar'
+      })
     }).catch(() => {});
   };
 
@@ -2197,7 +2906,12 @@ export function NivvoAppProvider({ children }) {
       fetch('/api/partners/delivery/update-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: currOrderId, action: 'deliver', otp: enteredPin, rider_phone: '+91 9876543210' })
+        body: JSON.stringify({
+          order_id: currOrderId,
+          action: 'deliver',
+          otp: enteredPin,
+          rider_phone: riderProfile?.phone || '+91 98450 12345'
+        })
       }).catch(() => {});
 
       return true;
@@ -2265,22 +2979,37 @@ export function NivvoAppProvider({ children }) {
     setShopProfile(prev => ({ ...prev, is_open: nextState }));
     showToast(nextState ? 'Store is online. Now accepting orders.' : 'Store is paused. Currently offline.');
 
+    const sellerPhone = shopProfile?.phone || currentUser?.phone || '+91 98450 67890';
     fetch('/api/partners/shop/toggle-open', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: '+91 9876543210', is_open: nextState })
+      body: JSON.stringify({ phone: sellerPhone, is_open: nextState })
     }).catch(() => {});
   };
 
   const updateShopProfileData = (updatedFields) => {
     playClickSound();
-    setShopProfile(prev => ({ ...prev, ...updatedFields }));
+    const effectivePhone = shopProfile?.phone || currentUser?.phone || '+91 98450 67890';
+    const effectiveEmail = shopProfile?.email || currentUser?.email || '';
+    const effectiveShopId = shopProfile?.shop_id || 'SHP-4012';
+
+    const merged = { ...shopProfile, ...updatedFields };
+    setShopProfile(merged);
     showToast('Store settings saved successfully.');
+
+    try {
+      localStorage.setItem('nivvo_shop_profile', JSON.stringify(merged));
+    } catch {}
 
     fetch('/api/partners/shop/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: '+91 9876543210', ...updatedFields })
+      body: JSON.stringify({ 
+        phone: effectivePhone,
+        email: effectiveEmail,
+        shop_id: effectiveShopId,
+        ...updatedFields 
+      })
     }).catch(() => {});
   };
 
@@ -2936,7 +3665,78 @@ export function NivvoAppProvider({ children }) {
       }
     ];
 
-    const targetShopName = orderItems[0]?.shop || 'Sole Street';
+    // 0. Dynamically resolve Nearest Eligible Shop based on Customer GPS Location & Item Affinity
+    const custLat = parseFloat(selectedAddress?.latitude) || 12.9716;
+    const custLng = parseFloat(selectedAddress?.longitude) || 77.6412;
+    const requestedItemShop = String(orderItems[0]?.shop || '').trim().toLowerCase();
+    const requestedItemName = String(orderItems[0]?.name || '').trim().toLowerCase();
+
+    const matchesStore = (s) => {
+      const sId = String(s.id || s.shop_id || '').toLowerCase();
+      const sName = String(s.name || s.shop_name || '').toLowerCase();
+      if (requestedItemShop && (sName.includes(requestedItemShop) || requestedItemShop.includes(sName) || sId.includes(requestedItemShop))) return true;
+      if (requestedItemName.includes('backpack') || requestedItemName.includes('bag') || requestedItemName.includes('tote')) {
+        if (sId.includes('carry') || sId.includes('tote') || sName.includes('carry') || sName.includes('tote') || (s.categories && s.categories.some(c => c.toLowerCase().includes('bag')))) return true;
+      }
+      if (requestedItemName.includes('sneaker') || requestedItemName.includes('shoe') || requestedItemName.includes('sandal')) {
+        if (sId.includes('sole') || sName.includes('sole') || (s.categories && s.categories.some(c => c.toLowerCase().includes('shoe') || c.toLowerCase().includes('sneaker')))) return true;
+      }
+      return false;
+    };
+
+    const evaluatedEligibleShops = (allShops || [])
+      .map(s => {
+        const sLat = parseFloat(s.latitude) || 12.9716;
+        const sLng = parseFloat(s.longitude) || 77.6412;
+        const dist = calculateDistance(custLat, custLng, sLat, sLng);
+        const radius = parseFloat(s.delivery_radius_km || s.delivery_radius) || 15;
+        const isMatch = matchesStore(s);
+        return {
+          ...s,
+          computedDistanceKm: dist !== null ? dist : 999,
+          isWithinRadius: dist !== null ? dist <= radius : true,
+          isBrandMatch: isMatch
+        };
+      })
+      .filter(s => s.is_open !== false);
+
+    // Priority 1: Matching brand store within 25 km of customer GPS
+    const matchingBrandEligible = evaluatedEligibleShops
+      .filter(s => s.isBrandMatch && s.computedDistanceKm <= 25)
+      .sort((a, b) => a.computedDistanceKm - b.computedDistanceKm);
+
+    // Priority 2: Nearest open eligible store within delivery radius (<= 25 km)
+    const nearestEligible = evaluatedEligibleShops
+      .filter(s => s.isWithinRadius && s.computedDistanceKm <= 25)
+      .sort((a, b) => a.computedDistanceKm - b.computedDistanceKm);
+
+    let nearestResolvedShop = null;
+    let targetShopDist = 0.8;
+
+    if (matchingBrandEligible.length > 0) {
+      nearestResolvedShop = matchingBrandEligible[0];
+      targetShopDist = nearestResolvedShop.computedDistanceKm;
+    } else if (nearestEligible.length > 0) {
+      nearestResolvedShop = nearestEligible[0];
+      targetShopDist = nearestResolvedShop.computedDistanceKm;
+    } else {
+      // Priority 3: Adaptive localized micro-hub in the customer's area
+      const localArea = selectedAddress?.area || selectedAddress?.title?.split('·')[1]?.trim() || selectedAddress?.city || 'Local Area';
+      const hubBrand = orderItems[0]?.shop || 'The Carry Co.';
+      nearestResolvedShop = {
+        id: `hub-${Math.abs(Math.round(custLat * 100))}`,
+        name: `${hubBrand} (${localArea} Hub)`,
+        latitude: custLat + 0.003,
+        longitude: custLng + 0.002,
+        computedDistanceKm: 0.6
+      };
+      targetShopDist = 0.6;
+    }
+
+    const targetShopName = nearestResolvedShop.name || nearestResolvedShop.shop_name || 'Sole Street';
+    const targetShopId = nearestResolvedShop.id || nearestResolvedShop.shop_id || 'sole-street';
+    const targetShopEta = calculateEta(targetShopDist);
+    const targetShopEtaMinutes = calculateEtaMinutes(targetShopDist);
 
     // Calculate split: Seller Original Payout vs Company 10% Commission
     const customerSubtotal = cartSubtotal || (orderItems[0].price * (orderItems[0].quantity || 1));
@@ -2968,8 +3768,11 @@ export function NivvoAppProvider({ children }) {
       paymentMethod: paymentMethodName,
       status: 'new',
       statusLabel: `Confirmed · Preparing at ${targetShopName}`,
-      etaText: 'In 12–18 mins',
-      etaMinutes: 14,
+      etaText: targetShopEta,
+      etaMinutes: targetShopEtaMinutes,
+      shop_id: targetShopId,
+      shop_name: targetShopName,
+      distance_km: targetShopDist,
       pin: '4829',
       pickupPin: '4812',
       customerPin: '4829',
@@ -2987,6 +3790,97 @@ export function NivvoAppProvider({ children }) {
     // 1. Add to customer orders list
     setOrders(prev => [customerOrderObj, ...prev]);
 
+    // 1B. Immediately initialize real-time live GPS tracking for the placed order
+    setLiveLocationTracking(prev => ({
+      ...prev,
+      orderId: newOrderId,
+      isActive: true,
+      progress: 0.05,
+      stepIndex: 0,
+      stepLabel: `Confirmed · Preparing at ${targetShopName}`,
+      subText: `${targetShopName} (${targetShopDist} km away) is packing your items in tamper-safe bag`,
+      distanceKm: targetShopDist,
+      etaMinutes: targetShopEtaMinutes,
+      speedKmph: 22,
+      pin: '4829',
+      pickupPin: '4812',
+      customerPin: '4829',
+      riderName: 'Ravi Kumar',
+      riderPhone: '+91 98450 12345',
+      origin: {
+        lat: parseFloat(nearestResolvedShop.latitude) || 12.9716,
+        lng: parseFloat(nearestResolvedShop.longitude) || 77.6412,
+        name: `${targetShopName} (${targetShopDist} km)`
+      }
+    }));
+
+    // 1C. Asynchronously persist order to backend with Customer GPS and Resolved Nearest Shop
+    createOrder({
+      order_id: newOrderId,
+      user_phone: custPhone,
+      customer_name: custRecipient,
+      items: orderItems,
+      grand_total: cartTotal || (customerSubtotal + cartDeliveryFee + cartPlatformFee),
+      payment_method: paymentMethodName,
+      payment_id: `PAY-${Date.now()}`,
+      address: custAddr,
+      customer_lat: custLat,
+      customer_lng: custLng,
+      dark_store: `${targetShopName} (${targetShopDist} km)`,
+      doorstep_trial_active: true,
+      shop_id: targetShopId,
+      shop_name: targetShopName
+    }).then(res => {
+      if (res && res.success && res.order) {
+        const backOrder = res.order;
+        const finalShopName = backOrder.shop_name || targetShopName;
+        const finalShopId = backOrder.shop_id || targetShopId;
+        const finalDist = parseFloat(backOrder.distance_km) || targetShopDist;
+        const finalEta = parseInt(backOrder.eta_minutes) || 12;
+
+        setLiveLocationTracking(prev => ({
+          ...prev,
+          distanceKm: finalDist,
+          etaMinutes: finalEta,
+          stepLabel: backOrder.status || prev.stepLabel,
+          subText: `${finalShopName} is preparing your items thoughtfully in tamper-safe packaging`,
+          origin: {
+            lat: parseFloat(backOrder.shop_lat) || nearestResolvedShop.latitude || 12.9716,
+            lng: parseFloat(backOrder.shop_lng) || nearestResolvedShop.longitude || 77.6412,
+            name: backOrder.dark_store || `${finalShopName} (${finalDist} km)`
+          }
+        }));
+
+        setOrders(prev => prev.map(o => {
+          if (o.id === newOrderId) {
+            return {
+              ...o,
+              shop_id: finalShopId,
+              shop_name: finalShopName,
+              statusLabel: `Confirmed · Preparing at ${finalShopName}`,
+              etaMinutes: finalEta,
+              etaText: `${finalEta}–${finalEta + 5} min`,
+              distance_km: finalDist
+            };
+          }
+          return o;
+        }));
+
+        setShopIncomingOrders(prev => prev.map(o => {
+          if (o.id === newOrderId) {
+            return {
+              ...o,
+              shopName: finalShopName,
+              shop_id: finalShopId
+            };
+          }
+          return o;
+        }));
+      }
+    }).catch(err => {
+      console.warn('Backend order persist fallback active:', err);
+    });
+
     // 2. Add directly to Seller's incoming orders (Kanban New column!)
     // Note: Seller gets 100% of their listed price (rawAmount / amount is sellerSubtotal)
     const sellerIncomingObj = {
@@ -2995,6 +3889,7 @@ export function NivvoAppProvider({ children }) {
       customer_phone: custPhone,
       customer_address: custAddr,
       shopName: targetShopName,
+      shop_id: targetShopId,
       item_name: orderItems[0].name,
       variant: orderItems[0].variant,
       fullItems: orderItems,
@@ -3161,10 +4056,16 @@ export function NivvoAppProvider({ children }) {
       appliedCoupon,
       applyCouponCode,
       removeCoupon,
-      // Addresses
+      // Addresses & Geolocation
       savedAddresses,
+      setSavedAddresses,
       selectedAddress,
       setSelectedAddress,
+      detectUserLocation,
+      isDetectingLocation,
+      locationPermissionStatus,
+      detectSellerShopLocation,
+      fetchSellerShopLocation,
       // Orders & Tracking
       orders,
       activeOrder: orders[0],
@@ -3225,6 +4126,7 @@ export function NivvoAppProvider({ children }) {
       riderTripsHistory,
       setRiderTripsHistory,
       toggleRiderDuty,
+      refreshRiderLocation,
       acceptRiderJob,
       declineRiderJob,
       advanceDeliveryStage,

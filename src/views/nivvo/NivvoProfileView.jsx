@@ -48,15 +48,26 @@ export default function NivvoProfileView({ onBack }) {
 
   // User Profile State
   const [profile, setProfile] = useState({
-    name: 'Aarav Shah',
-    email: 'aarav.shah@okaxis',
-    phone: '+91 98765 43210',
+    name: currentUser?.name || 'Aarav Shah',
+    email: currentUser?.email || 'aarav.shah@okaxis',
+    phone: currentUser?.phone || '+91 98765 43210',
     memberSince: 'October 2024',
     tier: 'Indiranagar Club Member',
     soundEnabled: true,
     whatsappUpdates: true,
     twoFactorAuth: true
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfile((prev) => ({
+        ...prev,
+        name: currentUser.name || prev.name,
+        email: currentUser.email || prev.email,
+        phone: currentUser.phone || prev.phone
+      }));
+    }
+  }, [currentUser]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({ ...profile });

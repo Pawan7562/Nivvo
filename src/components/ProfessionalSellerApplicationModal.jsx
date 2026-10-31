@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { 
   X, Check, Building2, Store, FileText, Landmark, ShieldCheck, 
   ArrowRight, ArrowLeft, Clock, MapPin, Phone, Mail, HelpCircle, 
-  Sparkles, CheckCircle2, Download, ExternalLink, AlertCircle
+  Sparkles, CheckCircle2, Download, ExternalLink, AlertCircle,
+  Navigation, Loader2
 } from 'lucide-react';
 import { playClickSound, playTrialSound } from '../utils/audioEffects';
 import { registerShopPartnerApi } from '../services/api';
+import { detectDeviceCoordinates, reverseGeocodeCoords } from '../services/locationService';
 
 const CATEGORIES = [
   { id: 'fashion', label: 'Fashion, Apparel & Boutique Wear' },
@@ -32,6 +34,9 @@ export default function ProfessionalSellerApplicationModal({ isOpen, onClose, on
   const [submitting, setSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
 
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
+  const [gpsLocked, setGpsLocked] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     // Step 1: Store & Identity
@@ -39,12 +44,14 @@ export default function ProfessionalSellerApplicationModal({ isOpen, onClose, on
     legal_entity_name: '',
     entity_type: 'Sole Proprietorship',
     category: 'Fashion, Apparel & Boutique Wear',
-    address: '100ft Road, HAL 2nd Stage',
+    address: '',
     city: 'Bengaluru',
     state: 'Karnataka',
-    pincode: '560038',
+    pincode: '',
     operating_hours: '10:00 AM – 09:30 PM',
     store_contact_phone: '',
+    latitude: 12.9716,
+    longitude: 77.6412,
     
     // Step 2: Regulatory & Tax
     gstin: '',
@@ -100,6 +107,31 @@ export default function ProfessionalSellerApplicationModal({ isOpen, onClose, on
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
+  };
+
+  const handleDetectStoreGps = async () => {
+    playClickSound();
+    setIsDetectingGps(true);
+    try {
+      const coords = await detectDeviceCoordinates({ timeout: 9000, enableHighAccuracy: true });
+      const address = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+      const formatted = address.fullAddress || `${address.street || 'Store Street'}, ${address.area || 'Commercial Area'}`;
+      setFormData(prev => ({
+        ...prev,
+        address: formatted,
+        city: address.city || prev.city,
+        state: address.state || prev.state,
+        pincode: address.pincode || prev.pincode,
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      }));
+      setGpsLocked(true);
+      if (errors.address) setErrors(prev => ({ ...prev, address: null }));
+    } catch (err) {
+      console.warn('Store GPS detection failed:', err);
+    } finally {
+      setIsDetectingGps(false);
+    }
   };
 
   const handleNext = () => {
@@ -537,23 +569,84 @@ Platform Benefits Assigned:
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#24452D', display: 'block', marginBottom: '6px' }}>
-                      Full Physical Store Address (Door / Road / Landmark) *
-                    </label>
-                    <input 
-                      type="text"
-                      placeholder="e.g. #482, 100ft Road, Opposite 12th Main Junction, Indiranagar"
-                      value={formData.address}
-                      onChange={e => setFormData({ ...formData, address: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        borderRadius: '10px',
-                        border: errors.address ? '1.5px solid #DC2626' : '1px solid #E7EAE3',
-                        fontSize: '14px',
-                        outline: 'none'
-                      }}
-                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#24452D', margin: 0 }}>
+                        Full Physical Store Address (Door / Road / Landmark) *
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleDetectStoreGps}
+                        disabled={isDetectingGps}
+                        style={{
+                          background: gpsLocked ? '#EBF4EC' : '#24452D',
+                          color: gpsLocked ? '#24452D' : '#B7F34A',
+                          border: gpsLocked ? '1px solid #C5D7C0' : 'none',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          cursor: isDetectingGps ? 'wait' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        {isDetectingGps ? (
+                          <>
+                            <Loader2 size={11} className="nivvo-spin" />
+                            <span>Detecting GPS...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Navigation size={11} />
+                            <span>{gpsLocked ? 'Re-detect Store GPS' : '📍 Auto-Detect Store GPS'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input 
+                        type="text"
+                        placeholder="e.g. #482, 100ft Road, Opposite 12th Main Junction, Indiranagar"
+                        value={formData.address}
+                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                        style={{
+                          width: '100%',
+                          boxSizing: 'border-box',
+                          padding: '12px 14px',
+                          paddingRight: gpsLocked ? '110px' : '14px',
+                          borderRadius: '10px',
+                          border: errors.address ? '1.5px solid #DC2626' : '1px solid #E7EAE3',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                      />
+                      {gpsLocked && (
+                        <div style={{
+                          position: 'absolute',
+                          right: '8px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: '#DCFCE7',
+                          color: '#15803D',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <Check size={12} />
+                          <span>GPS Locked</span>
+                        </div>
+                      )}
+                    </div>
+                    {gpsLocked && (
+                      <span style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+                        ✓ Locked to coordinates: {formData.latitude.toFixed(4)}°N, {formData.longitude.toFixed(4)}°E
+                      </span>
+                    )}
                     {errors.address && <span style={{ fontSize: '11px', color: '#DC2626', marginTop: '4px', display: 'block' }}>{errors.address}</span>}
                   </div>
 

@@ -307,7 +307,7 @@ export default function NivvoHomeView({
   onNavigateToShops,
   onExploreFootwear
 }) {
-  const { cart, addToCart, updateCartQuantity, totalCartCount, cartTotal, navigateTo, showToast } = useNivvo();
+  const { cart, addToCart, updateCartQuantity, totalCartCount, cartTotal, navigateTo, showToast, selectedAddress, allShops } = useNivvo();
 
   // Combined product section active filter
   const [selectedCombCategory, setSelectedCombCategory] = useState('all');
@@ -378,10 +378,10 @@ export default function NivvoHomeView({
           <span className="nivvo-pulse-dot" style={{ backgroundColor: '#B7F34A' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ fontWeight: 800, letterSpacing: '0.04em', fontSize: '11px', textTransform: 'uppercase', color: '#FFFFFF' }}>
-              12–18 Min Delivery
+              {allShops?.[0]?.eta || '10–15 Min'} Delivery
             </span>
             <span style={{ opacity: 0.6, color: '#FFFFFF' }}>·</span>
-            <span style={{ color: '#C5D7C0', fontSize: '11px', fontWeight: 600 }}>Indiranagar</span>
+            <span style={{ color: '#C5D7C0', fontSize: '11px', fontWeight: 600 }}>{selectedAddress?.area || 'Indiranagar'}</span>
           </div>
         </div>
         <div 
@@ -389,7 +389,7 @@ export default function NivvoHomeView({
           style={{ color: '#B7F34A', fontWeight: 700, fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
         >
           <Store size={13} strokeWidth={2.4} color="#B7F34A" />
-          <span>42 Verified Stores</span>
+          <span>{allShops?.length || 10} Nearby Stores</span>
           <ChevronRight size={13} color="#B7F34A" />
         </div>
       </div>

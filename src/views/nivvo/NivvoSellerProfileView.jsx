@@ -16,17 +16,19 @@ export default function NivvoSellerProfileView({ onBack }) {
     setShopProfile, 
     updateShopProfileData, 
     toggleShopAvailability, 
+    detectSellerShopLocation,
     showToast 
   } = useNivvo();
 
   const [activeSection, setActiveSection] = useState('general'); // 'general' | 'location' | 'operations' | 'compliance' | 'preview'
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isDetectingShopGps, setIsDetectingShopGps] = useState(false);
 
   // ─── Editable Form State ───
   const [shopName, setShopName] = useState(shopProfile?.shop_name || 'Sole Street Originals');
   const [tagline, setTagline] = useState('Your neighbourhood handcrafted footwear & sneaker specialist');
   const [ownerName, setOwnerName] = useState(shopProfile?.owner_name || 'Rohan Sharma');
-  const [phone, setPhone] = useState(shopProfile?.phone || '+91 9876543210');
+  const [phone, setPhone] = useState(shopProfile?.phone || '+91 98450 67890');
   const [email, setEmail] = useState(shopProfile?.email || 'rohan@solestreet.in');
   const [category, setCategory] = useState(shopProfile?.category || 'Footwear, Sneakers & Accessories');
   const [description, setDescription] = useState(
@@ -35,12 +37,53 @@ export default function NivvoSellerProfileView({ onBack }) {
 
   // Location state
   const [address, setAddress] = useState(shopProfile?.address || 'Plot 42, 100ft Road, Indiranagar, Bengaluru');
-  const [landmark, setLandmark] = useState('Near 12th Main Junction, Opp Starbucks');
+  const [landmark, setLandmark] = useState(shopProfile?.landmark || 'Near 12th Main Junction, Opp Starbucks');
   const [city, setCity] = useState(shopProfile?.city || 'Bengaluru');
   const [state, setState] = useState(shopProfile?.state || 'Karnataka');
   const [pincode, setPincode] = useState(shopProfile?.pincode || '560038');
-  const [hubName, setHubName] = useState('Indiranagar Cluster Hub #14');
-  const [deliveryRadius, setDeliveryRadius] = useState(3.5);
+  const [hubName, setHubName] = useState(shopProfile?.hub_name || 'Indiranagar Cluster Hub #14');
+  const [deliveryRadius, setDeliveryRadius] = useState(shopProfile?.delivery_radius || 3.5);
+  const [latitude, setLatitude] = useState(shopProfile?.latitude || 12.9716);
+  const [longitude, setLongitude] = useState(shopProfile?.longitude || 77.6412);
+
+  // Re-synchronize when shopProfile updates
+  React.useEffect(() => {
+    if (shopProfile) {
+      if (shopProfile.shop_name) setShopName(shopProfile.shop_name);
+      if (shopProfile.owner_name) setOwnerName(shopProfile.owner_name);
+      if (shopProfile.phone) setPhone(shopProfile.phone);
+      if (shopProfile.email) setEmail(shopProfile.email);
+      if (shopProfile.category) setCategory(shopProfile.category);
+      if (shopProfile.address) setAddress(shopProfile.address);
+      if (shopProfile.city) setCity(shopProfile.city);
+      if (shopProfile.state) setState(shopProfile.state);
+      if (shopProfile.pincode) setPincode(shopProfile.pincode);
+      if (shopProfile.landmark) setLandmark(shopProfile.landmark);
+      if (shopProfile.latitude) setLatitude(shopProfile.latitude);
+      if (shopProfile.longitude) setLongitude(shopProfile.longitude);
+      if (shopProfile.delivery_radius) setDeliveryRadius(shopProfile.delivery_radius);
+    }
+  }, [shopProfile]);
+
+  const handleDetectShopGps = async () => {
+    setIsDetectingShopGps(true);
+    try {
+      const res = await detectSellerShopLocation();
+      if (res?.success && res.location) {
+        setAddress(res.location.address || address);
+        setCity(res.location.city || city);
+        setState(res.location.state || state);
+        setPincode(res.location.pincode || pincode);
+        setLandmark(res.location.landmark || landmark);
+        setHubName(res.location.hub_name || hubName);
+        setLatitude(res.location.latitude || latitude);
+        setLongitude(res.location.longitude || longitude);
+        markDirty();
+      }
+    } finally {
+      setIsDetectingShopGps(false);
+    }
+  };
 
   // Operations state
   const [operatingHours, setOperatingHours] = useState(shopProfile?.operating_hours || '08:00 AM - 11:30 PM');
@@ -75,9 +118,14 @@ export default function NivvoSellerProfileView({ onBack }) {
       email,
       category,
       address,
+      landmark,
       city,
       state,
       pincode,
+      hub_name: hubName,
+      delivery_radius: deliveryRadius,
+      latitude: parseFloat(latitude) || 12.9716,
+      longitude: parseFloat(longitude) || 77.6412,
       operating_hours: operatingHours,
       prep_time_minutes: prepTime,
       gstin,
@@ -763,6 +811,57 @@ export default function NivvoSellerProfileView({ onBack }) {
               <p style={{ fontSize: '13px', color: '#687163', margin: '4px 0 0 0' }}>
                 Storefront coordinates and courier coverage radius.
               </p>
+            </div>
+
+            {/* Automatic Storefront GPS Detection Banner */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 20px',
+              borderRadius: '16px',
+              backgroundColor: '#F0FDF4',
+              border: '1.5px solid #24452D',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ fontSize: '14.5px', fontWeight: 800, color: '#14281C', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Navigation size={17} color="#24452D" />
+                  Storefront Live GPS Detection
+                </div>
+                <div style={{ fontSize: '12.5px', color: '#4B5563', marginTop: '3px' }}>
+                  {latitude && longitude ? (
+                    <span style={{ color: '#15803D', fontWeight: 700 }}>
+                      ✓ GPS Pinpoint: {Number(latitude).toFixed(4)}° N, {Number(longitude).toFixed(4)}° E · Hub: {hubName}
+                    </span>
+                  ) : (
+                    'Detect accurate storefront coordinates for rapid 10-minute dispatch matching.'
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleDetectShopGps}
+                disabled={isDetectingShopGps}
+                style={{
+                  backgroundColor: '#24452D',
+                  color: '#B7F34A',
+                  border: 'none',
+                  padding: '10px 18px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  cursor: isDetectingShopGps ? 'wait' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 8px rgba(36, 69, 45, 0.2)'
+                }}
+              >
+                {isDetectingShopGps ? <RefreshCw size={15} className="nivvo-spin" /> : <Navigation size={15} />}
+                <span>{isDetectingShopGps ? 'Detecting Store Location...' : 'Auto-Detect Shop Location'}</span>
+              </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>

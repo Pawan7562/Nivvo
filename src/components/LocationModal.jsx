@@ -1,6 +1,7 @@
-import React from 'react';
-import { X, MapPin, Navigation, Home, Briefcase, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, MapPin, Navigation, Home, Briefcase, Check, Loader2, AlertCircle } from 'lucide-react';
 import { SAVED_LOCATIONS } from '../data/fashionData';
+import { detectDeviceCoordinates, reverseGeocodeCoords, METRO_DELIVERY_HUBS } from '../services/locationService';
 
 const LOCATION_ICONS = {
   Home,
@@ -9,11 +10,39 @@ const LOCATION_ICONS = {
 };
 
 export default function LocationModal({ isOpen, onClose, selectedLocation, onSelectLocation }) {
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   if (!isOpen) return null;
+
+  const handleUseGps = async () => {
+    setIsDetecting(true);
+    setErrorMsg('');
+    try {
+      const coords = await detectDeviceCoordinates({ timeout: 10000, enableHighAccuracy: true });
+      const address = await reverseGeocodeCoords(coords.latitude, coords.longitude, '/api');
+      onSelectLocation({
+        id: address.id || 'gps-current',
+        tag: 'Live GPS Pin',
+        shortAddress: `${address.area}, ${address.city}`,
+        fullAddress: address.fullAddress,
+        darkStore: address.darkStore,
+        eta: address.eta,
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      });
+      onClose();
+    } catch (err) {
+      console.warn('GPS location detection failed:', err);
+      setErrorMsg(err.message || 'Unable to detect location. Please select an area manually.');
+    } finally {
+      setIsDetecting(false);
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
         <div className="modal-header">
           <h3>
             <MapPin size={20} color="#0C831F" />
@@ -32,34 +61,86 @@ export default function LocationModal({ isOpen, onClose, selectedLocation, onSel
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              padding: '12px 14px',
-              borderRadius: '10px',
+              padding: '13px 15px',
+              borderRadius: '12px',
               border: '1.5px solid #0C831F',
               background: '#F0FDF4',
               color: '#0C831F',
               fontWeight: 800,
-              fontSize: '13px',
-              marginBottom: '16px',
-              cursor: 'pointer'
+              fontSize: '13.5px',
+              marginBottom: '12px',
+              cursor: isDetecting ? 'wait' : 'pointer'
             }}
-            onClick={() => {
-              onSelectLocation({
-                id: 'gps-current',
-                tag: 'Current Location',
-                shortAddress: '100 Feet Rd, Indiranagar (Detected via GPS)',
-                fullAddress: 'Live GPS Pin: 100 Feet Road, Near Metro Pillar #82, Indiranagar, Bengaluru',
-                darkStore: 'Indiranagar Hub #14 (0.4 km)',
-                eta: '7-9 mins'
-              });
-              onClose();
-            }}
+            onClick={handleUseGps}
+            disabled={isDetecting}
           >
-            <Navigation size={18} />
-            <span>Use Current Live GPS Location</span>
-            <span style={{ marginLeft: 'auto', fontSize: '11px', background: '#0C831F', color: '#FFF', padding: '2px 8px', borderRadius: '4px' }}>
-              8 MINS
+            {isDetecting ? (
+              <Loader2 size={18} className="nivvo-spin" />
+            ) : (
+              <Navigation size={18} />
+            )}
+            <span>{isDetecting ? 'Detecting Precise GPS Location...' : 'Use Current Live GPS Location'}</span>
+            <span style={{ marginLeft: 'auto', fontSize: '11px', background: '#0C831F', color: '#FFF', padding: '3px 8px', borderRadius: '5px' }}>
+              8–10 MINS
             </span>
           </button>
+
+          {errorMsg && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              background: '#FEF2F2',
+              border: '1px solid #FCA5A5',
+              borderRadius: '8px',
+              color: '#B91C1C',
+              fontSize: '12px',
+              marginBottom: '12px'
+            }}>
+              <AlertCircle size={15} />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {/* Popular Neighbourhood Hubs */}
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>
+              Fastest Verified Hubs (10 Mins)
+            </div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {METRO_DELIVERY_HUBS.map(hub => (
+                <button
+                  key={hub.id}
+                  onClick={() => {
+                    onSelectLocation({
+                      id: hub.id,
+                      tag: hub.area,
+                      shortAddress: `${hub.area}, Bengaluru`,
+                      fullAddress: hub.fullAddress,
+                      darkStore: hub.darkStore,
+                      eta: hub.eta,
+                      latitude: hub.latitude,
+                      longitude: hub.longitude
+                    });
+                    onClose();
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '999px',
+                    border: '1px solid #E2E8F0',
+                    background: '#F8FAFC',
+                    color: '#334155',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  📍 {hub.area}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div style={{ fontSize: '12px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>
             Saved Delivery Addresses
@@ -68,7 +149,7 @@ export default function LocationModal({ isOpen, onClose, selectedLocation, onSel
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {SAVED_LOCATIONS.map((loc) => {
               const IconComp = LOCATION_ICONS[loc.tag] || Home;
-              const isSelected = selectedLocation.id === loc.id;
+              const isSelected = selectedLocation?.id === loc.id || selectedLocation?.tag === loc.tag;
 
               return (
                 <div

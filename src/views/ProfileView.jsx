@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
   ChevronRight, 
@@ -34,6 +34,13 @@ export default function ProfileView({
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user?.name || 'Aditya Verma');
   const [email, setEmail] = useState(user?.email || 'aditya.verma@example.com');
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setName(user.name);
+      if (user.email) setEmail(user.email);
+    }
+  }, [user]);
   const [heightCm, setHeightCm] = useState(178);
   const [weightKg, setWeightKg] = useState(74);
   const [fitPreference, setFitPreference] = useState('regular');

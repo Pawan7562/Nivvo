@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
   ArrowLeft, ShoppingBag, Phone, MessageSquare, Check, HelpCircle, 
@@ -9,6 +9,7 @@ import {
 import { playClickSound, playTrialSound, playAddSound } from '../../utils/audioEffects';
 import { downloadReceiptPdf } from '../../utils/receiptGenerator';
 import LiveGpsMapTracker from '../../components/LiveGpsMapTracker';
+import { fetchOrderTrackingApi, advanceOrderStepApi } from '../../services/api';
 
 export default function NivvoLiveTrackingView({
   onBack,
@@ -40,6 +41,13 @@ export default function NivvoLiveTrackingView({
   // Currently Selected Order to Track (defaults to activeOrder.id or first order)
   const [selectedOrderId, setSelectedOrderId] = useState(activeOrder?.id || orders[0]?.id || 'NV-1048');
 
+  // Synchronize selectedOrderId whenever activeOrder changes
+  useEffect(() => {
+    if (activeOrder?.id && activeOrder.id !== selectedOrderId) {
+      setSelectedOrderId(activeOrder.id);
+    }
+  }, [activeOrder?.id]);
+
   // Modals state
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -61,6 +69,52 @@ export default function NivvoLiveTrackingView({
   const [deliveryStep, setDeliveryStep] = useState(2);
   const effectiveStep = (liveLocationTracking?.stepIndex !== undefined) ? liveLocationTracking.stepIndex : deliveryStep;
 
+  // Real-time backend live GPS tracking sync
+  useEffect(() => {
+    const currentId = selectedOrderId || activeOrder?.id || 'NV-1048';
+    if (!currentId) return;
+
+    let isMounted = true;
+    const fetchLiveUpdates = async () => {
+      try {
+        const data = await fetchOrderTrackingApi(currentId);
+        if (isMounted && data && data.tracking) {
+          const t = data.tracking;
+          if (typeof t.stepIndex === 'number' && t.stepIndex >= 0) {
+            setDeliveryStep(t.stepIndex);
+          }
+          if (setLiveLocationTracking) {
+            setLiveLocationTracking(prev => ({
+              ...prev,
+              orderId: currentId,
+              isActive: t.stepIndex >= 0 && t.stepIndex <= 3,
+              stepIndex: t.stepIndex,
+              stepLabel: t.stepLabel,
+              subText: t.subText,
+              progress: t.progress,
+              distanceKm: t.distanceKm,
+              etaMinutes: t.etaMinutes,
+              speedKmph: t.speedKmph,
+              riderLat: t.riderLat,
+              riderLng: t.riderLng,
+              pin: t.pin,
+              tryOnSecondsRemaining: t.tryOnSecondsRemaining,
+              riderName: t.rider?.name || prev?.riderName,
+              riderPhone: t.rider?.phone || prev?.riderPhone
+            }));
+          }
+        }
+      } catch (e) {}
+    };
+
+    fetchLiveUpdates();
+    const interval = setInterval(fetchLiveUpdates, 3500);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [selectedOrderId, activeOrder?.id, setLiveLocationTracking]);
+
   const steps = [
     { title: 'Confirmed & Preparing', subtitle: 'Sole Street Indiranagar is packing your items in tamper-safe bag', time: '2:34 pm' },
     { title: 'Package Sealed & Ready', subtitle: 'Sole Street verified and staged package for courier pickup', time: '2:46 pm' },
@@ -68,7 +122,7 @@ export default function NivvoLiveTrackingView({
     { title: 'Arrived at Maple Court', subtitle: 'Ready for 10-minute doorstep try-on & handover verification', time: '2:56 pm' }
   ];
 
-  const advanceDeliveryStep = () => {
+  const advanceDeliveryStep = async () => {
     playTrialSound();
     const nextStep = (effectiveStep + 1) % steps.length;
     setDeliveryStep(nextStep);
@@ -83,6 +137,10 @@ export default function NivvoLiveTrackingView({
       }));
     }
     showToast(`Order status updated: ${steps[nextStep].title}`);
+    try {
+      const currentId = selectedOrderId || activeOrder?.id || 'NV-1048';
+      await advanceOrderStepApi(currentId, nextStep);
+    } catch (e) {}
   };
 
   const formatTryOnTime = (totalSecs) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/customer-portal.css';
 import { useNivvo } from '../../context/NivvoAppContext';
 import { 
@@ -53,6 +53,17 @@ export default function NivvoWebCustomerPortal({ onBack }) {
     shoeSize: 'UK 9',
     autoTrialPairing: true
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfile((prev) => ({
+        ...prev,
+        name: currentUser.name || prev.name,
+        email: currentUser.email || prev.email,
+        phone: currentUser.phone || prev.phone
+      }));
+    }
+  }, [currentUser]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({ ...profile });

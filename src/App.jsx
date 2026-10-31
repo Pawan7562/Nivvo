@@ -40,9 +40,10 @@ import NivvoAdminFinanceView from './views/nivvo/NivvoAdminFinanceView';
 import NivvoBrandSystemView from './views/nivvo/NivvoBrandSystemView';
 import NivvoProfileView from './views/nivvo/NivvoProfileView';
 import NivvoWebCustomerPortal from './views/nivvo/NivvoWebCustomerPortal';
+import NivvoWebHeader from './components/NivvoWebHeader';
 
 import { NIVVO_PRODUCTS, NIVVO_SHOPS } from './data/nivvoData';
-import { ShoppingBag, ChevronDown, Search, Home, Store, Package, User, Smartphone, Tablet, Monitor, Bell, Heart, Bike, Zap, TrendingUp, RotateCcw, HelpCircle, Menu, LayoutGrid, Wifi, Battery, MapPin, X, Mic } from 'lucide-react';
+import { ShoppingBag, ChevronDown, Search, Home, Store, Package, User, Smartphone, Tablet, Monitor, Bell, Heart, Bike, Zap, TrendingUp, RotateCcw, HelpCircle, Menu, LayoutGrid, Wifi, Battery, MapPin, X, Mic, Loader2, Navigation } from 'lucide-react';
 import { playClickSound } from './utils/audioEffects';
 
 function AppContent() {
@@ -59,6 +60,8 @@ function AppContent() {
     totalCartCount,
     unreadNotificationCount,
     selectedAddress,
+    isDetectingLocation,
+    detectUserLocation,
     setActiveModal,
     searchQuery,
     setSearchQuery,
@@ -158,6 +161,14 @@ function AppContent() {
 
   const isRiderActive = appMode === 'rider' || currentScreen.startsWith('rider-');
 
+  const isCurrentSellerApproved = 
+    currentUser?.verification_status?.toLowerCase() === 'approved' ||
+    shopProfile?.verification_status?.toLowerCase() === 'approved';
+
+  const isCurrentRiderApproved = 
+    currentUser?.verification_status?.toLowerCase() === 'approved' ||
+    riderProfile?.verification_status?.toLowerCase() === 'approved';
+
   const searchPlaceholders = [
     "Search for sneakers, t-shirts, cosmetics...",
     "Search for jewellery, watches, kurtis...",
@@ -181,11 +192,62 @@ function AppContent() {
 
   return (
     <div>
-      {/* Main Full-Width Responsive Viewport */}
-      <div className="nivvo-app-viewport mode-web-portal">
+      {/* Simulator Switcher Banner when in App Simulator Mode on Desktop */}
+      {platformMode === 'app' && (
+        <div style={{
+          backgroundColor: '#1E293B',
+          color: '#F8FAFC',
+          padding: '8px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '12px',
+          fontWeight: 600,
+          borderBottom: '1px solid #334155',
+          zIndex: 100
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Smartphone size={16} color="#B7F34A" />
+            <span>📱 Nivvo Mobile App Simulator ({appMode === 'rider' ? 'Delivery Fleet Partner Mode' : 'Customer 10-Min Try-On Mode'})</span>
+          </div>
+          <button
+            onClick={() => {
+              playClickSound();
+              switchToWebMode();
+            }}
+            style={{
+              backgroundColor: '#B7F34A',
+              color: '#14281C',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '5px 14px',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>🌐 Switch to Desktop Website</span>
+          </button>
+        </div>
+      )}
 
-        {/* Home Screen Header (Clean Modern 2-Row Architecture) */}
-        {currentScreen === 'home' && (
+      {/* Main Full-Width Responsive Viewport */}
+      <div className={`nivvo-app-viewport ${platformMode === 'web' ? 'mode-web-portal' : 'mode-mobile'}`}>
+
+        {/* Website Platform Header: Rendered across all customer web screens */}
+        {platformMode === 'web' && [
+          'home', 'categories', 'sneakers', 'shops', 'shop-detail', 
+          'product-detail', 'bag', 'checkout', 'tracking', 
+          'grocery', 'food', 'brand'
+        ].includes(currentScreen) && (
+          <NivvoWebHeader />
+        )}
+
+        {/* Mobile App Home Header (Clean Modern 2-Row Architecture) */}
+        {platformMode === 'app' && currentScreen === 'home' && (
           <div className="nivvo-master-header" style={{ padding: '6px 14px 10px 14px', borderBottom: '1px solid #E7EAE3' }}>
             {/* Row 1: Brand Logo, Location Selector, Notifications & Bag */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
@@ -211,23 +273,45 @@ function AppContent() {
                   style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '3px', 
+                    gap: '4px', 
                     cursor: 'pointer',
                     fontSize: '12px',
                     fontWeight: 700,
                     color: '#24452D',
-                    minWidth: 0
+                    minWidth: 0,
+                    padding: '2px 6px',
+                    borderRadius: '8px',
+                    backgroundColor: isDetectingLocation ? '#F0FDF4' : 'transparent',
+                    transition: 'all 0.2s'
                   }}
-                  title="Change delivery location"
+                  title="Live delivery location - Click to change"
                 >
-                  <MapPin size={12} color="#24452D" style={{ flexShrink: 0 }} />
+                  {isDetectingLocation ? (
+                    <Loader2 size={12} className="nivvo-spin" color="#15803D" style={{ flexShrink: 0 }} />
+                  ) : (
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <MapPin size={12} color="#24452D" style={{ flexShrink: 0 }} />
+                      {selectedAddress?.isLiveGps && (
+                        <span style={{
+                          position: 'absolute',
+                          top: -1,
+                          right: -2,
+                          width: '5px',
+                          height: '5px',
+                          borderRadius: '50%',
+                          backgroundColor: '#22C55E',
+                          boxShadow: '0 0 4px #22C55E'
+                        }} />
+                      )}
+                    </div>
+                  )}
                   <span style={{ 
                     overflow: 'hidden', 
                     textOverflow: 'ellipsis', 
                     whiteSpace: 'nowrap', 
                     maxWidth: '85px'
                   }}>
-                    {selectedAddress?.title?.split('·')[0]?.trim() || selectedAddress?.area || 'Home'}
+                    {isDetectingLocation ? 'Locating...' : (selectedAddress?.title?.split('·')[0]?.trim() || selectedAddress?.area || 'Indiranagar')}
                   </span>
                   <ChevronDown size={11} color="#73796F" style={{ flexShrink: 0 }} />
                 </div>
@@ -597,7 +681,7 @@ function AppContent() {
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'shops' && (
             <NivvoShopsView 
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
+              onBack={() => navigateTo('home')}
               onOpenCart={() => navigateTo('bag')}
               onSelectShop={(shop) => navigateTo('shop-detail')}
             />
@@ -617,7 +701,7 @@ function AppContent() {
           {(platformMode === 'app' || platformMode === 'web') && (currentScreen === 'categories' || currentScreen === 'sneakers') && (
             <NivvoCategoryView 
               initialCategory={currentScreen === 'sneakers' ? 'footwear' : (selectedCategory || 'all')}
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
+              onBack={() => navigateTo('home')}
               onOpenCart={() => navigateTo('bag')}
               onSelectProduct={(prod) => {
                 setSelectedProduct(prod);
@@ -629,14 +713,14 @@ function AppContent() {
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'product-detail' && (
             <NivvoProductDetailView 
               product={selectedProduct}
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'categories')}
+              onBack={() => navigateTo('categories')}
               onOpenCart={() => navigateTo('bag')}
             />
           )}
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'bag' && (
             <NivvoBagView 
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
+              onBack={() => navigateTo('home')}
               onProceedToCheckout={() => navigateTo('checkout')}
             />
           )}
@@ -650,7 +734,7 @@ function AppContent() {
 
           {(platformMode === 'app' || platformMode === 'web') && currentScreen === 'tracking' && (
             <NivvoLiveTrackingView 
-              onBack={() => navigateTo(platformMode === 'web' ? 'landing' : 'home')}
+              onBack={() => navigateTo('home')}
             />
           )}
 
@@ -690,7 +774,7 @@ function AppContent() {
                   </button>
                 </div>
               </div>
-            ) : currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
+            ) : currentUser?.role === 'seller' && !isCurrentSellerApproved ? (
               <ApplicationStatusView 
                 role="seller"
                 user={currentUser}
@@ -711,7 +795,7 @@ function AppContent() {
           )}
 
           {platformMode === 'web' && currentScreen === 'seller-prods' && (
-            currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
+            currentUser?.role === 'seller' && !isCurrentSellerApproved ? (
               <ApplicationStatusView 
                 role="seller"
                 user={currentUser}
@@ -732,7 +816,7 @@ function AppContent() {
           )}
 
           {platformMode === 'web' && currentScreen === 'seller-orders' && (
-            currentUser?.role === 'seller' && (currentUser?.verification_status || shopProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
+            currentUser?.role === 'seller' && !isCurrentSellerApproved ? (
               <ApplicationStatusView 
                 role="seller"
                 user={currentUser}
@@ -778,7 +862,7 @@ function AppContent() {
 
           {/* Delivery Partner Screens (12 to 14) - Handled Exclusively in Mobile App */}
           {platformMode === 'app' && currentScreen === 'rider-duty' && (
-            currentUser?.role === 'rider' && (currentUser?.verification_status || riderProfile?.verification_status)?.toLowerCase() !== 'approved' ? (
+            currentUser?.role === 'rider' && !isCurrentRiderApproved ? (
               <ApplicationStatusView 
                 role="rider"
                 user={currentUser}

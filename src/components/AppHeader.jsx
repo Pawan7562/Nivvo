@@ -125,7 +125,9 @@ export default function AppHeader({
           </div>
           <div className="nivvo-deliver-tag">DELIVERING TO</div>
           <div className="nivvo-address-row">
-            <span className="address-full-text">Home · Indiranagar ⌄ Bengaluru</span>
+            <span className="address-full-text">
+              {selectedLocation?.tag ? `${selectedLocation.tag} · ${selectedLocation.shortAddress || selectedLocation.title || selectedLocation.area || 'Indiranagar'}` : 'Home · Indiranagar ⌄ Bengaluru'}
+            </span>
           </div>
         </div>
 
